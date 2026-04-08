@@ -1,0 +1,562 @@
+me sig<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Google Places — Catálogo completo de types (Tabla A)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; font-size: 13px; }
+
+  header {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    color: white; padding: 1.2rem 2rem;
+  }
+  header h1 { font-size: 1.25rem; margin-bottom: .3rem; }
+  header p  { font-size: .8rem; opacity: .7; }
+
+  .info-bar {
+    background: white; padding: .7rem 2rem;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: .8rem; color: #555;
+    display: flex; gap: 2rem; flex-wrap: wrap; align-items: center;
+  }
+  .badge-info {
+    display: inline-block; padding: .15rem .5rem;
+    border-radius: 10px; font-size: .75rem; font-weight: 600;
+    margin-right: .3rem;
+  }
+  .badge-si  { background: #d4edda; color: #155724; }
+  .badge-no  { background: #f8d7da; color: #721c24; }
+  .badge-new { background: #fff3cd; color: #856404; }
+
+  .controls {
+    background: white; padding: .8rem 2rem;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex; gap: .4rem; flex-wrap: wrap; align-items: center;
+  }
+  .controls label { font-size: .82rem; font-weight: 600; margin-right: .3rem; }
+  .cat-btn {
+    padding: .25rem .65rem; border: 1px solid #ccc;
+    background: #f8f9fa; border-radius: 20px;
+    cursor: pointer; font-size: .75rem; transition: all .15s;
+  }
+  .cat-btn.active, .cat-btn:hover { background: #1a1a2e; color: white; border-color: #1a1a2e; }
+  .search-input {
+    padding: .3rem .75rem; border: 1px solid #ccc;
+    border-radius: 20px; font-size: .8rem; width: 220px; margin-left: auto;
+  }
+
+  .counter {
+    background: white; padding: .5rem 2rem;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: .78rem; color: #666;
+  }
+  .counter strong { color: #1a1a2e; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem; padding: 1.5rem 2rem;
+  }
+
+  .category-card {
+    background: white; border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.07);
+    overflow: hidden;
+  }
+  .category-card.hidden { display: none; }
+
+  .cat-header {
+    padding: .7rem 1rem;
+    display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer;
+  }
+  .cat-header h2 { font-size: .9rem; }
+  .cat-count { font-size: .75rem; opacity: .8; font-weight: normal; }
+
+  .type-list { padding: .5rem 0; }
+  .type-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .35rem 1rem;
+    border-bottom: 1px solid #f5f5f5;
+    transition: background .1s;
+  }
+  .type-item:last-child { border-bottom: none; }
+  .type-item:hover { background: #f8f9ff; }
+  .type-item.hidden { display: none; }
+
+  .type-name { font-family: monospace; font-size: .82rem; color: #1a1a2e; font-weight: 600; }
+  .type-label { font-size: .78rem; color: #666; margin-top: .1rem; }
+
+  .tag {
+    font-size: .68rem; padding: .1rem .4rem;
+    border-radius: 8px; white-space: nowrap; font-weight: 600;
+  }
+  .tag-nomad     { background: #cfe2ff; color: #084298; }
+  .tag-vacaciones{ background: #d1ecf1; color: #0c5460; }
+  .tag-temporada { background: #d4edda; color: #155724; }
+  .tag-familia   { background: #ffe5d0; color: #7d3c00; }
+  .tag-nuevo     { background: #fff3cd; color: #856404; }
+
+  /* Colores por categoría */
+  .cat-automotive   .cat-header { background: #fff3cd; }
+  .cat-culture      .cat-header { background: #e8d5ff; }
+  .cat-education    .cat-header { background: #cfe2ff; }
+  .cat-entertainment .cat-header{ background: #d1ecf1; }
+  .cat-finance      .cat-header { background: #d4edda; }
+  .cat-food         .cat-header { background: #ffe5d0; }
+  .cat-government   .cat-header { background: #f8d7da; }
+  .cat-health       .cat-header { background: #d4f5e9; }
+  .cat-lodging      .cat-header { background: #fde8c8; }
+  .cat-nature       .cat-header { background: #c3e6cb; }
+  .cat-services     .cat-header { background: #e2e3e5; }
+  .cat-shopping     .cat-header { background: #ffddd2; }
+  .cat-sport        .cat-header { background: #d0f0fd; }
+  .cat-tourism      .cat-header { background: #fff9c4; }
+  .cat-transport    .cat-header { background: #e2e3e5; }
+  .cat-worship      .cat-header { background: #f0e6ff; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Google Places New API — Catálogo completo de types (Tabla A)</h1>
+  <p>~200 types filtrables · Sin llamadas API · Selecciona cuáles quieres añadir al modelo</p>
+</header>
+
+<div class="info-bar">
+  <span>
+    <span class="badge-info badge-si">NOMAD</span> útil para nómada digital ·
+    <span class="badge-info badge-no">FAMILIA</span> útil para familia ·
+    <span class="badge-info badge-new">VACACIONES</span> útil para modo vacaciones ·
+    <span class="badge-info" style="background:#d4edda;color:#155724">TEMPORADA</span> útil para modo vivir una temporada
+  </span>
+  <span>Usa el filtro y el buscador para explorar</span>
+</div>
+
+<div class="controls">
+  <label>Categoría:</label>
+  <button class="cat-btn active" onclick="filterCat('all', this)">Todas</button>
+  <button class="cat-btn" onclick="filterCat('automotive', this)">🚗 Automoción</button>
+  <button class="cat-btn" onclick="filterCat('culture', this)">🎭 Cultura</button>
+  <button class="cat-btn" onclick="filterCat('education', this)">📚 Educación</button>
+  <button class="cat-btn" onclick="filterCat('entertainment', this)">🎡 Ocio</button>
+  <button class="cat-btn" onclick="filterCat('finance', this)">💳 Finanzas</button>
+  <button class="cat-btn" onclick="filterCat('food', this)">🍽️ Comida</button>
+  <button class="cat-btn" onclick="filterCat('government', this)">🏛️ Gobierno</button>
+  <button class="cat-btn" onclick="filterCat('health', this)">🏥 Salud</button>
+  <button class="cat-btn" onclick="filterCat('lodging', this)">🏨 Alojamiento</button>
+  <button class="cat-btn" onclick="filterCat('nature', this)">🌿 Naturaleza</button>
+  <button class="cat-btn" onclick="filterCat('services', this)">🔧 Servicios</button>
+  <button class="cat-btn" onclick="filterCat('shopping', this)">🛒 Compras</button>
+  <button class="cat-btn" onclick="filterCat('sport', this)">⚽ Deporte</button>
+  <button class="cat-btn" onclick="filterCat('tourism', this)">✈️ Turismo</button>
+  <button class="cat-btn" onclick="filterCat('transport', this)">🚇 Transporte</button>
+  <button class="cat-btn" onclick="filterCat('worship', this)">⛪ Culto</button>
+  <input type="text" class="search-input" placeholder="Buscar type..." oninput="filterSearch(this.value)">
+</div>
+
+<div class="counter">
+  Mostrando <strong id="visible-count">0</strong> types de <strong>202</strong> totales
+</div>
+
+<div class="grid" id="grid">
+
+  <!-- AUTOMOCIÓN -->
+  <div class="category-card cat-automotive" data-cat="automotive">
+    <div class="cat-header"><h2>🚗 Automoción</h2><span class="cat-count">7 types</span></div>
+    <div class="type-list">
+      <div class="type-item" data-search="car_dealer concesionario"><div><div class="type-name">car_dealer</div><div class="type-label">Concesionario de coches</div></div></div>
+      <div class="type-item" data-search="car_rental alquiler coches"><div><div class="type-name">car_rental</div><div class="type-label">Alquiler de coches</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="car_repair taller mecanico"><div><div class="type-name">car_repair</div><div class="type-label">Taller mecánico</div></div></div>
+      <div class="type-item" data-search="car_wash lavadero"><div><div class="type-name">car_wash</div><div class="type-label">Lavado de coches</div></div></div>
+      <div class="type-item" data-search="electric_vehicle_charging cargador electrico"><div><div class="type-name">electric_vehicle_charging_station</div><div class="type-label">Cargador vehículo eléctrico</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="gas_station gasolinera"><div><div class="type-name">gas_station</div><div class="type-label">Gasolinera</div></div></div>
+      <div class="type-item" data-search="parking aparcamiento"><div><div class="type-name">parking</div><div class="type-label">Aparcamiento</div></div><span class="tag tag-familia">FAMILIA</span></div>
+    </div>
+  </div>
+
+  <!-- CULTURA -->
+  <div class="category-card cat-culture" data-cat="culture">
+    <div class="cat-header"><h2>🎭 Cultura</h2><span class="cat-count">11 types</span></div>
+    <div class="type-list">
+      <div class="type-item" data-search="art_gallery galeria arte"><div><div class="type-name">art_gallery</div><div class="type-label">Galería de arte</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="art_studio estudio arte"><div><div class="type-name">art_studio</div><div class="type-label">Estudio de arte</div></div></div>
+      <div class="type-item" data-search="auditorium auditorio"><div><div class="type-name">auditorium</div><div class="type-label">Auditorio</div></div></div>
+      <div class="type-item" data-search="cultural_center centro cultural"><div><div class="type-name">cultural_center</div><div class="type-label">Centro cultural</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="historical_landmark monumento historico"><div><div class="type-name">historical_landmark</div><div class="type-label">Monumento histórico</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="library biblioteca"><div><div class="type-name">library</div><div class="type-label">Biblioteca</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="monument monumento"><div><div class="type-name">monument</div><div class="type-label">Monumento</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="movie_theater cine"><div><div class="type-name">movie_theater</div><div class="type-label">Cine</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="museum museo"><div><div class="type-name">museum</div><div class="type-label">Museo</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="performing_arts_theater teatro"><div><div class="type-name">performing_arts_theater</div><div class="type-label">Teatro / artes escénicas</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="sculpture escultura"><div><div class="type-name">sculpture</div><div class="type-label">Escultura pública</div></div></div>
+    </div>
+  </div>
+
+  <!-- EDUCACIÓN -->
+  <div class="category-card cat-education" data-cat="education">
+    <div class="cat-header"><h2>📚 Educación</h2><span class="cat-count">8 types</span></div>
+    <div class="type-list">
+      <div class="type-item" data-search="child_care_agency guarderia"><div><div class="type-name">child_care_agency</div><div class="type-label">Guardería / agencia cuidado infantil</div></div><span class="tag tag-familia">FAMILIA</span></div>
+      <div class="type-item" data-search="driving_school autoescuela"><div><div class="type-name">driving_school</div><div class="type-label">Autoescuela</div></div></div>
+      <div class="type-item" data-search="language_school escuela idiomas"><div><div class="type-name">language_school</div><div class="type-label">Escuela de idiomas</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="preschool preescolar infantil"><div><div class="type-name">preschool</div><div class="type-label">Educación preescolar</div></div><span class="tag tag-familia">FAMILIA</span></div>
+      <div class="type-item" data-search="primary_school colegio primaria"><div><div class="type-name">primary_school</div><div class="type-label">Colegio de primaria</div></div><span class="tag tag-familia">FAMILIA</span></div>
+      <div class="type-item" data-search="school colegio escuela"><div><div class="type-name">school</div><div class="type-label">Colegio / escuela (genérico)</div></div><span class="tag tag-familia">FAMILIA</span></div>
+      <div class="type-item" data-search="secondary_school instituto secundaria"><div><div class="type-name">secondary_school</div><div class="type-label">Instituto / secundaria</div></div><span class="tag tag-familia">FAMILIA</span></div>
+      <div class="type-item" data-search="university universidad"><div><div class="type-name">university</div><div class="type-label">Universidad</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+    </div>
+  </div>
+
+  <!-- ENTRETENIMIENTO Y OCIO -->
+  <div class="category-card cat-entertainment" data-cat="entertainment">
+    <div class="cat-header"><h2>🎡 Ocio y Entretenimiento</h2><span class="cat-count">31 types</span></div>
+    <div class="type-list">
+      <div class="type-item" data-search="amusement_center salon recreativo"><div><div class="type-name">amusement_center</div><div class="type-label">Salón recreativo / arcade</div></div><span class="tag tag-familia">FAMILIA</span></div>
+      <div class="type-item" data-search="amusement_park parque atracciones"><div><div class="type-name">amusement_park</div><div class="type-label">Parque de atracciones</div></div><span class="tag tag-familia">FAMILIA</span></div>
+      <div class="type-item" data-search="aquarium acuario"><div><div class="type-name">aquarium</div><div class="type-label">Acuario</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="banquet_hall salon eventos"><div><div class="type-name">banquet_hall</div><div class="type-label">Salón de eventos / banquetes</div></div></div>
+      <div class="type-item" data-search="bowling_alley bolera"><div><div class="type-name">bowling_alley</div><div class="type-label">Bolera</div></div></div>
+      <div class="type-item" data-search="casino casino"><div><div class="type-name">casino</div><div class="type-label">Casino</div></div></div>
+      <div class="type-item" data-search="childrens_camp campamento ninos"><div><div class="type-name">childrens_camp</div><div class="type-label">Campamento infantil</div></div><span class="tag tag-familia">FAMILIA</span></div>
+      <div class="type-item" data-search="comedy_club club comedia humor"><div><div class="type-name">comedy_club</div><div class="type-label">Club de comedia</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="community_center centro civico"><div><div class="type-name">community_center</div><div class="type-label">Centro cívico / comunitario</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="convention_center palacio congresos"><div><div class="type-name">convention_center</div><div class="type-label">Palacio de congresos</div></div><span class="tag tag-nomad">NOMAD</span></div>
+      <div class="type-item" data-search="dog_park parque perros mascotas"><div><div class="type-name">dog_park</div><div class="type-label">Parque para perros</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="escape_room escape room"><div><div class="type-name">escape_room</div><div class="type-label">Escape room</div></div></div>
+      <div class="type-item" data-search="garden jardin botanico"><div><div class="type-name">garden</div><div class="type-label">Jardín / jardín botánico</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="hiking_area senderismo rutas"><div><div class="type-name">hiking_area</div><div class="type-label">Área de senderismo / rutas</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="historical_place lugar historico"><div><div class="type-name">historical_place</div><div class="type-label">Lugar histórico</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="internet_cafe cibercafe"><div><div class="type-name">internet_cafe</div><div class="type-label">Cibercafé</div></div><span class="tag tag-nomad">NOMAD</span></div>
+      <div class="type-item" data-search="karaoke karaoke"><div><div class="type-name">karaoke</div><div class="type-label">Karaoke</div></div></div>
+      <div class="type-item" data-search="marina puerto deportivo barcos"><div><div class="type-name">marina</div><div class="type-label">Puerto deportivo / marina</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="mini_golf minigolf"><div><div class="type-name">mini_golf</div><div class="type-label">Mini golf</div></div></div>
+      <div class="type-item" data-search="national_park parque nacional"><div><div class="type-name">national_park</div><div class="type-label">Parque nacional</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="night_club discoteca nightlife"><div><div class="type-name">night_club</div><div class="type-label">Discoteca / club nocturno</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="observation_deck mirador"><div><div class="type-name">observation_deck</div><div class="type-label">Mirador / terraza panorámica</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="park parque urbano"><div><div class="type-name">park</div><div class="type-label">Parque urbano</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="skateboard_park skatepark"><div><div class="type-name">skateboard_park</div><div class="type-label">Skatepark</div></div></div>
+      <div class="type-item" data-search="tourist_attraction atraccion turistica"><div><div class="type-name">tourist_attraction</div><div class="type-label">Atracción turística</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="video_arcade arcade videojuegos"><div><div class="type-name">video_arcade</div><div class="type-label">Arcade de videojuegos</div></div></div>
+      <div class="type-item" data-search="visitor_center oficina turismo"><div><div class="type-name">visitor_center</div><div class="type-label">Oficina de turismo</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="wedding_venue finca bodas eventos"><div><div class="type-name">wedding_venue</div><div class="type-label">Finca / venue para bodas</div></div></div>
+      <div class="type-item" data-search="wildlife_park parque fauna"><div><div class="type-name">wildlife_park</div><div class="type-label">Parque de fauna salvaje</div></div></div>
+      <div class="type-item" data-search="wildlife_refuge reserva natural fauna"><div><div class="type-name">wildlife_refuge</div><div class="type-label">Reserva natural / fauna</div></div></div>
+      <div class="type-item" data-search="zoo zoo zoologico"><div><div class="type-name">zoo</div><div class="type-label">Zoológico</div></div><span class="tag tag-familia">FAMILIA</span></div>
+    </div>
+  </div>
+
+  <!-- FINANZAS -->
+  <div class="category-card cat-finance" data-cat="finance">
+    <div class="cat-header"><h2>💳 Finanzas</h2><span class="cat-count">6 types</span></div>
+    <div class="type-list">
+      <div class="type-item" data-search="accounting contabilidad"><div><div class="type-name">accounting</div><div class="type-label">Asesoría contable</div></div></div>
+      <div class="type-item" data-search="atm cajero automatico"><div><div class="type-name">atm</div><div class="type-label">Cajero automático</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="bank banco"><div><div class="type-name">bank</div><div class="type-label">Banco / sucursal bancaria</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="currency_exchange cambio moneda divisa"><div><div class="type-name">currency_exchange</div><div class="type-label">Casa de cambio</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="financial_planner asesor financiero"><div><div class="type-name">financial_planner</div><div class="type-label">Asesor financiero</div></div></div>
+      <div class="type-item" data-search="insurance_agency seguro aseguradora"><div><div class="type-name">insurance_agency</div><div class="type-label">Aseguradora / agencia de seguros</div></div></div>
+    </div>
+  </div>
+
+  <!-- COMIDA Y BEBIDA -->
+  <div class="category-card cat-food" data-cat="food">
+    <div class="cat-header"><h2>🍽️ Comida y Bebida</h2><span class="cat-count">54 types</span></div>
+    <div class="type-list">
+      <div class="type-item" data-search="acai_shop acai smoothie"><div><div class="type-name">acai_shop</div><div class="type-label">Tienda de açaí</div></div></div>
+      <div class="type-item" data-search="afghani_restaurant restaurante afgano"><div><div class="type-name">afghani_restaurant</div><div class="type-label">Restaurante afgano</div></div></div>
+      <div class="type-item" data-search="african_restaurant restaurante africano"><div><div class="type-name">african_restaurant</div><div class="type-label">Restaurante africano</div></div></div>
+      <div class="type-item" data-search="american_restaurant restaurante americano"><div><div class="type-name">american_restaurant</div><div class="type-label">Restaurante americano</div></div></div>
+      <div class="type-item" data-search="asian_fusion_restaurant fusion asiatica"><div><div class="type-name">asian_fusion_restaurant</div><div class="type-label">Fusión asiática</div></div></div>
+      <div class="type-item" data-search="bagel_shop bagel"><div><div class="type-name">bagel_shop</div><div class="type-label">Tienda de bagels</div></div></div>
+      <div class="type-item" data-search="bakery panaderia pasteleria"><div><div class="type-name">bakery</div><div class="type-label">Panadería / pastelería</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="bar bar bebidas"><div><div class="type-name">bar</div><div class="type-label">Bar</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="bar_and_grill bar parrilla"><div><div class="type-name">bar_and_grill</div><div class="type-label">Bar con parrilla</div></div></div>
+      <div class="type-item" data-search="barbecue_restaurant barbacoa asador"><div><div class="type-name">barbecue_restaurant</div><div class="type-label">Asador / barbacoa</div></div></div>
+      <div class="type-item" data-search="breakfast_restaurant desayuno"><div><div class="type-name">breakfast_restaurant</div><div class="type-label">Cafetería desayunos</div></div></div>
+      <div class="type-item" data-search="brunch_restaurant brunch"><div><div class="type-name">brunch_restaurant</div><div class="type-label">Brunch</div></div></div>
+      <div class="type-item" data-search="bubble_tea_store boba tea"><div><div class="type-name">bubble_tea_store</div><div class="type-label">Bubble tea / boba</div></div></div>
+      <div class="type-item" data-search="buffet_restaurant bufet"><div><div class="type-name">buffet_restaurant</div><div class="type-label">Restaurante bufet</div></div></div>
+      <div class="type-item" data-search="cafe cafeteria cafe"><div><div class="type-name">cafe</div><div class="type-label">Café / cafetería</div></div><span class="tag tag-nomad">NOMAD</span></div>
+      <div class="type-item" data-search="cafeteria comedor"><div><div class="type-name">cafeteria</div><div class="type-label">Comedor / cantina</div></div></div>
+      <div class="type-item" data-search="chinese_restaurant chino"><div><div class="type-name">chinese_restaurant</div><div class="type-label">Restaurante chino</div></div></div>
+      <div class="type-item" data-search="coffee_shop coffee shop"><div><div class="type-name">coffee_shop</div><div class="type-label">Coffee shop (especialidad)</div></div><span class="tag tag-nomad">NOMAD</span></div>
+      <div class="type-item" data-search="deli charcuteria delicatessen"><div><div class="type-name">deli</div><div class="type-label">Charcutería / deli</div></div></div>
+      <div class="type-item" data-search="dessert_restaurant postre dulces"><div><div class="type-name">dessert_restaurant</div><div class="type-label">Restaurante de postres</div></div></div>
+      <div class="type-item" data-search="dessert_shop tienda dulces"><div><div class="type-name">dessert_shop</div><div class="type-label">Tienda de dulces / postres</div></div></div>
+      <div class="type-item" data-search="diner diner americano"><div><div class="type-name">diner</div><div class="type-label">Diner americano</div></div></div>
+      <div class="type-item" data-search="fast_food_restaurant comida rapida"><div><div class="type-name">fast_food_restaurant</div><div class="type-label">Comida rápida</div></div></div>
+      <div class="type-item" data-search="fine_dining_restaurant alta cocina gourmet"><div><div class="type-name">fine_dining_restaurant</div><div class="type-label">Alta cocina / gourmet</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="food_court patio comidas"><div><div class="type-name">food_court</div><div class="type-label">Patio de comidas</div></div></div>
+      <div class="type-item" data-search="french_restaurant restaurante frances"><div><div class="type-name">french_restaurant</div><div class="type-label">Restaurante francés</div></div></div>
+      <div class="type-item" data-search="greek_restaurant restaurante griego"><div><div class="type-name">greek_restaurant</div><div class="type-label">Restaurante griego</div></div></div>
+      <div class="type-item" data-search="hamburger_restaurant hamburguesa burger"><div><div class="type-name">hamburger_restaurant</div><div class="type-label">Hamburguesería</div></div></div>
+      <div class="type-item" data-search="ice_cream_shop helado heladeria"><div><div class="type-name">ice_cream_shop</div><div class="type-label">Heladería</div></div></div>
+      <div class="type-item" data-search="indian_restaurant indio curry"><div><div class="type-name">indian_restaurant</div><div class="type-label">Restaurante indio</div></div></div>
+      <div class="type-item" data-search="indonesian_restaurant indonesio"><div><div class="type-name">indonesian_restaurant</div><div class="type-label">Restaurante indonesio</div></div></div>
+      <div class="type-item" data-search="italian_restaurant italiano pizza pasta"><div><div class="type-name">italian_restaurant</div><div class="type-label">Restaurante italiano</div></div></div>
+      <div class="type-item" data-search="japanese_restaurant japones sushi"><div><div class="type-name">japanese_restaurant</div><div class="type-label">Restaurante japonés</div></div></div>
+      <div class="type-item" data-search="juice_shop zumo smoothie"><div><div class="type-name">juice_shop</div><div class="type-label">Tienda de zumos / smoothies</div></div></div>
+      <div class="type-item" data-search="korean_restaurant coreano korean bbq"><div><div class="type-name">korean_restaurant</div><div class="type-label">Restaurante coreano</div></div></div>
+      <div class="type-item" data-search="lebanese_restaurant libanes"><div><div class="type-name">lebanese_restaurant</div><div class="type-label">Restaurante libanés</div></div></div>
+      <div class="type-item" data-search="market mercado mercadillo"><div><div class="type-name">market</div><div class="type-label">Mercado / mercadillo</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="meal_delivery delivery comida casa"><div><div class="type-name">meal_delivery</div><div class="type-label">Servicio de delivery</div></div><span class="tag tag-nomad">NOMAD</span></div>
+      <div class="type-item" data-search="meal_takeaway para llevar take away"><div><div class="type-name">meal_takeaway</div><div class="type-label">Comida para llevar</div></div></div>
+      <div class="type-item" data-search="mediterranean_restaurant mediterraneo"><div><div class="type-name">mediterranean_restaurant</div><div class="type-label">Restaurante mediterráneo</div></div></div>
+      <div class="type-item" data-search="mexican_restaurant mexicano tacos"><div><div class="type-name">mexican_restaurant</div><div class="type-label">Restaurante mexicano</div></div></div>
+      <div class="type-item" data-search="middle_eastern_restaurant oriente medio"><div><div class="type-name">middle_eastern_restaurant</div><div class="type-label">Restaurante de Oriente Medio</div></div></div>
+      <div class="type-item" data-search="pizza_restaurant pizzeria"><div><div class="type-name">pizza_restaurant</div><div class="type-label">Pizzería</div></div></div>
+      <div class="type-item" data-search="pub pub cerveza"><div><div class="type-name">pub</div><div class="type-label">Pub</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="ramen_restaurant ramen japones noodles"><div><div class="type-name">ramen_restaurant</div><div class="type-label">Restaurante de ramen</div></div></div>
+      <div class="type-item" data-search="restaurant restaurante"><div><div class="type-name">restaurant</div><div class="type-label">Restaurante (genérico)</div></div></div>
+      <div class="type-item" data-search="sandwich_shop bocadillo sandwich"><div><div class="type-name">sandwich_shop</div><div class="type-label">Bocadillería / sandwich shop</div></div></div>
+      <div class="type-item" data-search="seafood_restaurant mariscos pescado"><div><div class="type-name">seafood_restaurant</div><div class="type-label">Marisquería / pescado</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="spanish_restaurant espanol tapas"><div><div class="type-name">spanish_restaurant</div><div class="type-label">Restaurante español / tapas</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="steak_house chuleteria carne steakhouse"><div><div class="type-name">steak_house</div><div class="type-label">Asador de carne / steakhouse</div></div></div>
+      <div class="type-item" data-search="sushi_restaurant sushi japones"><div><div class="type-name">sushi_restaurant</div><div class="type-label">Restaurante de sushi</div></div></div>
+      <div class="type-item" data-search="tapas_bar tapas bar espanol"><div><div class="type-name">tapas_bar</div><div class="type-label">Bar de tapas</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="tea_house teteria te"><div><div class="type-name">tea_house</div><div class="type-label">Tetería</div></div></div>
+      <div class="type-item" data-search="thai_restaurant thai tailandes"><div><div class="type-name">thai_restaurant</div><div class="type-label">Restaurante tailandés</div></div></div>
+      <div class="type-item" data-search="turkish_restaurant turco kebab"><div><div class="type-name">turkish_restaurant</div><div class="type-label">Restaurante turco</div></div></div>
+      <div class="type-item" data-search="vegan_restaurant vegano plant based"><div><div class="type-name">vegan_restaurant</div><div class="type-label">Restaurante vegano</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="vegetarian_restaurant vegetariano"><div><div class="type-name">vegetarian_restaurant</div><div class="type-label">Restaurante vegetariano</div></div></div>
+      <div class="type-item" data-search="vietnamese_restaurant vietnamita"><div><div class="type-name">vietnamese_restaurant</div><div class="type-label">Restaurante vietnamita</div></div></div>
+      <div class="type-item" data-search="wine_bar bar vinos enoteca"><div><div class="type-name">wine_bar</div><div class="type-label">Bar de vinos / enoteca</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+    </div>
+  </div>
+
+  <!-- GOBIERNO -->
+  <div class="category-card cat-government" data-cat="government">
+    <div class="cat-header"><h2>🏛️ Gobierno</h2><span class="cat-count">7 types</span></div>
+    <div class="type-list">
+      <div class="type-item" data-search="city_hall ayuntamiento"><div><div class="type-name">city_hall</div><div class="type-label">Ayuntamiento</div></div></div>
+      <div class="type-item" data-search="courthouse juzgado tribunal"><div><div class="type-name">courthouse</div><div class="type-label">Juzgado / tribunal</div></div></div>
+      <div class="type-item" data-search="embassy embajada consulado"><div><div class="type-name">embassy</div><div class="type-label">Embajada / consulado</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="fire_station bomberos"><div><div class="type-name">fire_station</div><div class="type-label">Estación de bomberos</div></div></div>
+      <div class="type-item" data-search="local_government_office oficina gobierno"><div><div class="type-name">local_government_office</div><div class="type-label">Oficina de gobierno local</div></div></div>
+      <div class="type-item" data-search="police policia comisaria"><div><div class="type-name">police</div><div class="type-label">Comisaría / policía</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="post_office correos oficina postal"><div><div class="type-name">post_office</div><div class="type-label">Oficina de correos</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+    </div>
+  </div>
+
+  <!-- SALUD Y BIENESTAR -->
+  <div class="category-card cat-health" data-cat="health">
+    <div class="cat-header"><h2>🏥 Salud y Bienestar</h2><span class="cat-count">19 types</span></div>
+    <div class="type-list">
+      <div class="type-item" data-search="chiropractor quiropráctico"><div><div class="type-name">chiropractor</div><div class="type-label">Quiropráctico</div></div></div>
+      <div class="type-item" data-search="dental_clinic clinica dental"><div><div class="type-name">dental_clinic</div><div class="type-label">Clínica dental</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="dentist dentista"><div><div class="type-name">dentist</div><div class="type-label">Dentista</div></div></div>
+      <div class="type-item" data-search="doctor medico consulta"><div><div class="type-name">doctor</div><div class="type-label">Médico / consulta</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="drugstore farmacia drogueria"><div><div class="type-name">drugstore</div><div class="type-label">Droguería / parafarmacia</div></div></div>
+      <div class="type-item" data-search="gym gimnasio fitness"><div><div class="type-name">gym</div><div class="type-label">Gimnasio</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="hospital hospital urgencias"><div><div class="type-name">hospital</div><div class="type-label">Hospital</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="massage masaje"><div><div class="type-name">massage</div><div class="type-label">Centro de masajes</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="medical_lab laboratorio analisis"><div><div class="type-name">medical_lab</div><div class="type-label">Laboratorio / análisis clínicos</div></div></div>
+      <div class="type-item" data-search="mental_health_practitioner psicologo terapeuta"><div><div class="type-name">mental_health_practitioner</div><div class="type-label">Psicólogo / salud mental</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="nutritionist nutricionista dietista"><div><div class="type-name">nutritionist</div><div class="type-label">Nutricionista / dietista</div></div></div>
+      <div class="type-item" data-search="optician optico gafas"><div><div class="type-name">optician</div><div class="type-label">Óptico</div></div></div>
+      <div class="type-item" data-search="pharmacy farmacia"><div><div class="type-name">pharmacy</div><div class="type-label">Farmacia</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="physiotherapist fisioterapeuta"><div><div class="type-name">physiotherapist</div><div class="type-label">Fisioterapeuta</div></div></div>
+      <div class="type-item" data-search="sauna sauna vapor"><div><div class="type-name">sauna</div><div class="type-label">Sauna</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="spa spa relax bienestar"><div><div class="type-name">spa</div><div class="type-label">Spa / centro de bienestar</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="swimming_pool piscina"><div><div class="type-name">swimming_pool</div><div class="type-label">Piscina pública</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="wellness_center centro bienestar salud holistica"><div><div class="type-name">wellness_center</div><div class="type-label">Centro de bienestar holístico</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="yoga_studio yoga pilates"><div><div class="type-name">yoga_studio</div><div class="type-label">Estudio de yoga / pilates</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+    </div>
+  </div>
+
+  <!-- ALOJAMIENTO -->
+  <div class="category-card cat-lodging" data-cat="lodging">
+    <div class="cat-header"><h2>🏨 Alojamiento</h2><span class="cat-count">11 types</span></div>
+    <div class="type-list">
+      <div class="type-item" data-search="bed_and_breakfast bb pension"><div><div class="type-name">bed_and_breakfast</div><div class="type-label">Bed & Breakfast / pensión</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="campground camping"><div><div class="type-name">campground</div><div class="type-label">Camping / campamento</div></div></div>
+      <div class="type-item" data-search="camping_cabin cabana camping"><div><div class="type-name">camping_cabin</div><div class="type-label">Cabaña de camping</div></div></div>
+      <div class="type-item" data-search="cottage casa rural"><div><div class="type-name">cottage</div><div class="type-label">Casa rural / cottage</div></div></div>
+      <div class="type-item" data-search="extended_stay_hotel aparthotel larga estancia"><div><div class="type-name">extended_stay_hotel</div><div class="type-label">Aparthotel / larga estancia</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="farm_stay agroturismo granja"><div><div class="type-name">farm_stay</div><div class="type-label">Agroturismo / granja</div></div></div>
+      <div class="type-item" data-search="hotel hotel"><div><div class="type-name">hotel</div><div class="type-label">Hotel</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="hostel hostel albergue backpacker"><div><div class="type-name">hostel</div><div class="type-label">Hostel / albergue</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="motel motel"><div><div class="type-name">motel</div><div class="type-label">Motel</div></div></div>
+      <div class="type-item" data-search="resort_hotel resort lujo"><div><div class="type-name">resort_hotel</div><div class="type-label">Resort / hotel de lujo</div></div></div>
+      <div class="type-item" data-search="rv_park autocaravana camper"><div><div class="type-name">rv_park</div><div class="type-label">Área de autocaravanas</div></div></div>
+    </div>
+  </div>
+
+  <!-- NATURALEZA -->
+  <div class="category-card cat-nature" data-cat="nature">
+    <div class="cat-header"><h2>🌿 Naturaleza</h2><span class="cat-count">7 types</span></div>
+    <div class="type-list">
+      <div class="type-item" data-search="beach playa"><div><div class="type-name">beach</div><div class="type-label">Playa</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="forest bosque monte"><div><div class="type-name">forest</div><div class="type-label">Bosque / monte</div></div></div>
+      <div class="type-item" data-search="lake lago embalse"><div><div class="type-name">lake</div><div class="type-label">Lago / embalse</div></div></div>
+      <div class="type-item" data-search="nature_reserve reserva natural"><div><div class="type-name">nature_reserve</div><div class="type-label">Reserva natural</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="river rio"><div><div class="type-name">river</div><div class="type-label">Río</div></div></div>
+      <div class="type-item" data-search="waterfall cascada"><div><div class="type-name">waterfall</div><div class="type-label">Cascada</div></div></div>
+      <div class="type-item" data-search="wetland humedal marisma"><div><div class="type-name">wetland</div><div class="type-label">Humedal / marisma</div></div></div>
+    </div>
+  </div>
+
+  <!-- SERVICIOS -->
+  <div class="category-card cat-services" data-cat="services">
+    <div class="cat-header"><h2>🔧 Servicios</h2><span class="cat-count">18 types</span></div>
+    <div class="type-list">
+      <div class="type-item" data-search="barber_shop barberia peluqueria hombre"><div><div class="type-name">barber_shop</div><div class="type-label">Barbería</div></div></div>
+      <div class="type-item" data-search="beauty_salon salon belleza estetica"><div><div class="type-name">beauty_salon</div><div class="type-label">Salón de belleza / estética</div></div></div>
+      <div class="type-item" data-search="dry_cleaning tintoreria lavanderia"><div><div class="type-name">dry_cleaning</div><div class="type-label">Tintorería</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="electrician electricista"><div><div class="type-name">electrician</div><div class="type-label">Electricista</div></div></div>
+      <div class="type-item" data-search="funeral_home funeraria tanatorio"><div><div class="type-name">funeral_home</div><div class="type-label">Funeraria / tanatorio</div></div></div>
+      <div class="type-item" data-search="hair_care cuidado cabello"><div><div class="type-name">hair_care</div><div class="type-label">Cuidado del cabello (genérico)</div></div></div>
+      <div class="type-item" data-search="hair_salon peluqueria"><div><div class="type-name">hair_salon</div><div class="type-label">Peluquería</div></div></div>
+      <div class="type-item" data-search="laundry lavanderia autoservicio"><div><div class="type-name">laundry</div><div class="type-label">Lavandería autoservicio</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="locksmith cerrajero"><div><div class="type-name">locksmith</div><div class="type-label">Cerrajero</div></div></div>
+      <div class="type-item" data-search="nail_salon manicura pedicura unas"><div><div class="type-name">nail_salon</div><div class="type-label">Salón de manicura / uñas</div></div></div>
+      <div class="type-item" data-search="pet_boarding_service residencia mascotas"><div><div class="type-name">pet_boarding_service</div><div class="type-label">Residencia de mascotas</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="pet_grooming peluqueria canina mascotas"><div><div class="type-name">pet_grooming</div><div class="type-label">Peluquería canina</div></div></div>
+      <div class="type-item" data-search="pet_store tienda mascotas animales"><div><div class="type-name">pet_store</div><div class="type-label">Tienda de mascotas</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="plumber fontanero"><div><div class="type-name">plumber</div><div class="type-label">Fontanero</div></div></div>
+      <div class="type-item" data-search="real_estate_agency inmobiliaria agencia pisos"><div><div class="type-name">real_estate_agency</div><div class="type-label">Inmobiliaria / agencia de pisos</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="storage trastero almacenaje"><div><div class="type-name">storage</div><div class="type-label">Trastero / almacenaje</div></div></div>
+      <div class="type-item" data-search="travel_agency agencia viajes"><div><div class="type-name">travel_agency</div><div class="type-label">Agencia de viajes</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="veterinary_care veterinario clinica veterinaria"><div><div class="type-name">veterinary_care</div><div class="type-label">Clínica veterinaria</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+    </div>
+  </div>
+
+  <!-- COMPRAS -->
+  <div class="category-card cat-shopping" data-cat="shopping">
+    <div class="cat-header"><h2>🛒 Compras</h2><span class="cat-count">23 types</span></div>
+    <div class="type-list">
+      <div class="type-item" data-search="bicycle_store tienda bicicletas ciclismo"><div><div class="type-name">bicycle_store</div><div class="type-label">Tienda de bicicletas</div></div></div>
+      <div class="type-item" data-search="book_store libreria libros"><div><div class="type-name">book_store</div><div class="type-label">Librería</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="clothing_store tienda ropa moda"><div><div class="type-name">clothing_store</div><div class="type-label">Tienda de ropa</div></div></div>
+      <div class="type-item" data-search="convenience_store tienda conveniencia 24h"><div><div class="type-name">convenience_store</div><div class="type-label">Tienda de conveniencia / 24h</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="department_store grandes almacenes"><div><div class="type-name">department_store</div><div class="type-label">Grandes almacenes</div></div></div>
+      <div class="type-item" data-search="electronics_store electronica tecnologia"><div><div class="type-name">electronics_store</div><div class="type-label">Tienda de electrónica</div></div></div>
+      <div class="type-item" data-search="florist floristeria flores"><div><div class="type-name">florist</div><div class="type-label">Floristería</div></div></div>
+      <div class="type-item" data-search="furniture_store muebles hogar"><div><div class="type-name">furniture_store</div><div class="type-label">Tienda de muebles</div></div></div>
+      <div class="type-item" data-search="gift_shop tienda regalos souvenir"><div><div class="type-name">gift_shop</div><div class="type-label">Tienda de regalos / souvenirs</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="grocery_store tienda alimentacion ultramarinos"><div><div class="type-name">grocery_store</div><div class="type-label">Tienda de alimentación</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="hardware_store ferreteria bricolaje"><div><div class="type-name">hardware_store</div><div class="type-label">Ferretería / bricolaje</div></div></div>
+      <div class="type-item" data-search="home_goods_store hogar cocina"><div><div class="type-name">home_goods_store</div><div class="type-label">Tienda del hogar</div></div></div>
+      <div class="type-item" data-search="jewelry_store joyeria bisuteria"><div><div class="type-name">jewelry_store</div><div class="type-label">Joyería / bisutería</div></div></div>
+      <div class="type-item" data-search="liquor_store licores alcohol bodega"><div><div class="type-name">liquor_store</div><div class="type-label">Licorería / bodega</div></div></div>
+      <div class="type-item" data-search="mobile_phone_store movil telefonia"><div><div class="type-name">mobile_phone_store</div><div class="type-label">Tienda de móviles</div></div></div>
+      <div class="type-item" data-search="shoe_store zapateria calzado"><div><div class="type-name">shoe_store</div><div class="type-label">Zapatería</div></div></div>
+      <div class="type-item" data-search="shopping_mall centro comercial mall"><div><div class="type-name">shopping_mall</div><div class="type-label">Centro comercial</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="sporting_goods_store deporte ropa deportiva"><div><div class="type-name">sporting_goods_store</div><div class="type-label">Tienda de artículos deportivos</div></div></div>
+      <div class="type-item" data-search="supermarket supermercado"><div><div class="type-name">supermarket</div><div class="type-label">Supermercado</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="toy_store jugueteria juguetes"><div><div class="type-name">toy_store</div><div class="type-label">Juguetería</div></div><span class="tag tag-familia">FAMILIA</span></div>
+      <div class="type-item" data-search="wholesaler mayorista cash carry"><div><div class="type-name">wholesaler</div><div class="type-label">Mayorista / cash & carry</div></div></div>
+    </div>
+  </div>
+
+  <!-- DEPORTE -->
+  <div class="category-card cat-sport" data-cat="sport">
+    <div class="cat-header"><h2>⚽ Deporte</h2><span class="cat-count">18 types</span></div>
+    <div class="type-list">
+      <div class="type-item" data-search="adventure_sports_center deportes aventura extremos"><div><div class="type-name">adventure_sports_center</div><div class="type-label">Centro de deportes de aventura</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="athletic_field atletismo pista campo"><div><div class="type-name">athletic_field</div><div class="type-label">Pista / campo de atletismo</div></div></div>
+      <div class="type-item" data-search="climbing_gym rocódromo escalada"><div><div class="type-name">climbing_gym</div><div class="type-label">Rocódromo / escalada</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="cycling_park velódromo ciclismo pista bici"><div><div class="type-name">cycling_park</div><div class="type-label">Velódromo / pista de ciclismo</div></div></div>
+      <div class="type-item" data-search="fitness_center gym fitness polideportivo"><div><div class="type-name">fitness_center</div><div class="type-label">Centro fitness / polideportivo</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="golf_course campo golf"><div><div class="type-name">golf_course</div><div class="type-label">Campo de golf</div></div></div>
+      <div class="type-item" data-search="golf_driving_range campo practica golf"><div><div class="type-name">golf_driving_range</div><div class="type-label">Campo de práctica de golf</div></div></div>
+      <div class="type-item" data-search="ice_skating_rink pista hielo patinaje"><div><div class="type-name">ice_skating_rink</div><div class="type-label">Pista de patinaje sobre hielo</div></div></div>
+      <div class="type-item" data-search="kayak_rental alquiler kayak canoa paddle"><div><div class="type-name">kayak_rental</div><div class="type-label">Alquiler de kayak / piragua</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="playground parque infantil columpio"><div><div class="type-name">playground</div><div class="type-label">Parque infantil</div></div><span class="tag tag-familia">FAMILIA</span></div>
+      <div class="type-item" data-search="ski_resort estacion ski nieve invierno"><div><div class="type-name">ski_resort</div><div class="type-label">Estación de esquí</div></div></div>
+      <div class="type-item" data-search="sports_activity_location instalacion deportiva"><div><div class="type-name">sports_activity_location</div><div class="type-label">Instalación deportiva (genérico)</div></div></div>
+      <div class="type-item" data-search="sports_club club deportivo"><div><div class="type-name">sports_club</div><div class="type-label">Club deportivo</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="sports_coaching entrenador monitor deporte"><div><div class="type-name">sports_coaching</div><div class="type-label">Entrenador / monitor deportivo</div></div></div>
+      <div class="type-item" data-search="sports_complex polideportivo complejo deportivo"><div><div class="type-name">sports_complex</div><div class="type-label">Complejo / polideportivo</div></div></div>
+      <div class="type-item" data-search="stadium estadio"><div><div class="type-name">stadium</div><div class="type-label">Estadio</div></div></div>
+      <div class="type-item" data-search="tennis_court pista tenis padel"><div><div class="type-name">tennis_court</div><div class="type-label">Pista de tenis / pádel</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="water_park parque acuatico piscinas"><div><div class="type-name">water_park</div><div class="type-label">Parque acuático</div></div></div>
+    </div>
+  </div>
+
+  <!-- TURISMO -->
+  <div class="category-card cat-tourism" data-cat="tourism">
+    <div class="cat-header"><h2>✈️ Turismo</h2><span class="cat-count">4 types</span></div>
+    <div class="type-list">
+      <div class="type-item" data-search="information_center oficina informacion turismo"><div><div class="type-name">information_center</div><div class="type-label">Centro de información turística</div></div></div>
+      <div class="type-item" data-search="scenic_point punto vistas panoramico"><div><div class="type-name">scenic_point</div><div class="type-label">Punto panorámico / con vistas</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="tourist_attraction atraccion turistica"><div><div class="type-name">tourist_attraction</div><div class="type-label">Atracción turística</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="tour_operator operador tours excursiones"><div><div class="type-name">tour_operator</div><div class="type-label">Operador de tours / excursiones</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+    </div>
+  </div>
+
+  <!-- TRANSPORTE -->
+  <div class="category-card cat-transport" data-cat="transport">
+    <div class="cat-header"><h2>🚇 Transporte</h2><span class="cat-count">12 types</span></div>
+    <div class="type-list">
+      <div class="type-item" data-search="airport aeropuerto vuelo"><div><div class="type-name">airport</div><div class="type-label">Aeropuerto</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="bicycle_rental alquiler bicicleta bicing"><div><div class="type-name">bicycle_rental</div><div class="type-label">Alquiler de bicicletas / bicing</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="bus_station estacion autobus"><div><div class="type-name">bus_station</div><div class="type-label">Estación de autobús</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="bus_stop parada autobus"><div><div class="type-name">bus_stop</div><div class="type-label">Parada de autobús</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="ferry_terminal puerto ferry barco"><div><div class="type-name">ferry_terminal</div><div class="type-label">Terminal de ferry / puerto</div></div></div>
+      <div class="type-item" data-search="heliport helicoptero helipuerto"><div><div class="type-name">heliport</div><div class="type-label">Helipuerto</div></div></div>
+      <div class="type-item" data-search="light_rail_station tranvia metro ligero"><div><div class="type-name">light_rail_station</div><div class="type-label">Parada de tranvía / metro ligero</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="subway_station metro suburbano"><div><div class="type-name">subway_station</div><div class="type-label">Estación de metro</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="taxi_stand parada taxi"><div><div class="type-name">taxi_stand</div><div class="type-label">Parada de taxi</div></div></div>
+      <div class="type-item" data-search="train_station estacion tren renfe cercanias"><div><div class="type-name">train_station</div><div class="type-label">Estación de tren</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+      <div class="type-item" data-search="transit_depot cochera deposito transporte"><div><div class="type-name">transit_depot</div><div class="type-label">Cochera / depósito transporte</div></div></div>
+      <div class="type-item" data-search="transit_station estacion multimodal transporte publico"><div><div class="type-name">transit_station</div><div class="type-label">Estación multimodal</div></div><span class="tag tag-temporada">TEMPORADA</span></div>
+    </div>
+  </div>
+
+  <!-- CULTO -->
+  <div class="category-card cat-worship" data-cat="worship">
+    <div class="cat-header"><h2>⛪ Culto</h2><span class="cat-count">4 types</span></div>
+    <div class="type-list">
+      <div class="type-item" data-search="church iglesia catedral capilla"><div><div class="type-name">church</div><div class="type-label">Iglesia / catedral / capilla</div></div><span class="tag tag-vacaciones">VACACIONES</span></div>
+      <div class="type-item" data-search="hindu_temple templo hindu"><div><div class="type-name">hindu_temple</div><div class="type-label">Templo hindú</div></div></div>
+      <div class="type-item" data-search="mosque mezquita"><div><div class="type-name">mosque</div><div class="type-label">Mezquita</div></div></div>
+      <div class="type-item" data-search="synagogue sinagoga"><div><div class="type-name">synagogue</div><div class="type-label">Sinagoga</div></div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let activeCat = 'all';
+
+function updateCounter() {
+  const visible = document.querySelectorAll('.type-item:not(.hidden)').length;
+  document.getElementById('visible-count').textContent = visible;
+}
+
+function filterCat(cat, btn) {
+  activeCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  document.querySelectorAll('.category-card').forEach(card => {
+    if (cat === 'all' || card.dataset.cat === cat) {
+      card.classList.remove('hidden');
+    } else {
+      card.classList.add('hidden');
+    }
+  });
+  applySearch(document.querySelector('.search-input').value);
+}
+
+function filterSearch(val) { applySearch(val); }
+
+function applySearch(val) {
+  const q = val.toLowerCase();
+  document.querySelectorAll('.type-item').forEach(item => {
+    const text = (item.dataset.search || '') + item.textContent.toLowerCase();
+    const catOk = activeCat === 'all' ||
+      item.closest('.category-card').dataset.cat === activeCat;
+    item.classList.toggle('hidden', !(catOk && (q === '' || text.includes(q))));
+  });
+  updateCounter();
+}
+
+// Contador inicial
+updateCounter();
+</script>
+</body>
+</html>

@@ -9,10 +9,43 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Data
+# Data raw — se regenera con fetch_cities.py
 data/raw/
 
-# MLflow y modelos
+# Datasets grandes — se regeneran con los notebooks (54MB y 60MB)
+data/processed/training_dataset.csv
+data/processed/training_dataset_enriched.csv
+
+# Artefactos del modelo — se regeneran con notebook 04
+data/processed/model_v2/
+
+# Imágenes generadas por los notebooks
+data/processed/*.png
+
+# MLflow
 mlruns/
+notebooks/mlruns/
 models/*.pkl
 models/*.bin
+
+# Notebooks de entrenamiento (pesan decenas de MB)
+notebooks/01_eda_36ciudades.ipynb
+notebooks/02_synthetic_profiles_v2.ipynb
+notebooks/02_synthetic_profiles_v3.ipynb
+notebooks/03_train_model.ipynb
+
+# Features y datos procesados generados (se regeneran con features.py)
+data/processed/city_features.csv
+data/processed/city_features_eda.html
+data/processed/training_dataset_overview.html
+
+# HTMLs de presentación y análisis generados (grandes, se regeneran)
+data/processed/hitos_proyecto.html
+data/processed/nomadoptima_explicacion.html
+
+# Scripts de uso único ya ejecutados
+scripts/create_notebook_02v3.py
+scripts/create_notebook_03.py
+
+# Configuración local de Claude Code (específica de cada máquina)
+.claude/

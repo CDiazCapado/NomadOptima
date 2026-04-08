@@ -1,0 +1,212 @@
+{
+  "Alicante": {
+    "quote": "Trescientos días de sol no son un tópico, son un estilo de vida.",
+    "description": "Playa, palmeras y un castillo que vigila el Mediterráneo desde el siglo IX. Alicante combina la tranquilidad del levante con la infraestructura de una ciudad real. Una de las opciones más sólidas para jubilados activos y familias que buscan calidad de vida sin pagar precios de capital.",
+    "photo_search": "Alicante castle Santa Barbara Mediterranean sunset"
+  },
+  "Amsterdam": {
+    "quote": "Una ciudad construida sobre el agua y sobre la tolerancia.",
+    "description": "Canales, bicicletas y una energía cosmopolita que mezcla negocios, cultura y libertad de forma única en Europa. Cara, sí — pero con una calidad de vida que justifica cada euro. El hub nómada por excelencia del norte de Europa.",
+    "photo_search": "Amsterdam canals bicycles tulips autumn"
+  },
+  "Andorra": {
+    "quote": "Sin impuestos, con nieve. La ecuación que no cuadra y funciona.",
+    "description": "El pequeño gran secreto de los Pirineos. Pistas de esquí a 20 minutos del centro, precios libres de IVA y una calidad de vida alpina que cuesta la mitad que en Suiza. Para quien busca montaña sin renunciar a la comodidad.",
+    "photo_search": "Andorra la Vella Pyrenees mountains snow ski"
+  },
+  "Atenas": {
+    "quote": "Tres mil años no pesan, se llevan.",
+    "description": "La cuna de la civilización occidental con precios del siglo XXI muy razonables. Barrios como Monastiraki o Psiri tienen una energía urbana auténtica que pocas capitales europeas conservan. El Mediterráneo oriental a precio de ciudad media.",
+    "photo_search": "Athens Acropolis Parthenon sunset Monastiraki"
+  },
+  "Barcelona": {
+    "quote": "Diseño, mar y una ciudad que se reinventa cada década.",
+    "description": "La ciudad más deseada del Mediterráneo. Arquitectura única, gastronomía de primer nivel, playa a 20 minutos del centro y una escena creativa y tecnológica potente. El precio lo refleja — pero pocas ciudades justifican mejor lo que cuestan.",
+    "photo_search": "Barcelona Sagrada Familia Eixample aerial Gothic Quarter"
+  },
+  "Belgrade": {
+    "quote": "La capital europea que nadie pone en su lista y todos repiten.",
+    "description": "Una de las ciudades con más vida nocturna de Europa, y la más infravalorada. Barata, auténtica, con historia en cada muro. La fortaleza de Kalemegdan, el río Danubio y un ambiente que mezcla lo balcánico con lo europeo de una forma única.",
+    "photo_search": "Belgrade Kalemegdan fortress Danube Serbia nightlife"
+  },
+  "Berlin": {
+    "quote": "Pobre pero sexy. Y nunca ha dejado de serlo.",
+    "description": "La capital de la contracultura europea. Arte, música electrónica, startups y una escena creativa que no necesita permiso. Cara ya para sus estándares históricos, pero todavía más asequible que París o Londres con el doble de energía.",
+    "photo_search": "Berlin Brandenburg Gate street art East Side Gallery"
+  },
+  "Bordeaux": {
+    "quote": "El vino es solo la excusa.",
+    "description": "Una de las ciudades más elegantes de Francia sin el precio de París. Arquitectura neoclásica, gastronomía de primera, conexión directa en TGV con la capital y el océano Atlántico a menos de una hora. El equilibrio perfecto entre cultura y calidad de vida.",
+    "photo_search": "Bordeaux Place de la Bourse wine Garonne river"
+  },
+  "Bucharest": {
+    "quote": "París del Este no es un apodo, es una promesa a medio cumplir.",
+    "description": "La capital rumana combina una arquitectura imponente con precios de ciudad pequeña. Una de las ciudades más baratas de la UE con internet ultrarrápido. Ideal para nómadas digitales que quieren Europa con presupuesto de Asia.",
+    "photo_search": "Bucharest old town Palace Parliament Romania"
+  },
+  "Budapest": {
+    "quote": "Dos ciudades que se fundieron y nunca terminaron de separarse.",
+    "description": "Buda y Pest. Termas romanas y raves en ruinas. Danubio iluminado y mercados de especias. Budapest tiene capas que otras ciudades no tienen. Barata para sus estándares culturales, con una comunidad nómada creciente.",
+    "photo_search": "Budapest Parliament Danube Chain Bridge night thermal baths"
+  },
+  "Buenos_Aires": {
+    "quote": "El tango nunca para, y la ciudad tampoco.",
+    "description": "La Paris de América del Sur — aunque ellos prefieren ser la Buenos Aires de Buenos Aires. Arquitectura europea, gastronomía excepcional, vida cultural intensa y un tipo de cambio que la hace accesible como pocas capitales del mundo. Para nómadas con espíritu urbano.",
+    "photo_search": "Buenos Aires Recoleta La Boca tango Obelisco"
+  },
+  "Cartagena": {
+    "quote": "La ciudad amurallada donde el Caribe sabe diferente.",
+    "description": "Patrimonio de la Humanidad rodeado de agua turquesa. Cartagena de Indias combina la historia colonial española con el ritmo caribeño y una gastronomía que es puro Caribe. Una de las joyas de Latinoamérica para quienes buscan calor, cultura y autenticidad.",
+    "photo_search": "Cartagena Colombia walled city Caribbean colonial colorful"
+  },
+  "Chamonix": {
+    "quote": "El Mont Blanc está ahí. Todo lo demás es contexto.",
+    "description": "La capital mundial del alpinismo y el freeride. Glaciares, pistas de esquí de nivel mundial y un ambiente de montaña que atrae a deportistas de todo el planeta. Cara en temporada alta, pero única para quien la montaña es lo primero.",
+    "photo_search": "Chamonix Mont Blanc ski resort alpinism France"
+  },
+  "Dublin": {
+    "quote": "El pub es el verdadero living room de esta ciudad.",
+    "description": "Capital tecnológica de Europa — Google, Meta, LinkedIn tienen aquí sus sedes europeas. Inglés nativo, energía joven y una tradición de hospitalidad única. Cara, pero con un mercado laboral tech sin equivalente en Europa.",
+    "photo_search": "Dublin Temple Bar pub Trinity College Ireland"
+  },
+  "Faro": {
+    "quote": "El Algarve empieza aquí. El Algarve turístico termina aquí.",
+    "description": "La capital de la región más soleada de Europa continental. Pequeña, tranquila y con una calidad de vida excelente. Acceso inmediato a las mejores playas de Portugal y a los campos de golf del Algarve. Para jubilados activos y familias con presupuesto moderado.",
+    "photo_search": "Faro Algarve old town lagoon Portugal sunset"
+  },
+  "Fuerteventura": {
+    "quote": "El viento no es un problema. Es el motivo de todo.",
+    "description": "La meca del kitesurf y el windsurf. Viento constante, dunas que parecen Sahara y aguas cristalinas. La isla más tranquila de las Canarias es también la más radical para los deportes de viento. Clima eterno para quienes necesitan el mar todo el año.",
+    "photo_search": "Fuerteventura dunes Corralejo kitesurf Canary Islands wind"
+  },
+  "Granada": {
+    "quote": "La Alhambra no es un monumento. Es un argumento.",
+    "description": "La única ciudad de Europa donde puedes esquiar por la mañana y tomar cañas en la playa por la tarde. Historia árabe, flamenco auténtico y una ciudad universitaria con vida propia. De las más baratas del sur de España con una calidad cultural altísima.",
+    "photo_search": "Granada Alhambra Sierra Nevada Spain flamenco"
+  },
+  "Innsbruck": {
+    "quote": "Los Alpes en el salón y el Tyrol en la puerta.",
+    "description": "Ciudad olímpica rodeada de montañas a menos de 20 minutos del centro. Esquí alpino, senderismo en verano y una arquitectura histórica austriaca impecable. Para quienes quieren la experiencia alpina sin el precio de Suiza.",
+    "photo_search": "Innsbruck Austria Alps Tyrol old town ski"
+  },
+  "Krakow": {
+    "quote": "La ciudad polaca que sobrevivió al siglo XX con su alma intacta.",
+    "description": "La ciudad europea que el siglo XX no logró destruir. Casco histórico UNESCO, gastronomía judía y polaca, vida nocturna de las más intensas del este europeo y precios que hacen posible todo lo demás. Una de las mejores relaciones calidad-precio de Europa.",
+    "photo_search": "Krakow Main Square St Mary Basilica Poland Wawel castle"
+  },
+  "Las_Palmas": {
+    "quote": "Ni isla ni ciudad. Las dos cosas al mismo tiempo.",
+    "description": "La capital de Gran Canaria tiene el clima más estable del mundo — 22°C de media todo el año. Playa en el centro, surf, coworking con vistas al Atlántico y una comunidad nómada que lleva años descubriendo lo que los canarios saben de siempre.",
+    "photo_search": "Las Palmas Gran Canaria beach Vegueta colonial surf"
+  },
+  "Lisboa": {
+    "quote": "Siete colinas, un fado y la sensación de llegar tarde a algo bueno.",
+    "description": "La capital que tardó en descubrirse y ahora no para. Barrios como Mouraria o LX Factory tienen una energía que mezcla lo tradicional con lo creativo de forma única. Cara ya para sus estándares históricos, pero todavía asequible para lo que ofrece.",
+    "photo_search": "Lisbon tram Alfama Tagus river sunset fado"
+  },
+  "London": {
+    "quote": "No es una ciudad. Es un planeta.",
+    "description": "El centro financiero, cultural y tecnológico del mundo angloparlante. Todo está aquí — el precio también. Para quienes el inglés es obligatorio y la ambición profesional es la brújula, Londres no tiene rival en Europa.",
+    "photo_search": "London Tower Bridge Thames skyline night"
+  },
+  "Malaga": {
+    "quote": "Donde el sol se queda a vivir.",
+    "description": "Sol casi todo el año, tapas en cada esquina, y una escena creativa que ha convertido su centro histórico en uno de los más vibrantes del sur de Europa. Ideal para quienes quieren calidad de vida mediterránea sin renunciar a la infraestructura de ciudad media.",
+    "photo_search": "Malaga Spain old town cathedral Picasso"
+  },
+  "Medellin": {
+    "quote": "La ciudad que eligió el futuro cuando el pasado pesaba demasiado.",
+    "description": "La transformación más impresionante de una ciudad latinoamericana en las últimas décadas. Primavera eterna a 1.500 metros, metro cable, innovación urbana y una energía emprendedora que ha atraído a miles de nómadas. La nueva Bogotá que nunca quiso ser Bogotá.",
+    "photo_search": "Medellin Colombia metrocable El Poblado skyline spring"
+  },
+  "Mexico_City": {
+    "quote": "Veinte millones de personas que se las arreglan de maravilla.",
+    "description": "La megalópolis más fascinante del hemisferio occidental. Gastronomía de nivel mundial, arte, arquitectura prehispánica, colonial y modernista conviviendo en el mismo barrio. Para nómadas con alta tolerancia al caos y apetito por la intensidad.",
+    "photo_search": "Mexico City Zocalo Condesa Roma Palacio Bellas Artes"
+  },
+  "Milan": {
+    "quote": "El norte que mira al mundo y el mundo que mira al norte.",
+    "description": "Capital de la moda, el diseño y los negocios en Italia. Con el Duomo, la Galleria y una escena gastronómica que va del aperitivo al Michelin, Milán es la ciudad italiana que entiende la modernidad sin olvidar que Italia inventó el buen gusto.",
+    "photo_search": "Milan Duomo cathedral Galleria Vittorio fashion design"
+  },
+  "Montevideo": {
+    "quote": "La ciudad latinoamericana donde el semáforo en rojo siempre para.",
+    "description": "La capital más segura y ordenada de América del Sur. Uruguay combina estabilidad institucional, calidad de vida y una tranquilidad que pocas ciudades latinoamericanas pueden ofrecer. Para familias o jubilados que quieren Latinoamérica sin renunciar a la seguridad.",
+    "photo_search": "Montevideo Uruguay Old City rambla beach"
+  },
+  "Munich": {
+    "quote": "Bavaria, cerveza y la mejor calidad de vida de Alemania.",
+    "description": "La ciudad alemana con más calidad de vida según todos los rankings. Los Alpes a 90 minutos, el Inglés Garten en el centro y una cultura de la cerveza que es Patrimonio de la Humanidad. Cara, pero impecable en todo lo que ofrece.",
+    "photo_search": "Munich Bavaria beer garden Marienplatz Alps"
+  },
+  "Napoles": {
+    "quote": "El caos más organizado del Mediterráneo.",
+    "description": "La ciudad más auténtica de Italia y una de las más infravaloradas de Europa. Pizza que no existe en otro sitio, historia griega y romana en cada calle, el Vesubio de fondo y una energía urbana que o te enamora o te abruma. No hay término medio.",
+    "photo_search": "Naples Italy pizza Vesuvius seafront Spaccanapoli"
+  },
+  "Paris": {
+    "quote": "La ciudad que te cambia sin pedirte permiso.",
+    "description": "Capital mundial de la cultura, la gastronomía y el diseño. Vivir aquí es tener acceso a lo mejor del mundo a precio de metro. Caótica, bella e irrenunciable. El baremo con el que el resto del mundo mide las ciudades.",
+    "photo_search": "Paris Eiffel Tower golden hour Seine Montmartre"
+  },
+  "Porto": {
+    "quote": "Azulejos, fado y el Douro que nunca para.",
+    "description": "La ciudad más auténtica del Atlántico. Antigua sin ser anticuada, barata sin ser pobre, y con una energía creativa que ha atraído a miles de nómadas digitales en los últimos años. El Oporto que los portugueses conocen y los turistas están descubriendo.",
+    "photo_search": "Porto Ribeira azulejos Douro river bridge"
+  },
+  "Prague": {
+    "quote": "La ciudad de Kafka sigue siendo un poco incomprensible y completamente magnética.",
+    "description": "El casco histórico más bello de Europa Central. Arte nouveau, gótico y barroco conviviendo en la misma calle, y una vida cultural y nocturna que no cierra. Una de las ciudades más baratas de la UE occidental con estándares de capital europea.",
+    "photo_search": "Prague Charles Bridge Old Town astronomical clock"
+  },
+  "Roma": {
+    "quote": "No construyeron Roma en un día. Tú tampoco la verás en uno.",
+    "description": "La ciudad más antigua y más compleja de Europa occidental. Historia en cada adoquín, gastronomía que no necesita presentación y una disfunción urban que la hace única. Para quienes pueden vivir con el caos y quieren historia en el desayuno.",
+    "photo_search": "Rome Colosseum Vatican Trastevere fountain"
+  },
+  "Sevilla": {
+    "quote": "Flamenco, naranjos y el verano más largo de Europa.",
+    "description": "La capital del sur. Flamenco en su estado más puro, azulejos andaluces, tapas que definen el concepto y un invierno que parece primavera. Cara en verano, perfecta en octubre. Una de las ciudades con más identidad propia de España.",
+    "photo_search": "Seville Giralda Alcazar flamenco orange trees plaza"
+  },
+  "Sofia": {
+    "quote": "Dos mil años de historia en la capital más barata de la UE.",
+    "description": "La capital búlgara tiene el Vitosha Mountain como telón de fondo y los precios más bajos de la Unión Europea. Mezcla de herencia ortodoxa, otomana y socialista que crea una ciudad única. Para nómadas con presupuesto ajustado y curiosidad cultural.",
+    "photo_search": "Sofia Alexander Nevsky Cathedral Bulgaria Vitosha mountain"
+  },
+  "Stockholm": {
+    "quote": "Catorce islas, un archipiélago y el invierno más luminoso del norte.",
+    "description": "La capital escandinava más cosmopolita. Diseño, sostenibilidad, tecnología y una naturaleza que empieza donde termina la ciudad. Cara, impecable y con estándares de vida que pocas ciudades del mundo pueden igualar.",
+    "photo_search": "Stockholm Gamla Stan archipelago waterfront Sweden design"
+  },
+  "Tallinn": {
+    "quote": "El mejor wifi del mundo con vistas medievales.",
+    "description": "La capital digital de Europa. Estonia inventó el e-residency y Skype. Tallin tiene un casco medieval UNESCO, precios moderados y una infraestructura tech que lidera el continente. Para nómadas que necesitan velocidad — de internet y de vida.",
+    "photo_search": "Tallinn old town medieval towers Estonia digital"
+  },
+  "Tarifa": {
+    "quote": "Donde el Atlántico y el Mediterráneo se dan la mano.",
+    "description": "La capital mundial del kitesurf y el windsurf. Viento constante durante 300 días al año, el estrecho de Gibraltar como escenario y África visible desde la playa. Pequeña, auténtica y completamente entregada al viento. El destino que los riders llevan años guardando.",
+    "photo_search": "Tarifa kitesurf Strait of Gibraltar Africa Morocco view"
+  },
+  "Tbilisi": {
+    "quote": "Georgia invita. Una vez dentro, cuesta salir.",
+    "description": "La ciudad más sorprendente de Europa del Este. Arquitectura que mezcla influencias persas, soviéticas y vanguardistas, vino natural de la mejor región vinícola del Cáucaso y precios que hacen posible vivir bien con muy poco. La nueva Berlín de los nómadas digitales.",
+    "photo_search": "Tbilisi Georgia old town Narikala fortress Mtkvari"
+  },
+  "Valencia": {
+    "quote": "La tercera ciudad de España que no necesita ser la primera.",
+    "description": "Playa, paella, diseño y sol — pero a un ritmo que deja tiempo para vivir. Con el mejor transporte público del levante y una calidad de vida que pocas ciudades europeas pueden igualar al mismo precio.",
+    "photo_search": "Valencia Spain City of Arts Sciences paella beach"
+  },
+  "Vienna": {
+    "quote": "Mozart, Klimt y el café vienés. En ese orden o en otro.",
+    "description": "La ciudad con más calidad de vida del mundo durante años consecutivos según The Economist. Ópera, museos, arquitectura imperial y una cultura del café que es Patrimonio Inmaterial de la UNESCO. Para quienes la elegancia no es un extra.",
+    "photo_search": "Vienna Austria Schönbrunn opera Ringstrasse Klimt"
+  },
+  "Warsaw": {
+    "quote": "La ciudad que se negó a desaparecer y ganó.",
+    "description": "Varsovia fue destruida un 85% en la Segunda Guerra Mundial y se reconstruyó ladrillo a ladrillo. Hoy es una de las ciudades más dinámicas de Europa Central. Precios moderados, startups, historia de resistencia y una energía urbana en constante crecimiento.",
+    "photo_search": "Warsaw Poland Old Town reconstruction Vistula river"
+  }
+}

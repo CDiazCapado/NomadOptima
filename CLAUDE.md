@@ -13,6 +13,23 @@ Autor: Carlos Díaz Capado
 Repo: github.com/CDiazCapado/NomadOptima
 Stack: Python 3.12.10, LightGBM 4.6.0, SHAP 0.51.0, MLflow 3.10.1, FastAPI 0.135.2, Streamlit 1.55.0, PostgreSQL, Docker
 
+### Fuentes de datos activas
+| Fuente | Qué aporta | Prefijo features |
+|--------|-----------|-----------------|
+| Google Places New API | Lugares por tipo en radio urbano (~150 types) | `gp_` |
+| Numbeo | Coste de vida, precios, índices de calidad | `numbeo_` |
+| OpenStreetMap (Overpass) | Infraestructura urbana etiquetada | `osm_` |
+| wttr.in | Clima puntual (solo día de descarga, no histórico) | `weather_` |
+| Speedtest (Ookla) | Velocidad de internet por país | `speedtest_` |
+| RestCountries | Idioma, zona horaria, Schengen, UE | `country_` |
+
+### Fuentes futuras planificadas
+Open-Meteo (clima histórico) · OSM sport=* (surf, padel, kitesurf, esquí) · OpenAQ (calidad del aire) · Numbeo Crime Index · Meetup API · Equaldex (LGBTQ+)
+
+### Categorías del formulario de usuario (20 categorías, diseño orientado al usuario)
+Gastronomía · Vida nocturna · Cultura · Naturaleza & Outdoor · Deporte activo · Bienestar · Familia · Mascotas · Nómada digital · Alojamiento · Movilidad · Compras esenciales · Servicios personales · Salud · Turismo · Educación adultos · Comunidad & Religión · Coste de vida · Clima · Calidad de vida
+Ver detalle completo en LEARNING.md sección 22.
+
 **Antes de hacer cualquier cosa**, lee estos tres archivos en orden:
 1. `PROJECT_STATUS.md` — estado actual, último paso, próximo paso
 2. `LEARNING.md` — arquitectura completa y decisiones técnicas tomadas
@@ -42,6 +59,23 @@ Si alguno no existe todavía, créalo siguiendo el formato de este archivo.
 - Explica siempre el concepto técnico antes del código
 - Usa el nombre técnico correcto de cada concepto
 - Si detectas un error nuevo, avisa antes de corregirlo
+
+### REGLA CRÍTICA — Aprobación explícita antes de ejecutar CUALQUIER cosa
+**Esta regla se aplica a ABSOLUTAMENTE TODO, sin excepciones.**
+
+Antes de ejecutar cualquier acción (código, comando, modificación de archivo, git,
+llamada a API, instalación de paquete, borrado de archivo, etc.):
+
+1. **Analiza** la situación y los problemas que detectas
+2. **Explica** qué opciones existen y cuáles son las consecuencias de cada una
+3. **Propón** la solución que consideras mejor, con justificación
+4. **Espera** a que Carlos diga explícitamente que proceda
+
+No ejecutes nada hasta recibir aprobación. Ni aunque parezca obvio. Ni aunque sea
+un cambio pequeño. Ni aunque el usuario haya aprobado algo similar antes.
+
+La única excepción es si Carlos dice explícitamente "hazlo", "ejecuta", "procede",
+"adelante" o similar — y solo para esa acción concreta, no para las siguientes.
 
 ---
 
@@ -95,39 +129,73 @@ Formato de cada sección:
 ## 4. Estructura del proyecto
 
 ```
-nomadoptima/
-├── CLAUDE.md              ← este archivo (instrucciones para Claude Code)
-├── PROJECT_STATUS.md      ← estado actual del proyecto
-├── LEARNING.md            ← cuaderno de aprendizaje acumulativo
-├── ERRORS_LOG.md          ← registro de errores y soluciones
-├── .env                   ← API keys (NUNCA modificar ni leer el contenido)
+nomadoptima/                           estado: 06/04/2026
+├── CLAUDE.md                          ← instrucciones para Claude Code (este archivo)
+├── PROJECT_STATUS.md                  ← estado actual + limitaciones conocidas
+├── LEARNING.md                        ← cuaderno aprendizaje (19 secciones + apéndice)
+├── ERRORS_LOG.md                      ← errores y soluciones
+├── requirements.txt                   ← dependencias Python
+├── .env                               ← API keys (NUNCA tocar)
 ├── .gitignore
-├── requirements.txt
+│
 ├── data/
-│   ├── raw/               ← JSONs de fetch_cities.py
-│   └── processed/         ← datasets procesados para el modelo
+│   ├── raw/                           ← JSONs de fetch_cities.py (en .gitignore)
+│   │   ├── cities_raw.json            ← ENTRADA PRINCIPAL del sistema (5 ciudades)
+│   │   └── *_raw.json                 ← un JSON por ciudad
+│   └── processed/
+│       ├── training_dataset.csv       ← 150k filas × 88 cols — notebook 02 (54MB)
+│       ├── training_dataset_enriched.csv ← 150k × 94 cols — notebook 04 (60MB)
+│       ├── model_v2/                  ← 6 artefactos del modelo en producción ✅
+│       │   ├── lgbm_ranker.txt        ← LightGBM (32 árboles, 90 features)
+│       │   ├── user_clusterer.joblib  ← PCA+UMAP+HDBSCAN (22 clusters)
+│       │   ├── city_clusterer.joblib  ← 3 clusters manuales de ciudad
+│       │   ├── feature_builder.joblib ← CityFeatureBuilder + MinMaxScaler
+│       │   ├── feature_cols.json      ← orden exacto de las 90 features
+│       │   └── affinity_table.csv     ← tabla 22×3 afinidad user×city cluster
+│       └── *.png                      ← gráficos generados por notebooks
+│
 ├── notebooks/
-│   ├── 01_eda_malaga_paris.ipynb
-│   ├── 02_synthetic_profiles.ipynb
-│   └── 03_lightgbm_ranker.ipynb   ← pendiente
+│   ├── 01_eda_5ciudades.ipynb         ← EDA 5 ciudades + perfiles sintéticos ✅
+│   ├── 02_synthetic_profiles.ipynb    ← 150k perfiles sintéticos + labels ✅
+│   ├── 03_lightgbm_ranker.ipynb       ← modelo v1, 84 features (referencia) ✅
+│   ├── 04_clustering_ranker.ipynb     ← modelo v2, 90 features (ACTUAL) ✅
+│   └── mlruns/                        ← experimentos MLflow (4 runs)
+│
 ├── src/
 │   ├── ingestion/
-│   │   └── fetch_cities.py        ← v7 actual
+│   │   └── fetch_cities.py            ← v9: 6 APIs, offset GP, 5 ciudades ✅
 │   ├── processing/
-│   │   ├── features.py            ← pendiente
-│   │   └── normalize.py           ← pendiente
+│   │   └── features.py                ← CityFeatureBuilder + cosine_sim (Capa 1) ✅
 │   └── models/
-│       ├── clustering.py          ← pendiente
-│       ├── ranker.py              ← pendiente
-│       └── explainer.py           ← pendiente
-├── api/
-│   └── main.py                    ← pendiente
+│       ├── clustering.py              ← UserClusterer + CityClusterer (Capas 2+3) ✅
+│       ├── ranker.py                  ← NomadRanker producción (Capa 4) ✅
+│       └── explainer.py               ← PENDIENTE (Capa 5: SHAP + MMR)
+│
 ├── app/
-│   └── streamlit_app.py           ← pendiente
-├── logs/
-│   ├── ingestion.log              ← generado automáticamente
-│   └── ingestion_structured.jsonl ← generado automáticamente
-└── mlruns/                        ← generado por MLflow
+│   └── streamlit_app.py               ← PENDIENTE (demo visual)
+│
+├── api/
+│   └── main.py                        ← PENDIENTE (FastAPI /recommend)
+│
+└── scripts/                           ← scripts de apoyo (borrar los de uso único)
+    ├── add_eda_sections.py            ← BORRAR — uso único, trabajo hecho
+    ├── create_notebook_04.py          ← BORRAR — uso único, trabajo hecho
+    └── fetch_gp_raw.py                ← MANTENER — herramienta EDA reutilizable (todos los GP types)
+```
+
+### Archivos a borrar (detectados en revisión 06/04/2026)
+- `data/processed/cities_features_raw.csv` — versión obsoleta pre-refactor
+- `data/processed/eda_radar_chart.png` — sustituido por eda_radar_5cities.png
+- `scripts/add_eda_sections.py` — uso único completado
+- `scripts/create_notebook_04.py` — uso único completado
+
+### Entradas pendientes de añadir al `.gitignore`
+```
+data/processed/training_dataset.csv
+data/processed/training_dataset_enriched.csv
+data/processed/model_v2/
+data/processed/*.png
+notebooks/mlruns/
 ```
 
 ---
@@ -304,3 +372,92 @@ Explica siempre: qué hace el código, por qué lo hace así, y qué significa e
 
 *Este archivo es la fuente de verdad del proyecto para Claude Code.*
 *Actualízalo cuando cambien las instrucciones o la estructura del proyecto.*
+
+---
+
+## 12. Arquitectura del sistema — 5 capas (CRÍTICO — leer antes de implementar cualquier modelo)
+
+NomadOptima NO es solo LightGBM. Es un Hybrid Recommender System con 5 capas.
+Implementar solo LightGBM sin las otras capas es incompleto.
+
+### Capa 1 — Content-Based Filtering (baseline, funciona desde día 1)
+- Algoritmo: Cosine Similarity
+- Qué hace: cruza el vector de preferencias del usuario con las features de cada ciudad
+- Por qué: funciona sin usuarios reales — resuelve el cold start total
+- Librería: scikit-learn (cosine_similarity)
+- Archivo: src/processing/features.py
+
+### Capa 2 — User Clustering (no supervisado)
+- Algoritmos: PCA → UMAP → HDBSCAN sobre perfiles de usuario
+- Qué hace: agrupa usuarios similares en arquetipos (clusters)
+- Por qué: transfiere conocimiento entre usuarios similares — resuelve cold start de usuario
+- Librerías: scikit-learn, umap-learn, hdbscan
+- Arquetipos esperados: nómada digital, familia con hijos, jubilado activo, deportista outdoor...
+- Archivo: src/models/clustering.py
+
+### Capa 3 — Item Clustering (no supervisado)
+- Algoritmos: PCA → UMAP → HDBSCAN sobre features de ciudades
+- Qué hace: agrupa ciudades similares entre sí
+- Por qué: si un usuario eligió Tarifa, puede interesarle Gruissan (mismo cluster)
+- Clusters esperados: costa kite atlántica, metrópoli cosmopolita, ciudad media cultural...
+- Archivo: src/models/clustering.py (misma clase, distinto objeto)
+
+### Capa 4 — LightGBM Ranker (orquestador)
+- Algoritmo: LambdaMART (objective='lambdarank')
+- Qué hace: combina señales de las 3 capas anteriores como features y produce el ranking final
+- Features clave que recibe:
+    cosine_similarity_perfil_ciudad   (Capa 1)
+    user_cluster_id                   (Capa 2)
+    user_cluster_strength             (Capa 2)
+    city_cluster_id                   (Capa 3)
+    city_cluster_strength             (Capa 3)
+    afinidad_usercluster_citycluster  (interacción entre capas — feature más potente)
+- Archivo: src/models/ranker.py
+
+### Capa 5 — Output Layer: SHAP + MMR
+- SHAP: explica por qué cada ciudad está en su posición del ranking
+- MMR (Maximal Marginal Relevance): diversifica el top-N para evitar ciudades casi idénticas
+- Archivo: src/models/explainer.py
+
+### Pre-filtro — Restricciones duras (antes de cualquier capa)
+Ciudades que no pasan estos filtros se eliminan antes de entrar al modelo:
+- coste_vida > presupuesto_max * 1.15  → eliminada
+- temp_media_anual < temp_min_usuario - 3  → eliminada
+- tiene_coworking == False si usuario lo requiere  → eliminada
+- permite_mascotas == False si usuario viaja con mascota  → eliminada
+
+### Flujo completo
+```
+Usuario define perfil
+    ↓
+[Restricciones duras] — elimina incompatibles
+    ↓
+[Capa 1] Cosine Similarity — baseline
+[Capa 2] UMAP+HDBSCAN — user cluster
+[Capa 3] UMAP+HDBSCAN — city cluster
+    ↓
+[Capa 4] LightGBM LambdaMART — ranking final
+    ↓
+[Capa 5a] SHAP — explicación
+[Capa 5b] MMR — diversificación
+    ↓
+Top-N ciudades con justificación
+```
+
+### Fase 3 — Travel Optimizer (meses 5-6, post-MVP)
+Cuando el City Matcher esté listo se añaden:
+- Activity Selector: Knapsack / Programación Dinámica
+- Route Optimizer: TSP con OR-Tools (Google)
+- Itinerary Diversifier: Simulated Annealing
+- Collaborative Filter: Matrix Factorization ALS (cuando haya usuarios reales)
+
+### Orden de implementación correcto
+1. src/processing/features.py — Cosine Similarity baseline (Capa 1)
+2. src/models/clustering.py — User Clustering + Item Clustering (Capas 2 y 3)
+3. src/models/ranker.py — LightGBM con features de todas las capas (Capa 4)
+4. src/models/explainer.py — SHAP + MMR (Capa 5)
+5. api/main.py — FastAPI /recommend endpoint
+6. app/streamlit_app.py — demo visual
+
+El notebook 03 implementa SOLO la Capa 4 con pseudo-labels directos.
+Las Capas 1, 2 y 3 están pendientes de implementar en src/models/.
