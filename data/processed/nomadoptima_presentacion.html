@@ -83,7 +83,8 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
   #pipeline-io .card { overflow-x: unset; }
   .pipeline-phase { display: flex; flex-direction: column; gap: 8px; min-width: unset; }
   .pp-arrow { display: none; }
-  .pp-box { width: 100%; }
+  .pp-box { width: 100%; text-align: center; }
+  .pp-item, .pp-item.out { text-align: left; }
 
   /* Timeline central → lista izquierda */
   .timeline::before { left: 12px; transform: none; }
@@ -204,9 +205,9 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 .heatmap-wrap { overflow-x: auto; }
 .heatmap { border-collapse: collapse; width: 100%; font-size: 0.76em; }
 .heatmap th { background: #1e3a5f; color: #fff; padding: 8px 6px; text-align: center; font-size: 0.8em; white-space: nowrap; }
-.heatmap th.row-header { text-align: left; padding-left: 10px; min-width: 180px; font-size: 0.82em; }
+.heatmap th.row-header { text-align: left; padding-left: 10px; min-width: 180px; font-size: 0.82em; position: sticky; left: 0; z-index: 2; background: #1e3a5f; }
 .heatmap td { padding: 6px 5px; text-align: center; border: 1px solid #e8e5de; }
-.heatmap td.name { text-align: left; padding-left: 8px; font-size: 0.82em; color: #1e3a5f; font-weight: 500; white-space: nowrap; }
+.heatmap td.name { text-align: left; padding-left: 8px; font-size: 0.82em; color: #1e3a5f; font-weight: 500; white-space: nowrap; position: sticky; left: 0; z-index: 1; background: #fff; border-right: 2px solid #e8e5de; }
 .heatmap td.pct { color: #6b7280; font-size: 0.78em; }
 .h-high { background: #1a7a42; color: #fff; font-weight: 700; font-size: 0.75em; }
 .h-med  { background: #a9dfbf; color: #1a5c30; font-size: 0.72em; }
