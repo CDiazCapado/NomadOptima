@@ -590,7 +590,7 @@ def render_city_card(
     with st.expander(f"📷 Fotos & descripción — {display}"):
         render_city_carousel(city_key)
         if desc:
-            st.markdown(html_lib.unescape(desc))
+            st.markdown(html_lib.unescape(desc), unsafe_allow_html=True)
 
 
 # ════════════════════════════════════════════════════════════════════════════
