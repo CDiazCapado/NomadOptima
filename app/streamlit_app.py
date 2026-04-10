@@ -78,36 +78,49 @@ CONTINENTES = sorted(set(CITY_CONTINENT.values()))
 
 CITY_DISPLAY: dict[str, str] = {
     "Alicante": "Alicante", "Amsterdam": "Ámsterdam", "Andorra": "Andorra",
-    "Atenas": "Atenas", "Barcelona": "Barcelona", "Belgrade": "Belgrado",
-    "Berlin": "Berlín", "Bordeaux": "Burdeos", "Bucharest": "Bucarest",
-    "Budapest": "Budapest", "Chamonix": "Chamonix", "Dublin": "Dublín",
-    "Faro": "Faro", "Fuerteventura": "Fuerteventura", "Granada": "Granada",
-    "Innsbruck": "Innsbruck", "Krakow": "Cracovia", "Las_Palmas": "Las Palmas",
-    "Lisboa": "Lisboa", "London": "Londres", "Malaga": "Málaga",
-    "Milan": "Milán", "Munich": "Múnich", "Napoles": "Nápoles",
-    "Paris": "París", "Porto": "Porto", "Prague": "Praga",
-    "Roma": "Roma", "Sevilla": "Sevilla", "Sofia": "Sofía",
+    "Atenas": "Atenas", "Bali": "Bali", "Bangkok": "Bangkok",
+    "Barcelona": "Barcelona", "Belgrade": "Belgrado", "Berlin": "Berlín",
+    "Bogota": "Bogotá", "Bordeaux": "Burdeos", "Bucharest": "Bucarest",
+    "Budapest": "Budapest", "Buenos_Aires": "Buenos Aires",
+    "Cartagena": "Cartagena", "Chamonix": "Chamonix",
+    "Chiang_Mai": "Chiang Mai", "Dakhla": "Dakhla", "Dubai": "Dubai",
+    "Dublin": "Dublín", "Essaouira": "Essaouira", "Faro": "Faro",
+    "Fuerteventura": "Fuerteventura", "Granada": "Granada",
+    "Innsbruck": "Innsbruck", "Krakow": "Cracovia",
+    "Kuala_Lumpur": "Kuala Lumpur", "Las_Palmas": "Las Palmas",
+    "Lima": "Lima", "Lisboa": "Lisboa", "London": "Londres",
+    "Malaga": "Málaga", "Marrakech": "Marrakech", "Medellin": "Medellín",
+    "Mexico_City": "Ciudad de México", "Milan": "Milán",
+    "Montevideo": "Montevideo", "Munich": "Múnich", "Napoles": "Nápoles",
+    "Paris": "París", "Playa_Del_Carmen": "Playa del Carmen",
+    "Porto": "Porto", "Prague": "Praga", "Roma": "Roma",
+    "Santiago": "Santiago de Chile", "Sevilla": "Sevilla", "Sofia": "Sofía",
     "Stockholm": "Estocolmo", "Tallinn": "Tallin", "Tarifa": "Tarifa",
     "Tbilisi": "Tbilisi", "Valencia": "Valencia", "Vienna": "Viena",
-    "Warsaw": "Varsovia", "Buenos_Aires": "Buenos Aires",
-    "Cartagena": "Cartagena", "Medellin": "Medellín",
-    "Mexico_City": "Ciudad de México", "Montevideo": "Montevideo",
+    "Warsaw": "Varsovia",
 }
 CITY_FLAG: dict[str, str] = {
     "Alicante": "🇪🇸", "Amsterdam": "🇳🇱", "Andorra": "🇦🇩",
-    "Atenas": "🇬🇷", "Barcelona": "🇪🇸", "Belgrade": "🇷🇸",
-    "Berlin": "🇩🇪", "Bordeaux": "🇫🇷", "Bucharest": "🇷🇴",
-    "Budapest": "🇭🇺", "Chamonix": "🇫🇷", "Dublin": "🇮🇪",
-    "Faro": "🇵🇹", "Fuerteventura": "🇪🇸", "Granada": "🇪🇸",
-    "Innsbruck": "🇦🇹", "Krakow": "🇵🇱", "Las_Palmas": "🇪🇸",
-    "Lisboa": "🇵🇹", "London": "🇬🇧", "Malaga": "🇪🇸",
-    "Milan": "🇮🇹", "Munich": "🇩🇪", "Napoles": "🇮🇹",
-    "Paris": "🇫🇷", "Porto": "🇵🇹", "Prague": "🇨🇿",
-    "Roma": "🇮🇹", "Sevilla": "🇪🇸", "Sofia": "🇧🇬",
+    "Atenas": "🇬🇷", "Bali": "🇮🇩", "Bangkok": "🇹🇭",
+    "Barcelona": "🇪🇸", "Belgrade": "🇷🇸", "Berlin": "🇩🇪",
+    "Bogota": "🇨🇴", "Bordeaux": "🇫🇷", "Bucharest": "🇷🇴",
+    "Budapest": "🇭🇺", "Buenos_Aires": "🇦🇷",
+    "Cartagena": "🇨🇴", "Chamonix": "🇫🇷",
+    "Chiang_Mai": "🇹🇭", "Dakhla": "🇲🇦", "Dubai": "🇦🇪",
+    "Dublin": "🇮🇪", "Essaouira": "🇲🇦", "Faro": "🇵🇹",
+    "Fuerteventura": "🇪🇸", "Granada": "🇪🇸",
+    "Innsbruck": "🇦🇹", "Krakow": "🇵🇱",
+    "Kuala_Lumpur": "🇲🇾", "Las_Palmas": "🇪🇸",
+    "Lima": "🇵🇪", "Lisboa": "🇵🇹", "London": "🇬🇧",
+    "Malaga": "🇪🇸", "Marrakech": "🇲🇦", "Medellin": "🇨🇴",
+    "Mexico_City": "🇲🇽", "Milan": "🇮🇹",
+    "Montevideo": "🇺🇾", "Munich": "🇩🇪", "Napoles": "🇮🇹",
+    "Paris": "🇫🇷", "Playa_Del_Carmen": "🇲🇽",
+    "Porto": "🇵🇹", "Prague": "🇨🇿", "Roma": "🇮🇹",
+    "Santiago": "🇨🇱", "Sevilla": "🇪🇸", "Sofia": "🇧🇬",
     "Stockholm": "🇸🇪", "Tallinn": "🇪🇪", "Tarifa": "🇪🇸",
     "Tbilisi": "🇬🇪", "Valencia": "🇪🇸", "Vienna": "🇦🇹",
-    "Warsaw": "🇵🇱", "Buenos_Aires": "🇦🇷", "Cartagena": "🇨🇴",
-    "Medellin": "🇨🇴", "Mexico_City": "🇲🇽", "Montevideo": "🇺🇾",
+    "Warsaw": "🇵🇱",
 }
 IDIOMA_COLS: dict[str, str] = {
     "Español": "city_idioma_espanol",
@@ -523,9 +536,7 @@ def render_city_card(
     city_content: dict,
 ) -> None:
     badge_cls = {1: "gold", 2: "silver", 3: "bronze"}.get(rank, "other")
-    card_cls  = "city-card rank1" if rank == 1 else "city-card"
-    display   = CITY_DISPLAY.get(city_key, city_key)
-    flag      = CITY_FLAG.get(city_key, "📍")
+    display   = CITY_DISPLAY.get(city_key, city_key.replace("_", " "))
     continent = CITY_CONTINENT.get(city_key, "")
     pct       = int((score / max_score) * 100) if max_score > 0 else 0
 
@@ -535,7 +546,6 @@ def render_city_card(
     temp  = row.get("city_temp_media_anual", None)
     sol   = row.get("city_dias_sol_anual", None)
     cow   = row.get("city_coworking_osm", row.get("city_gp_coworking", None))
-    idiom = row.get("city_idioma_nativo", "")
 
     coste_txt = f"€{int(coste):,}/mes" if pd.notna(coste) and coste > 0 else ""
     temp_txt  = f"{int(temp)}°C" if pd.notna(temp) else ""
@@ -547,7 +557,6 @@ def render_city_card(
         f'<span class="stat-pill">🌡️ {temp_txt}</span>' if temp_txt else "",
         f'<span class="stat-pill">☀️ {sol_txt}</span>' if sol_txt else "",
         f'<span class="stat-pill">💻 {cow_txt}</span>' if cow_txt else "",
-        f'<span class="stat-pill">🗣️ {idiom}</span>' if idiom else "",
     ]
     stats_html = "".join(s for s in stats_parts if s)
 
@@ -557,40 +566,56 @@ def render_city_card(
         f'<span class="dim-tag">{DIM_LABELS.get(d, d)}</span>'
         for d, _ in top_dims
     )
+    dims_section = f"<div style='margin-top:0.4rem;'>{dims_html}</div>" if dims_html else ""
 
-    # Contenido editorial — escapar caracteres especiales antes de insertar en HTML
+    # Contenido editorial
     info  = city_content.get(city_key, {})
     quote = html_lib.escape(info.get("quote", ""))
     desc  = html_lib.escape(info.get("description", ""))
-    quote_html   = f'<p class="city-quote">{quote}</p>' if quote else ""
-    dims_section = f"<div style='margin-top:0.4rem;'>{dims_html}</div>" if dims_html else ""
 
-    # Cabecera del card
-    st.markdown(
-        f"""
-        <div class="{card_cls}">
-            <div style="display:flex;align-items:center;margin-bottom:0.6rem;">
-                <span class="rank-badge {badge_cls}">#{rank}</span>
-                <span class="city-name">{flag} {display}</span>
-                <span style="color:#aaa;font-size:0.82rem;margin-left:0.5rem;">— {continent}</span>
-            </div>
-            {quote_html}
-            <div style="margin:0.4rem 0;">
-                <span style="font-size:0.8rem;color:#888;">Compatibilidad: <strong style="color:#667eea;">{pct}%</strong></span>
-                <div class="match-bar-bg"><div class="match-bar-fill" style="width:{pct}%;"></div></div>
-            </div>
-            <div style="margin:0.5rem 0;">{stats_html}</div>
-            {dims_section}
-        </div>
-        """,
-        unsafe_allow_html=True,
+    continent_html = (
+        f'<span style="color:#aaa;font-size:0.82rem;margin-left:0.6rem;">— {continent}</span>'
+        if continent else ""
     )
 
-    # Foto y descripción en expander
-    with st.expander(f"📷 Fotos & descripción — {display}"):
+    # ── Todo el card en un único contenedor ────────────────────────────────
+    with st.container(border=True):
+        # Cabecera: badge + nombre + barra de compatibilidad + stats + dims
+        st.markdown(
+            f"""
+            <div style="display:flex;align-items:center;margin-bottom:0.5rem;">
+                <span class="rank-badge {badge_cls}">#{rank}</span>
+                <span class="city-name">{display}</span>
+                {continent_html}
+            </div>
+            <div style="margin:0.3rem 0 0.5rem 0;">
+                <span style="font-size:0.8rem;color:#888;">Compatibilidad:
+                    <strong style="color:#667eea;">{pct}%</strong>
+                </span>
+                <div class="match-bar-bg">
+                    <div class="match-bar-fill" style="width:{pct}%;"></div>
+                </div>
+            </div>
+            <div style="margin:0.4rem 0 0.3rem 0;">{stats_html}</div>
+            {dims_section}
+            """,
+            unsafe_allow_html=True,
+        )
+
+        # Carrusel de fotos — inline, sin expander
         render_city_carousel(city_key)
+
+        # Frase y descripción
+        if quote:
+            st.markdown(
+                f'<p class="city-quote">{quote}</p>',
+                unsafe_allow_html=True,
+            )
         if desc:
-            st.markdown(html_lib.unescape(desc), unsafe_allow_html=True)
+            st.markdown(
+                f'<p class="city-desc">{html_lib.unescape(desc)}</p>',
+                unsafe_allow_html=True,
+            )
 
 
 # ════════════════════════════════════════════════════════════════════════════
