@@ -16,8 +16,9 @@ data/raw/
 data/processed/training_dataset.csv
 data/processed/training_dataset_enriched.csv
 
-# Artefactos del modelo — se regeneran con notebook 04
+# Artefactos del modelo — versiones antiguas se regeneran
 data/processed/model_v2/
+# model_v3/ se sube al repo — necesario para ejecutar la app sin reentrenar
 
 # Imágenes generadas por los notebooks
 data/processed/*.png
@@ -34,10 +35,10 @@ notebooks/02_synthetic_profiles_v2.ipynb
 notebooks/02_synthetic_profiles_v3.ipynb
 notebooks/03_train_model.ipynb
 
-# Features y datos procesados generados (se regeneran con features.py)
-data/processed/city_features.csv
+# HTMLs generados (se regeneran)
 data/processed/city_features_eda.html
 data/processed/training_dataset_overview.html
+# city_features.csv se sube al repo — necesario para ejecutar la app
 
 # HTMLs de presentación y análisis generados (grandes, se regeneran)
 data/processed/hitos_proyecto.html

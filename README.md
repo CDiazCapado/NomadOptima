@@ -139,38 +139,36 @@ NUMBEO_API_KEY=tu_clave_aqui
 
 ## Datos necesarios
 
-Para que la app y el modelo funcionen se necesitan dos artefactos que no están incluidos en el repositorio (están en `.gitignore` por su tamaño):
+Los datos necesarios para ejecutar la app **están incluidos en el repositorio** — no hace falta ejecutar ningún script de ingesta ni tener API keys:
 
-| Archivo | Descripción |
-|---------|-------------|
-| `data/processed/city_features.csv` | 54 ciudades × 149 features — generado por `src/processing/features.py` |
-| `data/processed/model_v3/` | 4 artefactos del modelo entrenado (lgbm_ranker_v3.txt, feature_builder_v3.joblib, feature_cols_v3.json, model_metrics_v3.json) |
+| Archivo | Tamaño | Descripción |
+|---------|--------|-------------|
+| `data/processed/city_features.csv` | 30 KB | 54 ciudades × 149 features (ya en el repo) |
+| `data/processed/model_v3/` | 317 KB | 4 artefactos del modelo entrenado (ya en el repo) |
 
-### Cómo generarlos desde cero
+Basta con clonar el repo e instalar dependencias para tener la app funcionando.
 
-Ejecutar los notebooks en orden:
+### Si quieres regenerar los datos desde cero
 
-```bash
-# Abrir Jupyter
-jupyter notebook notebooks/
-
-# Ejecutar en este orden:
-# 1. notebooks/01_eda_ciudades.ipynb       — EDA y validación de datos
-# 2. notebooks/02_synthetic_profiles_v3.ipynb  — genera user_profiles.csv
-# 3. notebooks/03_train_model.ipynb        — entrena LightGBM, genera model_v3/
-```
-
-Alternativamente, ejecutar la ingesta de datos primero:
+Requiere API keys en `.env` (Google Places, Numbeo) y ejecutar los notebooks en orden:
 
 ```bash
+# 1. Ingesta de datos de 54 ciudades (requiere API keys)
 python src/ingestion/fetch_cities.py
+
+# 2. Abrir Jupyter y ejecutar en orden:
+jupyter notebook notebooks/
+# 02_synthetic_profiles_v3.ipynb  → genera user_profiles.csv
+# 03_train_model.ipynb            → entrena LightGBM, genera model_v3/
 ```
 
-> La ingesta llama a Google Places API y Numbeo, que tienen coste por petición. Revisar los límites antes de ejecutar.
+> La ingesta llama a Google Places API y Numbeo, que tienen coste por petición.
 
 ---
 
 ## Cómo arrancar la app
+
+### En local
 
 ```bash
 streamlit run app/streamlit_app.py
@@ -178,9 +176,21 @@ streamlit run app/streamlit_app.py
 
 La app se abre en `http://localhost:8501`.
 
-El usuario define su perfil en 20 categorías y el sistema devuelve un ranking de ciudades con puntuación y justificación por dimensión.
+### En Streamlit Community Cloud (URL pública, gratis)
 
-Si los artefactos de `model_v3/` no están disponibles, la app cae al modo de fallback con cosine similarity.
+1. Sube el repositorio a GitHub (puede ser público o privado).
+2. Ve a [share.streamlit.io](https://share.streamlit.io) e inicia sesión con tu cuenta de GitHub.
+3. Haz clic en **New app**.
+4. Selecciona el repositorio, la rama (`main`) y el archivo principal: `app/streamlit_app.py`.
+5. En **Advanced settings → Dependencies**, usa `requirements_app.txt` como archivo de dependencias.
+6. Haz clic en **Deploy**. En 2-3 minutos tendrás una URL pública del tipo:
+   ```
+   https://tu-usuario-nomadoptima.streamlit.app
+   ```
+
+> No se necesitan secretos ni variables de entorno para ejecutar la app — los datos están en el repo.
+
+El usuario define su perfil en 20 categorías y el sistema devuelve un ranking de ciudades con puntuación y justificación por dimensión.
 
 ---
 
@@ -191,10 +201,10 @@ nomadoptima/
 ├── data/
 │   ├── raw/                        <- JSONs de ingesta (en .gitignore)
 │   └── processed/
-│       ├── city_features.csv       <- 54 ciudades × 149 features
-│       ├── user_profiles.csv       <- 5.000 perfiles × 26 dims
+│       ├── city_features.csv       <- 54 ciudades × 149 features (en el repo)
+│       ├── user_profiles.csv       <- 5.000 perfiles × 26 dims (en .gitignore)
 │       ├── training_dataset.csv    <- 270.000 filas × 177 cols (en .gitignore)
-│       └── model_v3/               <- artefactos del modelo (en .gitignore)
+│       └── model_v3/               <- artefactos del modelo entrenado (en el repo)
 │
 ├── notebooks/
 │   ├── 01_eda_ciudades.ipynb       <- EDA Fase 1 — fuentes y decisiones
@@ -283,6 +293,6 @@ streamlit run app/streamlit_app.py
 
 ## Autor
 
-Carlos Díaz Capado — Proyecto final del bootcamp de Machine Learning, 4Geeks Academy.
+Cristina Díaz Capado — Proyecto final del bootcamp de Machine Learning, 4Geeks Academy.
 
 Repositorio: [github.com/CDiazCapado/NomadOptima](https://github.com/CDiazCapado/NomadOptima)

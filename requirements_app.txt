@@ -1,0 +1,15 @@
+# Dependencias mínimas para ejecutar app/streamlit_app.py
+# Usar este archivo para despliegue en Streamlit Community Cloud:
+#   pip install -r requirements_app.txt
+
+streamlit==1.55.0
+pandas==2.3.3
+numpy==2.4.3
+scikit-learn==1.8.0
+lightgbm==4.6.0
+joblib==1.5.3
+plotly==6.6.0
+Pillow==12.1.1
+streamlit-image-carousel==0.0.11
+umap-learn==0.5.11
+hdbscan==0.8.42

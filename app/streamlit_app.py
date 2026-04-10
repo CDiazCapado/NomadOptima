@@ -788,13 +788,7 @@ def main():
         city_dentro, city_fuera = filter_by_budget(city_df_base, presupuesto)
 
         with st.spinner("Calculando ranking..."):
-            if ranker is not None:
-                # LightGBM LambdaMART (Capa 4) — 175 features
-                candidate_keys = city_dentro.index.tolist()
-                scores = ranker.scores_series(prefs_finales, candidate_cities=candidate_keys)
-            else:
-                # Fallback: Cosine Similarity (Capa 1)
-                scores = builder.cosine_scores(prefs_finales, city_dentro)
+            scores = builder.cosine_scores(prefs_finales, city_dentro)
             scores = apply_language_boost(scores, city_dentro, idiomas_sel)
 
         top_n  = min(8, len(scores))
@@ -815,11 +809,7 @@ def main():
         # Mostrar excluidas por presupuesto (informativo, no ranking)
         if n_excluidas > 0 and len(city_fuera) <= 15:
             with st.expander(f"🚫 {n_excluidas} ciudades fuera de tu presupuesto (€{int(presupuesto * 1.30):,}/mes)"):
-                if ranker is not None:
-                    excl_keys = city_fuera.index.tolist()
-                    excl_scores = ranker.scores_series(prefs_finales, candidate_cities=excl_keys)
-                else:
-                    excl_scores = builder.cosine_scores(prefs_finales, city_fuera)
+                excl_scores = builder.cosine_scores(prefs_finales, city_fuera)
                 excl_top = excl_scores.sort_values(ascending=False).head(5)
                 st.caption("Serían buenas opciones de perfil, pero superan tu presupuesto:")
                 for city_key, score in excl_top.items():
@@ -832,16 +822,13 @@ def main():
                         f"*(compatibilidad perfil: {pct_match}%)*"
                     )
 
-        motor_txt = (
-            "🔬 <strong>Motor:</strong> LightGBM LambdaMART (Capa 4) — "
-            "175 features · NDCG@5 = 0.9631 · 43 árboles · "
-            "Google Places · Numbeo · OpenStreetMap · Clima · Internet · RestCountries."
-            if ranker is not None else
-            "🔬 <strong>Motor:</strong> Cosine Similarity (Capa 1) — "
-            "el orden lo determinan las características del perfil."
-        )
         st.markdown(
-            f'<div class="model-note">{motor_txt}</div>',
+            '<div class="model-note">'
+            "🔬 <strong>Motor:</strong> Cosine Similarity (Capa 1) · "
+            "Google Places · Numbeo · OpenStreetMap · Clima · Internet · RestCountries. "
+            "LightGBM LambdaMART entrenado (NDCG@5 = 0.9631 · 175 features) — "
+            "se integra en v2 con feedback real de usuarios."
+            "</div>",
             unsafe_allow_html=True,
         )
 
