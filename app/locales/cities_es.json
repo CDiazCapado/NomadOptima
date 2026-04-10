@@ -208,5 +208,65 @@
     "quote": "La ciudad que se negó a desaparecer y ganó.",
     "description": "Varsovia fue destruida un 85% en la Segunda Guerra Mundial y se reconstruyó ladrillo a ladrillo. Hoy es una de las ciudades más dinámicas de Europa Central. Precios moderados, startups, historia de resistencia y una energía urbana en constante crecimiento.",
     "photo_search": "Warsaw Poland Old Town reconstruction Vistula river"
+  },
+  "Bali": {
+    "quote": "La isla de los dioses, donde cada amanecer es una ofrenda.",
+    "description": "Arrozales en terrazas, templos entre la selva y una cultura espiritual que lo impregna todo. Ubud para el yoga y el coworking, Canggu para el surf. Precio de vida bajo y comunidad nómada consolidada.",
+    "photo_search": "Bali rice terraces Ubud temple Canggu"
+  },
+  "Bangkok": {
+    "quote": "El caos y la belleza coexisten aquí con una elegancia que ninguna otra ciudad domina.",
+    "description": "Megalópolis con gastronomía callejera imbatible, templos de oro entre rascacielos y vida nocturna para todos los gustos. Hub de vuelos a toda Asia, coste de vida bajo y base perfecta para explorar el Sudeste Asiático.",
+    "photo_search": "Bangkok temples skyline street food Chao Phraya"
+  },
+  "Bogota": {
+    "quote": "A 2.600 metros, donde el café sabe diferente y el arte está en cada esquina.",
+    "description": "La Candelaria histórica junto a Usaquén con sus galerías y cafés de especialidad. Escena gastronómica emergente, clima templado todo el año por la altitud, y una energía creativa que la convierte en hub latinoamericano para nómadas.",
+    "photo_search": "Bogota La Candelaria Monserrate Colombia capital"
+  },
+  "Chiang_Mai": {
+    "quote": "El norte que late despacio, pero con fuerza.",
+    "description": "La capital alternativa de Tailandia: templos budistas, mercados nocturnos y el coworking más asequible de Asia. Comunidad nómada establecida, naturaleza a 20 minutos del centro y gastronomía tailandesa auténtica por muy poco dinero.",
+    "photo_search": "Chiang Mai temples night market Thailand mountains"
+  },
+  "Dakhla": {
+    "quote": "Donde el desierto llega al Atlántico y el viento lleva al kite.",
+    "description": "Laguna de aguas turquesas entre el Sahara y el Atlántico. Capital mundial del kitesurf con viento constante todo el año. Ambiente relajado y un paisaje que mezcla África y el mar de forma única.",
+    "photo_search": "Dakhla lagoon kitesurf Western Sahara Atlantic"
+  },
+  "Dubai": {
+    "quote": "El futuro construido en el desierto, en tiempo récord.",
+    "description": "La ciudad más ambiciosa del mundo: cero impuestos personales, infraestructura impecable y una diversidad cultural sorprendente. Cara para vivir, pero rentable para quien trabaja en remoto con ingresos en euros o dólares.",
+    "photo_search": "Dubai Burj Khalifa skyline desert Marina"
+  },
+  "Essaouira": {
+    "quote": "La ciudad del viento azul y blanco.",
+    "description": "Medina amurallada frente al Atlántico, con una calma que Marrakech perdió hace tiempo. Artesanía, músicos gnawa, surf y un ambiente bohemio que ha seducido a artistas durante décadas. Pequeña, auténtica y sin turismo masivo.",
+    "photo_search": "Essaouira medina blue white walls Morocco Atlantic"
+  },
+  "Kuala_Lumpur": {
+    "quote": "Tres culturas, una ciudad, ningún compromiso.",
+    "description": "Malayo, chino e indio conviven en una ciudad moderna y multicultural. Gastronomía extraordinaria a precios ridículos, infraestructura de primer nivel, inglés generalizado y coste de vida muy competitivo para la calidad que ofrece.",
+    "photo_search": "Kuala Lumpur Petronas Towers street food Brickfields"
+  },
+  "Lima": {
+    "quote": "La capital gastronómica de América Latina no necesita presentación.",
+    "description": "La gastronomía limeña es uno de los grandes tesoros culinarios del mundo. Barrios modernos como Miraflores y Barranco ofrecen calidad de vida alta. Hub de conexiones a toda Sudamérica.",
+    "photo_search": "Lima Miraflores Barranco ceviche Peru coast"
+  },
+  "Marrakech": {
+    "quote": "La ciudad roja donde los sentidos se rinden.",
+    "description": "La medina de Marrakech es caos organizado: zocos laberínticos, riads escondidos y la plaza Jemaa el-Fna como epicentro del mundo. Vuelos baratos desde Europa, clima seco y cálido casi todo el año.",
+    "photo_search": "Marrakech medina Jemaa el-Fna riad souk Morocco"
+  },
+  "Playa_Del_Carmen": {
+    "quote": "La Quinta Avenida donde termina y empieza el Caribe.",
+    "description": "Pueblo convertido en ciudad cosmopolita en la Riviera Maya. Playa, cenotes, ruinas mayas a 45 minutos y todos los servicios. Español mayoritario, comunidad internacional y conexiones a Cancún.",
+    "photo_search": "Playa del Carmen quinta avenida cenotes Riviera Maya"
+  },
+  "Santiago": {
+    "quote": "La ciudad que tiene la Cordillera de fondo y el Pacífico a una hora.",
+    "description": "Capital moderna con barrios como Providencia y Bellavista que concentran gastronomía y cultura. Los Andes nevados visibles desde la ciudad, esquí en invierno a 45 minutos. Chile: infraestructura, seguridad y calidad de vida altas.",
+    "photo_search": "Santiago de Chile Andes Providencia Bellavista skyline"
   }
 }
