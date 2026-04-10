@@ -1,6 +1,9 @@
 # Entorno virtual — nunca al repo
 .venv/
 
+# Requirements completo del venv local — para deploy solo se usa requirements.txt
+requirements_dev.txt
+
 # API keys y variables de entorno — NUNCA al repo
 .env
 
