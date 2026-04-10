@@ -245,7 +245,10 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 
   /* Pipeline 5 capas → scroll horizontal */
   .layers { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .layer-box { min-width: 110px; flex-shrink: 0; }
+  .layer-box { min-width: 100px; flex-shrink: 0; padding: 14px 8px; }
+  .layer-name { font-size: 0.78em; word-break: break-word; }
+  .layer-sub { font-size: 0.68em; }
+  .layer-num { font-size: 0.68em; }
 
   /* Pipeline fases → vertical apilado */
   .pipeline-phase { display: flex !important; flex-direction: column; gap: 8px; }
@@ -379,7 +382,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
     <div class="layer-box l1"><div class="layer-num">CAPA 1</div><div class="layer-name">Cosine Similarity</div><div class="layer-sub">Baseline · Cold Start</div></div>
     <div class="layer-box l2"><div class="layer-num">CAPA 2</div><div class="layer-name">User Clustering</div><div class="layer-sub">PCA → UMAP → HDBSCAN</div></div>
     <div class="layer-box l3" style="opacity:0.55; position:relative;"><div class="layer-num">CAPA 3</div><div class="layer-name">City Clustering</div><div class="layer-sub">Retirada del MVP</div><div style="position:absolute;top:6px;right:8px;font-size:0.65em;background:#f59e0b;color:#fff;padding:1px 5px;border-radius:4px;font-weight:700;">post-MVP</div></div>
-    <div class="layer-box l4"><div class="layer-num">⭐ CAPA 4 CORE</div><div class="layer-name">LightGBM LambdaMART</div><div class="layer-sub">Ranking final</div></div>
+    <div class="layer-box l4"><div class="layer-num">⭐ CAPA 4</div><div class="layer-name">LightGBM<br>LambdaMART</div><div class="layer-sub">Ranking final</div></div>
     <div class="layer-box l5"><div class="layer-num">CAPA 5</div><div class="layer-name">SHAP + MMR</div><div class="layer-sub">Explicación · Diversidad</div></div>
   </div>
   <div style="font-size:0.8em; color:#9a3412; background:#fff7ed; border:1px solid #fdba74; border-radius:6px; padding:8px 14px; margin-bottom:24px; display:inline-block;">⚠️ Capa 3 retirada del MVP: city clustering con 53 ciudades generaba clusters inestables — se reintegrará cuando haya 200+ ciudades.</div>
@@ -389,13 +392,13 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
       <h3>Flujo de una petición</h3>
       <div style="display:flex; flex-direction:column; gap:8px; margin-top:12px; font-size:0.88em;">
         <div style="display:flex; gap:10px; align-items:center;"><span style="background:#dbeafe; color:#1e40af; padding:3px 10px; border-radius:6px; font-weight:700; font-size:0.82em; min-width:76px; text-align:center;">PERFIL</span><span>Usuario define 26 sliders: gastronomía, kite, ski, nómada, presupuesto...</span></div>
-        <div style="padding-left:38px; color:#27ae60;">↓</div>
+        <div style="text-align:center; color:#27ae60; font-size:1.2em;">↓</div>
         <div style="display:flex; gap:10px; align-items:center;"><span style="background:#fde8e8; color:#c0392b; padding:3px 10px; border-radius:6px; font-weight:700; font-size:0.82em; min-width:76px; text-align:center;">FILTROS</span><span>Pre-filtros duros: presupuesto · idioma · continente</span></div>
-        <div style="padding-left:38px; color:#27ae60;">↓</div>
+        <div style="text-align:center; color:#27ae60; font-size:1.2em;">↓</div>
         <div style="display:flex; gap:10px; align-items:center;"><span style="background:#dbeafe; color:#1e40af; padding:3px 10px; border-radius:6px; font-weight:700; font-size:0.82em; min-width:76px; text-align:center;">CAPAS 1-2</span><span>Cosine Similarity + User cluster (Capa 3 post-MVP)</span></div>
-        <div style="padding-left:38px; color:#27ae60;">↓</div>
+        <div style="text-align:center; color:#27ae60; font-size:1.2em;">↓</div>
         <div style="display:flex; gap:10px; align-items:center;"><span style="background:#d1fae5; color:#065f46; padding:3px 10px; border-radius:6px; font-weight:700; font-size:0.82em; min-width:76px; text-align:center;">CAPA 4</span><span>LightGBM combina todas las señales → ranking</span></div>
-        <div style="padding-left:38px; color:#27ae60;">↓</div>
+        <div style="text-align:center; color:#27ae60; font-size:1.2em;">↓</div>
         <div style="display:flex; gap:10px; align-items:center;"><span style="background:#cffafe; color:#0e7490; padding:3px 10px; border-radius:6px; font-weight:700; font-size:0.82em; min-width:76px; text-align:center;">CAPA 5</span><span>SHAP explica por qué · MMR diversifica el top-N</span></div>
       </div>
     </div>
