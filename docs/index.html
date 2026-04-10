@@ -7,7 +7,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8f7f3; color: #2c3347; line-height: 1.65; font-size: 1.05em; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8f7f3; color: #2c3347; line-height: 1.65; font-size: 1.05em; overflow-x: hidden; }
+html { overflow-x: hidden; }
 
 /* NAV */
 .nav { background: #1e3a5f; padding: 10px 32px; display: flex; gap: 6px; flex-wrap: wrap; position: sticky; top: 0; z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
@@ -46,13 +47,17 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 
 /* ===== RESPONSIVE MÓVIL ===== */
 @media (max-width: 640px) {
+  /* Evitar desbordamiento horizontal en cualquier elemento */
+  * { max-width: 100%; }
+  img, canvas, iframe, video { max-width: 100%; height: auto; }
+
   /* Hero */
   .hero { padding: 40px 16px 36px; }
   .hero h1 { font-size: 2em; letter-spacing: 1px; }
   .hero .tagline { font-size: 1em; }
   .hero-stat .val { font-size: 1.8em; }
   .hero-stats { gap: 10px; }
-  .hero-stat { padding: 12px 16px; min-width: 90px; }
+  .hero-stat { padding: 12px 16px; min-width: unset; flex: 1 1 auto; }
 
   /* Sections */
   .section { padding: 36px 14px; }
@@ -67,19 +72,16 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
   /* Cards */
   .card { padding: 14px 12px; }
 
-  /* REGLA GLOBAL: todo multi-columna → 1 columna */
-  .grid-2, .grid-3, .source-grid, .prob-grid,
-  [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
-  [style*="display: flex"][style*="gap"],
-  .thanks-contact, .demo-profiles { flex-direction: column; align-items: stretch; }
+  /* Grids → siempre 1 columna */
+  .grid-2, .grid-3, .source-grid, .prob-grid { grid-template-columns: 1fr; }
 
   /* Pipeline 5 capas → scroll horizontal */
-  .layers { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; min-width: unset; }
-  .layer-box { min-width: 120px; flex-shrink: 0; }
+  .layers { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+  .layer-box { min-width: 110px; max-width: none; flex-shrink: 0; }
 
-  /* Pipeline fases → scroll horizontal (wrapper hace scroll, grid mantiene su ancho mínimo) */
-  .pipeline-phase { min-width: 560px; }
+  /* Pipeline fases → scroll horizontal */
   #pipeline-io .card { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .pipeline-phase { min-width: 540px; max-width: none; }
 
   /* Timeline central → lista izquierda */
   .timeline::before { left: 12px; transform: none; }
@@ -91,6 +93,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
   .heatmap-wrap, .model-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .model-table th, .model-table td { padding: 8px 10px; font-size: 0.78em; white-space: nowrap; }
   .heatmap { font-size: 0.68em; }
+  .heatmap th.row-header { min-width: unset; }
 
   /* Charts */
   .chart-wrap { padding: 14px; }
@@ -105,12 +108,14 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
   /* Demo */
   .demo-inner { padding: 40px 14px; }
   .demo-profile { min-width: unset; width: 100%; padding: 16px; }
+  .demo-profiles { flex-direction: column; }
 
   /* Thanks */
   .thanks-section { padding: 50px 16px; }
   .thanks-section h2 { font-size: 2em; }
   .thanks-section p { font-size: 1em; }
   .tc-item { width: 100%; text-align: center; }
+  .thanks-contact { flex-direction: column; align-items: stretch; }
 }
 
 /* HIGHLIGHT */
