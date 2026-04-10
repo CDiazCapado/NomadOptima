@@ -238,8 +238,8 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
   <div class="hero-stats">
     <div class="hero-stat"><div class="val">53</div><div class="lbl">ciudades</div></div>
     <div class="hero-stat"><div class="val" style="color:#3498db;">26</div><div class="lbl">dimensiones usuario</div></div>
-    <div class="hero-stat"><div class="val" style="color:#e67e22;">136</div><div class="lbl">features por ciudad</div></div>
-    <div class="hero-stat"><div class="val" style="color:#9b59b6;">205k</div><div class="lbl">filas de entrenamiento</div></div>
+    <div class="hero-stat"><div class="val" style="color:#e67e22;">175</div><div class="lbl">features por ciudad</div></div>
+    <div class="hero-stat"><div class="val" style="color:#9b59b6;">270k</div><div class="lbl">filas de entrenamiento</div></div>
     <div class="hero-stat"><div class="val" style="color:#f39c12;">6</div><div class="lbl">fuentes de datos</div></div>
     <div class="hero-stat"><div class="val" style="color:#1abc9c;">5</div><div class="lbl">capas del sistema</div></div>
   </div>
@@ -294,15 +294,16 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 <div class="section" id="arquitectura">
   <span class="sec-num">02</span>
   <h2 class="sec-title">¿Cómo funciona?</h2>
-  <p class="sec-sub">Un Hybrid Recommender System con 5 capas + pre-filtro de restricciones duras</p>
+  <p class="sec-sub">Un Hybrid Recommender System con 5 capas diseñadas + pre-filtro de restricciones duras (MVP: 4 capas activas)</p>
 
-  <div class="layers" style="margin-bottom:32px;">
+  <div class="layers" style="margin-bottom:12px;">
     <div class="layer-box l1"><div class="layer-num">CAPA 1</div><div class="layer-name">Cosine Similarity</div><div class="layer-sub">Baseline · Cold Start</div></div>
     <div class="layer-box l2"><div class="layer-num">CAPA 2</div><div class="layer-name">User Clustering</div><div class="layer-sub">PCA → UMAP → HDBSCAN</div></div>
-    <div class="layer-box l3"><div class="layer-num">CAPA 3</div><div class="layer-name">City Clustering</div><div class="layer-sub">PCA → UMAP → HDBSCAN</div></div>
+    <div class="layer-box l3" style="opacity:0.55; position:relative;"><div class="layer-num">CAPA 3</div><div class="layer-name">City Clustering</div><div class="layer-sub">Retirada del MVP</div><div style="position:absolute;top:6px;right:8px;font-size:0.65em;background:#f59e0b;color:#fff;padding:1px 5px;border-radius:4px;font-weight:700;">post-MVP</div></div>
     <div class="layer-box l4"><div class="layer-num">⭐ CAPA 4 CORE</div><div class="layer-name">LightGBM LambdaMART</div><div class="layer-sub">Ranking final</div></div>
     <div class="layer-box l5"><div class="layer-num">CAPA 5</div><div class="layer-name">SHAP + MMR</div><div class="layer-sub">Explicación · Diversidad</div></div>
   </div>
+  <div style="font-size:0.8em; color:#9a3412; background:#fff7ed; border:1px solid #fdba74; border-radius:6px; padding:8px 14px; margin-bottom:24px; display:inline-block;">⚠️ Capa 3 retirada del MVP: city clustering con 53 ciudades generaba clusters inestables — se reintegrará cuando haya 200+ ciudades.</div>
 
   <div class="grid-2">
     <div class="card">
@@ -312,7 +313,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
         <div style="padding-left:38px; color:#27ae60;">↓</div>
         <div style="display:flex; gap:10px; align-items:center;"><span style="background:#fde8e8; color:#c0392b; padding:3px 10px; border-radius:6px; font-weight:700; font-size:0.82em; min-width:76px; text-align:center;">FILTROS</span><span>Pre-filtros duros: presupuesto · idioma · continente</span></div>
         <div style="padding-left:38px; color:#27ae60;">↓</div>
-        <div style="display:flex; gap:10px; align-items:center;"><span style="background:#dbeafe; color:#1e40af; padding:3px 10px; border-radius:6px; font-weight:700; font-size:0.82em; min-width:76px; text-align:center;">CAPAS 1-3</span><span>Cosine Similarity + User cluster + City cluster</span></div>
+        <div style="display:flex; gap:10px; align-items:center;"><span style="background:#dbeafe; color:#1e40af; padding:3px 10px; border-radius:6px; font-weight:700; font-size:0.82em; min-width:76px; text-align:center;">CAPAS 1-2</span><span>Cosine Similarity + User cluster (Capa 3 post-MVP)</span></div>
         <div style="padding-left:38px; color:#27ae60;">↓</div>
         <div style="display:flex; gap:10px; align-items:center;"><span style="background:#d1fae5; color:#065f46; padding:3px 10px; border-radius:6px; font-weight:700; font-size:0.82em; min-width:76px; text-align:center;">CAPA 4</span><span>LightGBM combina todas las señales → ranking</span></div>
         <div style="padding-left:38px; color:#27ae60;">↓</div>
@@ -330,7 +331,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
         </ul>
       </div>
       <div class="hl">
-        <strong>Feature clave:</strong> <code>afinidad_uc_cc</code> — interacción entre cluster de usuario y cluster de ciudad. 2ª feature más importante del modelo (30 pts de ganancia).
+        <strong>Feature top v3:</strong> <code>city_childcare</code> — número de guarderías/instalaciones infantiles por ciudad. 63.1% del gain total del modelo — señal de "ciudad grande" que aprender a normalizar.
       </div>
     </div>
   </div>
@@ -443,15 +444,15 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
         <div class="pp-label">Proceso técnico</div>
         <div class="pp-name">Generación sintética v3</div>
         <div class="pp-file">notebooks/02_synthetic_profiles_v3.ipynb</div>
-        <div class="pp-tech">Distribuciones Beta por nivel (H/M/L) · Numpy random · 5.000 perfiles × 53 ciudades · Pseudo-labels 0–3 por scoring heurístico · Cross-join perfiles × ciudades</div>
+        <div class="pp-tech">Distribuciones Beta por nivel (H/M/L) · Numpy random · 5.000 perfiles × 54 ciudades · Labels 0–3 por producto escalar directo · Cross-join perfiles × ciudades (nb02 → solo perfiles; nb03 → cross-join + labels)</div>
       </div>
       <div class="pp-arrow">→</div>
       <div class="pp-box pp-output">
         <div class="pp-label">Salida</div>
-        <div class="pp-item out"><code>training_dataset.csv</code></div>
-        <div class="pp-item out">205.000 filas × 162 columnas</div>
-        <div class="pp-item out">Labels 0/1/2/3 por fila</div>
-        <div class="pp-item out">~230 MB</div>
+        <div class="pp-item out"><code>user_profiles.csv</code> (nb02 — 5.000 × 26)</div>
+        <div class="pp-item out"><code>training_dataset.csv</code> (nb03 — 270k × 180)</div>
+        <div class="pp-item out">Labels 0/1/2/3 por producto escalar</div>
+        <div class="pp-item out">~330 MB</div>
       </div>
     </div>
   </div>
@@ -462,7 +463,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
     <div class="pipeline-phase">
       <div class="pp-box pp-input">
         <div class="pp-label">Entrada</div>
-        <div class="pp-item">training_dataset.csv (205k filas)</div>
+        <div class="pp-item">training_dataset.csv (270k filas)</div>
         <div class="pp-item">Hiperparámetros LightGBM</div>
         <div class="pp-item">Group sizes (por usuario)</div>
       </div>
@@ -471,16 +472,16 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
         <div class="pp-label">Proceso técnico</div>
         <div class="pp-name">NomadRanker — 5 capas</div>
         <div class="pp-file">notebooks/03_train_model.ipynb</div>
-        <div class="pp-tech">UserClusterer (PCA→UMAP→HDBSCAN) · CityClusterer · Tabla afinidad uc×cc · LightGBM lambdarank · Evaluación NDCG@k · SHAP feature importance</div>
+        <div class="pp-tech">UserClusterer (PCA→UMAP→HDBSCAN) · LightGBM lambdarank · 43 árboles · 175 features · Evaluación NDCG@k · SHAP feature importance</div>
       </div>
       <div class="pp-arrow">→</div>
       <div class="pp-box pp-output">
         <div class="pp-label">Salida</div>
-        <div class="pp-item out"><code>lgbm_ranker.txt</code></div>
+        <div class="pp-item out"><code>lgbm_ranker_v3.txt</code> (43 árboles)</div>
         <div class="pp-item out"><code>user_clusterer.joblib</code></div>
-        <div class="pp-item out"><code>city_clusterer.joblib</code></div>
-        <div class="pp-item out"><code>feature_builder.joblib</code></div>
-        <div class="pp-item out"><code>affinity_table.csv</code></div>
+        <div class="pp-item out"><code>feature_builder_v3.joblib</code></div>
+        <div class="pp-item out"><code>feature_cols_v3.json</code> (175 cols)</div>
+        <div class="pp-item out"><code>model_metrics_v3.json</code></div>
       </div>
     </div>
   </div>
@@ -527,7 +528,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 <div class="section" id="datos">
   <span class="sec-num">04</span>
   <h2 class="sec-title">Las fuentes de datos</h2>
-  <p class="sec-sub">136 features por ciudad · 6 APIs integradas · 53 ciudades en Europa, LATAM y Asia</p>
+  <p class="sec-sub">175 features por ciudad · 6 APIs integradas · 53 ciudades en Europa, LATAM y Asia</p>
 
   <div class="source-grid" style="margin-bottom:32px;">
     <div class="source-card">
@@ -787,19 +788,38 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 
   <div class="eda-img-grid" style="margin-top:24px;">
     <div class="eda-img-wrap">
-      <img src="eda_fase2_boxplots.png" alt="Boxplots features">
+      <img src="eda_fase3_heatmap_arquetipos.png" alt="Heatmap arquetipos × dimensiones">
       <div class="insight-box">
-        <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Boxplots de features clave: la caja muestra el rango intercuartílico (50% central de ciudades), la línea central es la mediana, los puntos fuera son outliers.</span></div>
-        <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Features como <strong>gp_kitesurfing</strong> tienen distribución muy asimétrica: la mayoría de ciudades tienen 0–5 pero Tarifa y Dakhla tienen 30 (outliers positivos) — exactamente lo que queremos para distinguirlas. Features como <strong>gp_restaurant</strong> tienen poca varianza — casi todas las ciudades tienen valores similares.</span></div>
-        <div class="insight-row"><span class="insight-label deci">Decisión</span><span class="insight-text">Las features de deportes específicos (kitesurf, ski, surf) tienen la varianza correcta para discriminar. Las de restaurantes son menos útiles para diferenciar ciudades pero sí para perfiles gastronómicos.</span></div>
+        <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Heatmap completo: 21 arquetipos (filas) × 26 dimensiones (columnas). Oscuro = nivel ALTO, gris medio = MEDIO, blanco = BAJO.</span></div>
+        <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Cada arquetipo tiene un patrón visual único. Kite_surf domina deporte_agua + clima; familia_ninos domina familia + educacion + salud; nomada_barato se concentra en coste + nomada. No hay dos arquetipos con el mismo patrón — diferenciación validada.</span></div>
+        <div class="insight-row"><span class="insight-label deci">Decisión</span><span class="insight-text">Los 21 arquetipos están bien diferenciados entre sí. El modelo tendrá señal suficiente para distinguirlos.</span></div>
       </div>
     </div>
     <div class="eda-img-wrap">
-      <img src="eda_fase2_perfil_ciudades.png" alt="Perfil ciudades por categoría">
+      <img src="eda_fase3_similitud_arquetipos.png" alt="Matriz similitud entre arquetipos">
       <div class="insight-box">
-        <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Perfil de cada ciudad en las grandes categorías de features (deportes, cultura, gastronomía, coste...) normalizado de 0 a 1.</span></div>
-        <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Cada ciudad tiene una "huella" distinta. Tarifa: todo en deportes de agua. Chamonix: montaña y ski. Berlín: cultura + nómada + vida nocturna. Chiang Mai: coste bajísimo + coworking. Esto valida que los arquetipos que hemos definido tendrán ciudades claras como candidatas.</span></div>
-        <div class="insight-row"><span class="insight-label deci">Decisión</span><span class="insight-text">Validación superada: los datos reales de ciudades dan la señal correcta para los arquetipos diseñados. El modelo tiene base para aprender.</span></div>
+        <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Cosine similarity entre los 21 vectores de arquetipos. Diagonal = 1.0 (cada arquetipo igual a sí mismo). Cuadros más oscuros = arquetipos parecidos.</span></div>
+        <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Los arquetipos de nómada (barato, premium, mujer) tienen similitud media entre sí (~0.5) — comparten nomada + calidad_vida pero difieren en coste y bienestar. familia_bebe y familia_ninos son muy similares (~0.8) — decisión correcta tenerlos separados por el peso de educacion.</span></div>
+        <div class="insight-row"><span class="insight-label deci">Decisión</span><span class="insight-text">No hay arquetipos idénticos que el modelo vaya a confundir. Los pares más similares tienen diferencias funcionales reales.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="eda-img-grid" style="margin-top:24px;">
+    <div class="eda-img-wrap">
+      <img src="eda_fase3_radar_arquetipos.png" alt="Radar charts arquetipos">
+      <div class="insight-box">
+        <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Radar charts para grupos de arquetipos similares. Cada eje = una dimensión. El área cubierta = el "perfil de vida" del arquetipo.</span></div>
+        <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Los arquetipos deportivos (kite, outdoor, ski) se solapan en naturaleza pero divergen fuertemente en deporte_agua vs deporte_montana. Los urbanos (cosmopolita, cultura, músico) comparten cultura pero difieren en vida_nocturna y gastronomia.</span></div>
+        <div class="insight-row"><span class="insight-label deci">Decisión</span><span class="insight-text">Las 26 dimensiones cubren adecuadamente todos los arquetipos — no hay arquetipos "planos" sin dimensiones dominantes.</span></div>
+      </div>
+    </div>
+    <div class="eda-img-wrap">
+      <img src="eda_fase3_pca_arquetipos.png" alt="PCA arquetipos">
+      <div class="insight-box">
+        <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">PCA de los 21 vectores de arquetipos en 2D. Cada punto = un arquetipo. Distancia = diferencia de perfil.</span></div>
+        <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Los arquetipos se distribuyen en el espacio sin superposiciones. El PC1 separa los perfiles orientados a coste/nómada de los orientados a familia/calidad_vida. El PC2 separa los deportivos de los culturales/gastronómicos.</span></div>
+        <div class="insight-row"><span class="insight-label deci">Decisión</span><span class="insight-text">La separabilidad en 2D es buena — el modelo en dimensión completa (26D) tendrá incluso más capacidad de distinguirlos.</span></div>
       </div>
     </div>
   </div>
@@ -852,38 +872,51 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
     </div>
   </div>
 
-  <div class="chart-wrap" style="margin-bottom:24px;">
-    <div class="chart-title">Distribución de arquetipos en los 5.000 perfiles sintéticos</div>
-    <canvas id="archetypeChart" height="220"></canvas>
-    <div class="chart-note">14% = 700 perfiles mixtos sin arquetipo dominante. El resto sigue la distribución % de cada arquetipo.</div>
+  <div class="eda-img-grid" style="margin-bottom:24px;">
+    <div class="eda-img-wrap">
+      <img src="nb02_distribucion_arquetipos.png" alt="Distribución de arquetipos en los perfiles sintéticos">
+      <div class="insight-box">
+        <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Distribución real de los 5.000 perfiles sintéticos generados por arquetipo. Barras = número de perfiles asignados a cada arquetipo.</span></div>
+        <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">La distribución sigue los porcentajes definidos en los arquetipos. nómada_barato y familia_ninos tienen más peso que arquetipos de nicho como senior_accesibilidad o mascotas_naturaleza — refleja la distribución real estimada de viajeros.</span></div>
+        <div class="insight-row"><span class="insight-label deci">Decisión</span><span class="insight-text">14% de perfiles mixtos sin arquetipo dominante — garantizan que el modelo no aprenda reglas demasiado rígidas por arquetipo.</span></div>
+      </div>
+    </div>
+    <div class="eda-img-wrap">
+      <img src="eda_fase4_histogramas_dimensiones.png" alt="Histogramas de dimensiones de usuario">
+      <div class="insight-box">
+        <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Histogramas de las 26 dimensiones de usuario en los 5.000 perfiles. Cada subplot = una dimensión. La forma de la curva indica si la distribución Beta funciona correctamente.</span></div>
+        <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Dimensiones ALTO (gastronomia en perfiles de cultura) se concentran cerca de 0.9. Dimensiones BAJO se concentran cerca de 0.1. Dimensiones MEDIO forman campanas simétricas. No hay acumulaciones en 0 o 1 extremos — la generación es estadísticamente sana.</span></div>
+        <div class="insight-row"><span class="insight-label deci">Decisión</span><span class="insight-text">Los perfiles sintéticos son válidos. La distribución Beta por nivel (H/M/L) produce valores realistas y diferenciados.</span></div>
+      </div>
+    </div>
   </div>
 
   <div class="eda-img-grid" style="margin-bottom:24px;">
     <div class="eda-img-wrap">
-      <img src="eda_fase2_histogramas.png" alt="Histogramas features">
+      <img src="eda_fase4_pca_perfiles.png" alt="PCA de los perfiles sintéticos">
       <div class="insight-box">
-        <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Distribución de las features del dataset de entrenamiento: para cada feature, cuántos perfiles tienen cada valor.</span></div>
-        <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Las distribuciones de las dimensiones de usuario siguen la forma esperada de las Beta: las ALTO concentradas cerca de 1, las BAJO cerca de 0, las MEDIO en forma de campana central. No hay degeneración (todos los perfiles idénticos) ni polarización extrema.</span></div>
-        <div class="insight-row"><span class="insight-label deci">Decisión</span><span class="insight-text">Los 5.000 perfiles sintéticos son estadísticamente válidos. La generación con distribuciones Beta por nivel funciona correctamente.</span></div>
+        <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">PCA de los 5.000 perfiles en 2D, coloreados por arquetipo. Cada punto = un perfil de usuario. Grupos = arquetipos similares.</span></div>
+        <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Los arquetipos forman nubes distintas con solapamiento moderado — exactamente lo que esperamos. Solapamiento total indicaría que los arquetipos son idénticos; separación perfecta indicaría perfiles artificialmente rígidos. Los perfiles mixtos (gris) se distribuyen entre los grupos — correcto.</span></div>
+        <div class="insight-row"><span class="insight-label deci">Decisión</span><span class="insight-text">Los 5.000 perfiles tienen la diversidad necesaria para entrenar el modelo. El HDBSCAN de usuario encontrará clusters naturales en este espacio.</span></div>
       </div>
     </div>
     <div class="eda-img-wrap">
-      <img src="eda_fase2_clustering.png" alt="Clustering ciudades">
+      <img src="eda_fase4_heatmap_medias.png" alt="Heatmap medias por arquetipo">
       <div class="insight-box">
-        <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Resultado del clustering de ciudades con HDBSCAN sobre las features normalizadas. Cada color = un cluster distinto.</span></div>
-        <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Con 53 ciudades emergen grupos naturales: ciudades costeras + kite (Tarifa, Dakhla, Essaouira), grandes capitales caras (Londres, Ámsterdam, Múnich), ciudades medias europeas (Málaga, Valencia, Porto), ciudades económicas asiáticas y del Este. El clustering captura diferencias reales, no artificiales.</span></div>
-        <div class="insight-row"><span class="insight-label deci">Decisión</span><span class="insight-text">City clustering automático con HDBSCAN es viable con 53 ciudades. Con 200+ ciudades los clusters serán más granulares y la señal de afinidad ciudad-ciudad más potente.</span></div>
+        <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Media de cada dimensión para los perfiles de cada arquetipo. Validación: ¿los perfiles generados reproducen los pesos definidos en los arquetipos originales?</span></div>
+        <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Las medias son consistentes con los niveles H/M/L definidos: kite_surf tiene deporte_agua media ~0.88 (diseñado: ALTO), bienestar_retiro tiene bienestar media ~0.85, nomada_barato tiene coste media ~0.88. Spot-check superado en todos los arquetipos.</span></div>
+        <div class="insight-row"><span class="insight-label deci">Decisión</span><span class="insight-text">Validación cuantitativa superada. Los perfiles sintéticos reproducen fielmente los arquetipos definidos. El ruido gaussiano añade variabilidad natural sin distorsionar los patrones.</span></div>
       </div>
     </div>
   </div>
 
   <div class="card" style="border-left:5px solid #1e3a5f;">
-    <h3>Dataset final de entrenamiento</h3>
+    <h3>Dataset final de entrenamiento — v3</h3>
     <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-top:16px;">
-      <div style="text-align:center; background:#f0f4ff; padding:14px; border-radius:8px;"><div style="font-size:1.8em; font-weight:700; color:#1e3a5f;">205.000</div><div style="font-size:0.8em; color:#5d6778;">filas</div><div style="font-size:0.72em; color:#9ca3af;">5.000 usuarios × 41 ciudades</div></div>
-      <div style="text-align:center; background:#f0fff4; padding:14px; border-radius:8px;"><div style="font-size:1.8em; font-weight:700; color:#1e3a5f;">162</div><div style="font-size:0.8em; color:#5d6778;">columnas</div><div style="font-size:0.72em; color:#9ca3af;">features ciudad + usuario + label</div></div>
-      <div style="text-align:center; background:#fff8e1; padding:14px; border-radius:8px;"><div style="font-size:1.8em; font-weight:700; color:#1e3a5f;">~230 MB</div><div style="font-size:0.8em; color:#5d6778;">en disco</div><div style="font-size:0.72em; color:#9ca3af;">no incluido en Git</div></div>
-      <div style="text-align:center; background:#fce4e4; padding:14px; border-radius:8px;"><div style="font-size:1.8em; font-weight:700; color:#1e3a5f;">0/1/2/3</div><div style="font-size:0.8em; color:#5d6778;">niveles label</div><div style="font-size:0.72em; color:#9ca3af;">irrelevante → muy relevante</div></div>
+      <div style="text-align:center; background:#f0f4ff; padding:14px; border-radius:8px;"><div style="font-size:1.8em; font-weight:700; color:#1e3a5f;">270.000</div><div style="font-size:0.8em; color:#5d6778;">filas</div><div style="font-size:0.72em; color:#9ca3af;">5.000 usuarios × 54 ciudades</div></div>
+      <div style="text-align:center; background:#f0fff4; padding:14px; border-radius:8px;"><div style="font-size:1.8em; font-weight:700; color:#1e3a5f;">180</div><div style="font-size:0.8em; color:#5d6778;">columnas</div><div style="font-size:0.72em; color:#9ca3af;">features ciudad + usuario + label</div></div>
+      <div style="text-align:center; background:#fff8e1; padding:14px; border-radius:8px;"><div style="font-size:1.8em; font-weight:700; color:#1e3a5f;">~330 MB</div><div style="font-size:0.8em; color:#5d6778;">en disco</div><div style="font-size:0.72em; color:#9ca3af;">no incluido en Git</div></div>
+      <div style="text-align:center; background:#fce4e4; padding:14px; border-radius:8px;"><div style="font-size:1.8em; font-weight:700; color:#1e3a5f;">0/1/2/3</div><div style="font-size:0.8em; color:#5d6778;">niveles label</div><div style="font-size:0.72em; color:#9ca3af;">producto escalar directo</div></div>
     </div>
   </div>
 </div>
@@ -922,29 +955,66 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
       </div>
     </div>
     <div class="card">
-      <h3>Métricas del modelo v4 (5 ciudades)</h3>
+      <h3>Métricas del modelo v3 — 53 ciudades</h3>
       <div style="margin-top:12px;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.88em;"><span>NDCG@1</span><span style="font-weight:700; color:#27ae60;">0.9995</span></div>
-        <div style="height:6px; background:#e8e5de; border-radius:3px; margin-bottom:14px;"><div style="width:99.95%; height:100%; background:#27ae60; border-radius:3px;"></div></div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.88em;"><span>NDCG@2</span><span style="font-weight:700; color:#27ae60;">0.9992</span></div>
-        <div style="height:6px; background:#e8e5de; border-radius:3px; margin-bottom:14px;"><div style="width:99.92%; height:100%; background:#27ae60; border-radius:3px;"></div></div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.88em;"><span>Precision@1</span><span style="font-weight:700; color:#3498db;">0.6073</span></div>
-        <div style="height:6px; background:#e8e5de; border-radius:3px; margin-bottom:14px;"><div style="width:60.73%; height:100%; background:#3498db; border-radius:3px;"></div></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.88em;"><span>NDCG@1</span><span style="font-weight:700; color:#27ae60;">1.0000</span></div>
+        <div style="height:6px; background:#e8e5de; border-radius:3px; margin-bottom:14px;"><div style="width:100%; height:100%; background:#27ae60; border-radius:3px;"></div></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.88em;"><span>NDCG@3</span><span style="font-weight:700; color:#27ae60;">0.9931</span></div>
+        <div style="height:6px; background:#e8e5de; border-radius:3px; margin-bottom:14px;"><div style="width:99.31%; height:100%; background:#27ae60; border-radius:3px;"></div></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.88em;"><span>NDCG@5</span><span style="font-weight:700; color:#3498db;">0.9631</span></div>
+        <div style="height:6px; background:#e8e5de; border-radius:3px; margin-bottom:14px;"><div style="width:96.31%; height:100%; background:#3498db; border-radius:3px;"></div></div>
+        <div style="display:flex; gap:18px; font-size:0.82em; color:#374151; margin-bottom:10px;">
+          <span><strong>43</strong> árboles</span><span><strong>175</strong> features</span><span><strong>270k</strong> filas train</span>
+        </div>
         <div style="background:#fff8e1; border-radius:6px; padding:8px 12px; font-size:0.78em; color:#9a3412;">
-          ⚠️ NDCG alto = el modelo reproduce bien nuestras reglas. No garantiza utilidad para usuarios reales. Necesita validación con feedback real.
+          ⚠️ NDCG alto = el modelo reproduce bien las reglas de etiquetado. No garantiza utilidad real. Necesita feedback de usuarios reales para re-entrenamiento.
         </div>
       </div>
     </div>
   </div>
 
+  <div class="eda-img-grid" style="margin-bottom:24px;">
+    <div class="eda-img-wrap">
+      <img src="nb03_curvas_aprendizaje.png" alt="Curvas de aprendizaje del modelo">
+      <div class="insight-box">
+        <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Evolución del NDCG@k en train y validación según aumenta el número de árboles del modelo. Permite detectar overfitting.</span></div>
+        <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Train y validación convergen cerca. El modelo alcanza su mejor NDCG en la iteración 43 — early stopping activo. No hay overfitting notable: la curva de validación no cae cuando la de train sigue subiendo.</span></div>
+        <div class="insight-row"><span class="insight-label deci">Decisión</span><span class="insight-text">43 árboles es el punto óptimo. Con más árboles NDCG de validación no mejora — se usaría el modelo más simple.</span></div>
+      </div>
+    </div>
+    <div class="eda-img-wrap">
+      <img src="nb03_feature_importance.png" alt="Feature importance del modelo v3">
+      <div class="insight-box">
+        <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Las 15 features más importantes del modelo por ganancia (gain). Cuanto mayor el gain, más información aporta esa feature a cada split del árbol.</span></div>
+        <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text"><strong>city_childcare domina con 63.1%</strong> del gain total. Esto indica sesgo hacia ciudades grandes: las ciudades con más guarderías son las grandes capitales (Madrid, Londres, Berlín) — el modelo las recomienda sistemáticamente. city_gp_synagogue (6.6%) y city_gp_snorkeling (5.2%) son menos interpretables pero estadísticamente útiles.</span></div>
+        <div class="insight-row"><span class="insight-label warn">Problema identificado</span><span class="insight-text">city_childcare como feature #1 confirma el sesgo de ciudad grande. Solución diseñada: normalizar conteos GP por sqrt(área_km²) para medir concentración, no volumen absoluto.</span></div>
+        <div class="insight-row"><span class="insight-label deci">Decisión</span><span class="insight-text">Normalización GP pendiente post-presentación. Los datos de área ya están disponibles (Wikidata, 53 ciudades).</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="eda-img-grid" style="margin-bottom:24px;">
+    <div class="eda-img-wrap">
+      <img src="nb03_shap_summary.png" alt="SHAP summary plot">
+      <div class="insight-box">
+        <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">SHAP summary plot: para cada feature, cómo impacta en el score de cada ciudad-usuario. Puntos rojos = valor alto de la feature. Puntos azules = valor bajo. Posición horizontal = efecto en el score.</span></div>
+        <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">city_childcare alto (rojo) siempre empuja el score hacia arriba — confirma el sesgo. user_imp_coste alto (el usuario quiere ciudad barata) baja el score de ciudades caras — correcto. Las features de clima tienen efecto bidireccional limpio.</span></div>
+        <div class="insight-row"><span class="insight-label deci">Decisión</span><span class="insight-text">SHAP confirma que el modelo aprende relaciones coherentes con los labels. El sesgo de ciudad grande es real y medible — justifica la normalización por densidad.</span></div>
+      </div>
+    </div>
+  </div>
+
   <div class="card">
-    <h3>Top 5 features más importantes — modelo v4</h3>
+    <h3>Top 5 features más importantes — modelo v3 (53 ciudades)</h3>
     <div style="margin-top:14px;">
-      <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;"><span style="font-size:0.82em; min-width:220px; color:#1e3a5f; font-weight:600;">1. city_gp_hiking</span><div style="flex:1; height:8px; background:#e8e5de; border-radius:4px;"><div style="width:100%; height:100%; background:#e74c3c; border-radius:4px;"></div></div><span style="font-size:0.78em; color:#6b7280; min-width:60px; text-align:right;">89.3 pts</span></div>
-      <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;"><span style="font-size:0.82em; min-width:220px; color:#1e3a5f; font-weight:600;">2. afinidad_uc_cc</span><div style="flex:1; height:8px; background:#e8e5de; border-radius:4px;"><div style="width:33.6%; height:100%; background:#27ae60; border-radius:4px;"></div></div><span style="font-size:0.78em; color:#6b7280; min-width:60px; text-align:right;">30.1 pts</span></div>
-      <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;"><span style="font-size:0.82em; min-width:220px; color:#1e3a5f; font-weight:600;">3. city_gp_cycling_park</span><div style="flex:1; height:8px; background:#e8e5de; border-radius:4px;"><div style="width:23.8%; height:100%; background:#3498db; border-radius:4px;"></div></div><span style="font-size:0.78em; color:#6b7280; min-width:60px; text-align:right;">21.2 pts</span></div>
-      <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;"><span style="font-size:0.82em; min-width:220px; color:#1e3a5f; font-weight:600;">4. user_temp_min_c</span><div style="flex:1; height:8px; background:#e8e5de; border-radius:4px;"><div style="width:23.8%; height:100%; background:#e67e22; border-radius:4px;"></div></div><span style="font-size:0.78em; color:#6b7280; min-width:60px; text-align:right;">21.2 pts</span></div>
-      <div style="display:flex; align-items:center; gap:12px;"><span style="font-size:0.82em; min-width:220px; color:#1e3a5f; font-weight:600;">5. user_presupuesto_max</span><div style="flex:1; height:8px; background:#e8e5de; border-radius:4px;"><div style="width:22.7%; height:100%; background:#9b59b6; border-radius:4px;"></div></div><span style="font-size:0.78em; color:#6b7280; min-width:60px; text-align:right;">20.2 pts</span></div>
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;"><span style="font-size:0.82em; min-width:240px; color:#1e3a5f; font-weight:600;">1. city_childcare</span><div style="flex:1; height:8px; background:#e8e5de; border-radius:4px;"><div style="width:100%; height:100%; background:#e74c3c; border-radius:4px;"></div></div><span style="font-size:0.78em; color:#6b7280; min-width:80px; text-align:right;">63.1% gain</span></div>
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;"><span style="font-size:0.82em; min-width:240px; color:#1e3a5f; font-weight:600;">2. city_gp_synagogue</span><div style="flex:1; height:8px; background:#e8e5de; border-radius:4px;"><div style="width:10.4%; height:100%; background:#27ae60; border-radius:4px;"></div></div><span style="font-size:0.78em; color:#6b7280; min-width:80px; text-align:right;">6.6% gain</span></div>
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;"><span style="font-size:0.82em; min-width:240px; color:#1e3a5f; font-weight:600;">3. city_gp_snorkeling</span><div style="flex:1; height:8px; background:#e8e5de; border-radius:4px;"><div style="width:8.2%; height:100%; background:#3498db; border-radius:4px;"></div></div><span style="font-size:0.78em; color:#6b7280; min-width:80px; text-align:right;">5.2% gain</span></div>
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;"><span style="font-size:0.82em; min-width:240px; color:#1e3a5f; font-weight:600;">4. city_population</span><div style="flex:1; height:8px; background:#e8e5de; border-radius:4px;"><div style="width:4.7%; height:100%; background:#e67e22; border-radius:4px;"></div></div><span style="font-size:0.78em; color:#6b7280; min-width:80px; text-align:right;">3.0% gain</span></div>
+      <div style="display:flex; align-items:center; gap:12px;"><span style="font-size:0.82em; min-width:240px; color:#1e3a5f; font-weight:600;">5. city_coste_vida_estimado</span><div style="flex:1; height:8px; background:#e8e5de; border-radius:4px;"><div style="width:3.6%; height:100%; background:#9b59b6; border-radius:4px;"></div></div><span style="font-size:0.78em; color:#6b7280; min-width:80px; text-align:right;">2.3% gain</span></div>
+      <div style="background:#fde8e8; border-radius:6px; padding:8px 12px; font-size:0.8em; color:#991b1b; margin-top:12px;">
+        ⚠️ Las 2 primeras features (childcare + population) confirman el <strong>sesgo de ciudad grande</strong> — ciudades con más infraestructura simplemente por ser más grandes. Solución pendiente: normalizar por densidad geográfica.
+      </div>
     </div>
   </div>
 </div>
@@ -1019,14 +1089,24 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
       <div class="prob-sol">⏳ Feature eliminada del CSV. Sustituir por Ookla Global Fixed Index que sí tiene granularidad de ciudad.</div>
     </div>
     <div class="prob-card pending">
+      <h4>Sesgo hacia ciudades grandes — gp_score sin normalizar por densidad</h4>
+      <div class="prob-desc">Las ciudades grandes (Londres, Madrid, Berlín) acumulan más resultados en Google Places simplemente por ser más grandes, no porque sean mejores para el perfil del usuario. El modelo las recomienda sistemáticamente por encima de ciudades más pequeñas aunque el perfil no las favorezca.</div>
+      <div class="prob-sol">⏳ La solución diseñada es dividir los conteos GP por la densidad geográfica de la ciudad (área km²) para obtener una medida de concentración, no de volumen. Fórmula pendiente de implementar: <code>gp_score = count / sqrt(area_km²)</code>. Los datos de área ya están disponibles (Wikidata, 53 ciudades).</div>
+    </div>
+    <div class="prob-card pending">
       <h4>8 features GP = 0 en todas las ciudades</h4>
       <div class="prob-desc">Algunos tipos de Google Places (folk_music, recording_studio, ski_touring...) devuelven 0 en absolutamente todas las ciudades — GP no los indexa bien.</div>
       <div class="prob-sol">⏳ Investigar qué types de GP son realmente consultables. Eliminar del CSV en post-presentación.</div>
     </div>
     <div class="prob-card critical">
       <h4>Pseudo-labels circulares</h4>
-      <div class="prob-desc">El modelo aprende las reglas de etiquetado que nosotros definimos, no las preferencias reales de usuarios. NDCG=0.9995 no garantiza utilidad real.</div>
+      <div class="prob-desc">El modelo aprende las reglas de etiquetado que nosotros definimos, no las preferencias reales de usuarios. NDCG=1.0 no garantiza utilidad real.</div>
       <div class="prob-sol">🔴 Requiere feedback real (clicks, reservas) para reentrenar. Sin esto, el sistema es una tautología bien medida.</div>
+    </div>
+    <div class="prob-card critical">
+      <h4>⚡ ÚLTIMO PROBLEMA — LambdaMART sigue priorizando ciudades grandes</h4>
+      <div class="prob-desc">El modelo v3 se reentrenó el 10/04/2026 con 53 ciudades y 175 features, pero LambdaMART sigue recomendando sistemáticamente ciudades grandes (Madrid, Berlín, Londres) independientemente del perfil del usuario. <code>city_childcare</code> acapara el 63.1% del gain — el modelo aprende que "más infraestructura = mejor ciudad" sin corregir por tamaño. <strong>Para la demo de hoy el ranking de LightGBM no es fiable — la app usa Cosine Similarity como sistema de ranking.</strong></div>
+      <div class="prob-sol">🔴 Pendiente: normalizar todos los conteos GP por <code>sqrt(área_km²)</code> para que el modelo mida concentración de amenidades, no volumen absoluto. Datos de área disponibles (Wikidata). Re-entrenamiento necesario tras la normalización.</div>
     </div>
     <div class="prob-card critical">
       <h4>Cambio de arquitectura — notebook 02 generaba labels circulares</h4>
@@ -1085,12 +1165,20 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
         <div class="tl-desc">52 perfiles reales/LLM → 21 arquetipos · Wikidata (área/población) · Precios manuales Expatistan · fetch_cities v11</div>
       </div>
     </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-card">
+        <div class="tl-date">Abril 2026 — Semana 2</div>
+        <div class="tl-title">Rediseño arquitectura + fix circular labels</div>
+        <div class="tl-desc">Notebook 02 separado (solo perfiles) · Notebook 03 hace cross-join + labels por producto escalar · Capa 3 retirada del MVP · EDA completo (4 fases)</div>
+      </div>
+    </div>
     <div class="tl-item right">
       <div class="tl-dot big" style="background:#27ae60;"></div>
       <div class="tl-card" style="border-color:#27ae60; background:#f0fdf4;">
-        <div class="tl-date" style="color:#1a7a42;">Abril 2026 — Estado actual</div>
-        <div class="tl-title" style="color:#065f46;">MVP en construcción</div>
-        <div class="tl-desc">Pipeline completo · EDA completado · Notebooks 02-v3 + 03 pendientes de ejecutar · Streamlit app en desarrollo</div>
+        <div class="tl-date" style="color:#1a7a42;">10 Abril 2026 — Estado actual ✅</div>
+        <div class="tl-title" style="color:#065f46;">Modelo v3 entrenado · Streamlit conectado</div>
+        <div class="tl-desc">43 árboles · 175 features · NDCG@1=1.0 · NDCG@5=0.9631 · 270k filas · LambdaMART reentrenado pero sesgo ciudad grande persiste → demo usa Cosine Similarity · Normalización GP por densidad pendiente</div>
       </div>
     </div>
   </div>
@@ -1105,8 +1193,8 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
         <tr><td>v1 — hardcoded</td><td>2</td><td>~60</td><td>15</td><td>0.9998</td><td>coste_vida</td></tr>
         <tr><td>v2 — datos reales</td><td>2</td><td>~68</td><td>14</td><td>0.9998</td><td>coste_vida</td></tr>
         <tr><td>v3 — 5 ciudades</td><td>5</td><td>84</td><td>2</td><td>0.9986</td><td>quality_of_life</td></tr>
-        <tr class="winner"><td>v4 — clustering</td><td>5</td><td>90</td><td>32</td><td><strong>0.9995</strong></td><td>gp_hiking + afinidad_uc_cc</td></tr>
-        <tr><td>v5 — 36 ciudades ⏳</td><td>41</td><td>162</td><td>—</td><td>⏳</td><td>—</td></tr>
+        <tr><td>v4 — clustering</td><td>5</td><td>90</td><td>32</td><td>0.9995</td><td>gp_hiking + afinidad_uc_cc</td></tr>
+        <tr class="winner"><td><strong>⭐ v3 — 53 ciudades</strong></td><td><strong>53</strong></td><td><strong>175</strong></td><td><strong>43</strong></td><td><strong>1.0000 / 0.9631@5</strong></td><td>city_childcare (63.1%)</td></tr>
       </tbody>
     </table>
   </div>
@@ -1119,7 +1207,10 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
   <div class="demo-inner">
     <span class="sec-num" style="color:#5da8d8; padding-left:0;">11</span>
     <h2 class="sec-title" style="border-left-color:#2ecc71; color:#2ecc71; padding-left:18px;">Demo en vivo</h2>
-    <p style="color:#a8c0d8; font-size:1.05em; margin-bottom:36px;">Dos perfiles muy distintos — veamos qué ciudades recomienda el sistema</p>
+    <p style="color:#a8c0d8; font-size:1.05em; margin-bottom:16px;">Dos perfiles muy distintos — veamos qué ciudades recomienda el sistema</p>
+    <div style="background:rgba(231,76,60,0.15); border:1px solid rgba(231,76,60,0.5); border-radius:10px; padding:12px 20px; display:inline-block; margin-bottom:28px; font-size:0.9em; color:#fca5a5;">
+      ⚠️ <strong>Nota técnica:</strong> LambdaMART v3 sigue priorizando ciudades grandes (sesgo sin corregir). La demo usa <strong>Cosine Similarity</strong> como ranking — sistema de la Capa 1, sin ML, pero sin sesgo de tamaño.
+    </div>
 
     <div class="demo-profiles">
       <div class="demo-profile">
@@ -1149,7 +1240,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
         <div style="font-size:0.78em; color:#2ecc71; margin-top:8px;">→ Esperamos: Valencia, Alicante, Granada</div>
       </div>
     </div>
-    <a href="http://localhost:8501" target="_blank" class="demo-cta">Abrir Streamlit App →</a>
+    <a href="https://nomadoptima.streamlit.app/" target="_blank" class="demo-cta">Abrir Streamlit App →</a>
   </div>
 </div>
 
@@ -1166,16 +1257,20 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
       <h3 style="font-size:1.1em; color:#1e3a5f; margin-bottom:14px;">Corto plazo — cerrar el MVP</h3>
       <ul class="roadmap-list">
         <li>
-          <div class="rl-icon soon">⏳</div>
-          <div class="rl-text"><strong>Ejecutar notebook 02-v3</strong><span>Regenerar 5.000 perfiles con arquetipos rediseñados · validar que Tarifa top para kite_surf</span></div>
+          <div class="rl-icon done">✅</div>
+          <div class="rl-text"><strong>Notebook 02-v3 ejecutado</strong><span>5.000 perfiles × 26 dimensiones · user_profiles.csv generado</span></div>
+        </li>
+        <li>
+          <div class="rl-icon done">✅</div>
+          <div class="rl-text"><strong>Modelo v3 entrenado — 53 ciudades</strong><span>175 features · 43 árboles · NDCG@1=1.0 · NDCG@5=0.9631</span></div>
+        </li>
+        <li>
+          <div class="rl-icon done">✅</div>
+          <div class="rl-text"><strong>Streamlit v3 conectado a LightGBM</strong><span>App funcional · fallback a cosine_sim · 10 categorías con subcategorías</span></div>
         </li>
         <li>
           <div class="rl-icon soon">⏳</div>
-          <div class="rl-text"><strong>Ejecutar notebook 03 — entrenar modelo v5</strong><span>LightGBM con 41 ciudades · 162 features · medir NDCG real con más diversidad</span></div>
-        </li>
-        <li>
-          <div class="rl-icon soon">⏳</div>
-          <div class="rl-text"><strong>Completar Streamlit app</strong><span>Formulario 26 dimensiones · resultados con SHAP · carrusel de fotos por ciudad</span></div>
+          <div class="rl-text"><strong>Normalización GP por densidad</strong><span>city_childcare domina el modelo — dividir conteos por sqrt(área_km²) para eliminar sesgo de ciudad grande</span></div>
         </li>
         <li>
           <div class="rl-icon soon">⏳</div>
@@ -1265,24 +1360,7 @@ new Chart(document.getElementById('cheapChart'),{
     scales:{y:{beginAtZero:true,title:{display:true,text:'€/mes (estimado)'}}}}
 });
 
-// BAR: Arquetipos
-new Chart(document.getElementById('archetypeChart'),{
-  type:'bar',
-  data:{
-    labels:['Kite/Surf','Outdoor','Ski','Nóm.Barato','Nóm.Premium','Nóm.Mujer',
-            'Cultura','Músico','Gastronomía','Anti-tur.','Influencer',
-            'Fam.Bebé','Fam.Niños','Fiesta','Bienestar','Jubilado','Senior',
-            'Mochilero','Cosmopolita','Gamer','Mascotas','Mixtos'],
-    datasets:[{label:'Usuarios',
-      data:[300,300,200,400,300,250,350,200,250,250,200,200,300,250,250,300,150,250,250,200,150,700],
-      backgroundColor:['#3498db','#3498db','#3498db','#27ae60','#27ae60','#27ae60',
-                       '#9b59b6','#9b59b6','#9b59b6','#9b59b6','#9b59b6',
-                       '#e67e22','#e67e22','#e74c3c','#1abc9c','#1abc9c','#1abc9c',
-                       '#f39c12','#3498db','#8e44ad','#27ae60','#bdc3c7'],
-      borderRadius:4}]},
-  options:{responsive:true,plugins:{legend:{display:false}},
-    scales:{y:{beginAtZero:true,title:{display:true,text:'Nº perfiles'}}}}
-});
+// archetypeChart removed — replaced by nb02_distribucion_arquetipos.png
 
 // HEATMAP ARQUETIPOS
 const archetypes=[

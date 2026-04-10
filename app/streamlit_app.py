@@ -64,10 +64,15 @@ CITY_CONTINENT: dict[str, str] = {
     "Roma": "Europa", "Sevilla": "Europa", "Sofia": "Europa",
     "Stockholm": "Europa", "Tallinn": "Europa", "Tarifa": "Europa",
     "Valencia": "Europa", "Vienna": "Europa", "Warsaw": "Europa",
-    "Tbilisi": "Cáucaso",
-    "Buenos_Aires": "Latinoamérica", "Cartagena": "Latinoamérica",
+    "Tbilisi": "Europa",
+    "Buenos_Aires": "Latinoamérica", "Bogota": "Latinoamérica",
+    "Cartagena": "Latinoamérica", "Lima": "Latinoamérica",
     "Medellin": "Latinoamérica", "Mexico_City": "Latinoamérica",
-    "Montevideo": "Latinoamérica",
+    "Montevideo": "Latinoamérica", "Playa_Del_Carmen": "Latinoamérica",
+    "Santiago": "Latinoamérica",
+    "Bali": "Asia", "Bangkok": "Asia", "Chiang_Mai": "Asia",
+    "Dubai": "Asia", "Kuala_Lumpur": "Asia",
+    "Dakhla": "África", "Essaouira": "África", "Marrakech": "África",
 }
 CONTINENTES = sorted(set(CITY_CONTINENT.values()))
 
