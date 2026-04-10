@@ -108,7 +108,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 /* INSIGHT BOXES debajo de cada imagen */
 .insight-box { margin-top: 16px; border-top: 1px solid #e8e5de; padding-top: 14px; display: flex; flex-direction: column; gap: 8px; }
 .insight-row { display: flex; gap: 10px; font-size: 0.85em; align-items: flex-start; }
-.insight-label { font-weight: 700; min-width: 130px; flex-shrink: 0; padding: 2px 8px; border-radius: 4px; font-size: 0.82em; text-transform: uppercase; letter-spacing: 0.5px; }
+.insight-label { font-weight: 700; width: auto; white-space: nowrap; flex-shrink: 0; padding: 2px 8px; border-radius: 4px; font-size: 0.82em; text-transform: uppercase; letter-spacing: 0.5px; }
 .insight-label.what  { background: #e8f0fb; color: #1a5f9e; }
 .insight-label.dedux { background: #fef3c7; color: #92400e; }
 .insight-label.deci  { background: #d1fae5; color: #065f46; }
@@ -1120,7 +1120,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
     </div>
   </div>
 
-  <div class="eda-img-grid" style="margin-bottom:24px;">
+  <div class="eda-img-grid" style="margin-bottom:24px; grid-template-columns: 1fr 1fr;">
     <div class="eda-img-wrap">
       <img src="nb03_curvas_aprendizaje.png" alt="Curvas de aprendizaje del modelo">
       <div class="insight-box">
@@ -1140,7 +1140,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
     </div>
   </div>
 
-  <div class="eda-img-grid" style="margin-bottom:24px;">
+  <div class="eda-img-grid" style="margin-bottom:24px; grid-template-columns: 1fr 1fr;">
     <div class="eda-img-wrap">
       <img src="nb03_shap_summary.png" alt="SHAP summary plot">
       <div class="insight-box">
