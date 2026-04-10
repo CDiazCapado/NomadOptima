@@ -910,6 +910,56 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
     </div>
   </div>
 
+  <!-- MUESTRA INTERACTIVA DE PERFILES SINTÉTICOS -->
+  <div class="card" style="margin-bottom:24px; border-left:5px solid #9b59b6;">
+    <h3 style="color:#6c3483;">Muestra real — 5 perfiles sintéticos (todas las columnas)</h3>
+    <p style="font-size:0.83em; color:#5d6778; margin-top:6px; margin-bottom:14px;">Cada fila = un perfil de usuario generado. Cada columna = una de las 26 dimensiones. <span style="background:#1a7a42;color:#fff;padding:1px 6px;border-radius:3px;font-size:0.78em;">ALTO ≥0.7</span> <span style="background:#a9dfbf;color:#1a5c30;padding:1px 6px;border-radius:3px;font-size:0.78em;">MEDIO ≥0.4</span> <span style="background:#f5f5f5;color:#999;border:1px solid #ddd;padding:1px 6px;border-radius:3px;font-size:0.78em;">BAJO</span></p>
+    <div style="overflow-x:auto;">
+      <table style="border-collapse:collapse;width:100%;min-width:900px;">
+        <thead>
+          <tr>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 10px;text-align:left;white-space:nowrap;position:sticky;left:0;z-index:2;">arquetipo</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">gastronomia</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">vida_nocturna</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">cultura</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">arte_visual</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">naturaleza</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">dep_agua</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">dep_montana</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">dep_urbano</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">bienestar</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">familia</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">mascotas</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">nomada</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">alojamiento</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">movilidad</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">compras</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">servicios</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">salud</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">turismo</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">educacion</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">comunidad</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">coste</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">clima</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">calidad_vida</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">social_media</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">musica</th>
+            <th style="background:#1e3a5f;color:#fff;padding:8px 6px;text-align:center;font-size:0.75em;white-space:nowrap;">autenticidad</th>
+          </tr>
+        </thead>
+        <tbody id="profileSampleTbody"></tbody>
+      </table>
+    </div>
+    <p style="font-size:0.78em; color:#9ca3af; margin-top:10px;">Fila 705 (mixto): todos los valores MEDIO (~0.55) — sin arquetipo dominante, simula un perfil equilibrado. El 14% de los perfiles son mixtos.</p>
+  </div>
+
+  <!-- DISTRIBUCIÓN REAL DE ARQUETIPOS -->
+  <div class="chart-wrap" style="margin-bottom:24px;">
+    <div class="chart-title">Distribución real de arquetipos en los 5.000 perfiles sintéticos generados</div>
+    <canvas id="archetypeRealChart" height="200"></canvas>
+    <div class="chart-note">Fuente: user_profiles.csv · 5.000 perfiles · 22 arquetipos + mixtos. Los % son proporcionales a la distribución poblacional estimada de cada perfil de viajero.</div>
+  </div>
+
   <div class="card" style="border-left:5px solid #1e3a5f;">
     <h3>Dataset final de entrenamiento — v3</h3>
     <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-top:16px;">
@@ -1104,9 +1154,9 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
       <div class="prob-sol">🔴 Requiere feedback real (clicks, reservas) para reentrenar. Sin esto, el sistema es una tautología bien medida.</div>
     </div>
     <div class="prob-card critical">
-      <h4>⚡ ÚLTIMO PROBLEMA — LambdaMART sigue priorizando ciudades grandes</h4>
-      <div class="prob-desc">El modelo v3 se reentrenó el 10/04/2026 con 53 ciudades y 175 features, pero LambdaMART sigue recomendando sistemáticamente ciudades grandes (Madrid, Berlín, Londres) independientemente del perfil del usuario. <code>city_childcare</code> acapara el 63.1% del gain — el modelo aprende que "más infraestructura = mejor ciudad" sin corregir por tamaño. <strong>Para la demo de hoy el ranking de LightGBM no es fiable — la app usa Cosine Similarity como sistema de ranking.</strong></div>
-      <div class="prob-sol">🔴 Pendiente: normalizar todos los conteos GP por <code>sqrt(área_km²)</code> para que el modelo mida concentración de amenidades, no volumen absoluto. Datos de área disponibles (Wikidata). Re-entrenamiento necesario tras la normalización.</div>
+      <h4>⚡ ÚLTIMO PROBLEMA — Sesgo hacia ciudades grandes</h4>
+      <div class="prob-desc">LambdaMART recomienda sistemáticamente ciudades grandes (Madrid, Berlín, Londres) independientemente del perfil del usuario. <code>city_childcare</code> acapara el 63.1% del gain — el modelo aprende que "más infraestructura = mejor ciudad" sin corregir por tamaño.</div>
+      <div class="prob-sol">🔴 Pendiente: normalizar todos los conteos GP por <code>sqrt(área_km²)</code> para que el modelo mida concentración de amenidades, no volumen absoluto. Datos de área disponibles (Wikidata). Re-entrenamiento necesario.</div>
     </div>
     <div class="prob-card critical">
       <h4>Cambio de arquitectura — notebook 02 generaba labels circulares</h4>
@@ -1128,57 +1178,25 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
     <div class="tl-item">
       <div class="tl-dot big"></div>
       <div class="tl-card">
-        <div class="tl-date">Marzo 2026 — Semana 1</div>
-        <div class="tl-title">Arranque: 2 ciudades, pipeline básico</div>
-        <div class="tl-desc">Málaga + París · Google Places · Numbeo scraping · LightGBM v1 con 15 árboles · NDCG@1 = 0.9998 (engañoso — solo 2 ciudades)</div>
+        <div class="tl-date">Semana 1</div>
+        <div class="tl-title">Pipeline básico → 5 ciudades → Arquitectura 5 capas</div>
+        <div class="tl-desc">Arranque con Málaga + París · Google Places + Numbeo + OSM · Ampliación a 5 ciudades · Cosine Similarity + PCA+UMAP+HDBSCAN · LightGBM v1 → v4 · 84–90 features · NDCG@1 = 0.9995</div>
       </div>
     </div>
     <div class="tl-item right">
       <div class="tl-dot"></div>
       <div class="tl-card">
-        <div class="tl-date">Marzo 2026 — Semana 2</div>
-        <div class="tl-title">Ampliación a 5 ciudades</div>
-        <div class="tl-desc">+Valencia, Porto, Burdeos · Google Places (New API) activada · OSM Overpass integrado · 84 features · NDCG@1 = 0.9986</div>
+        <div class="tl-date">Semana 2</div>
+        <div class="tl-title">36 → 53 ciudades · 26 dimensiones · Rediseño arquetipos</div>
+        <div class="tl-desc">Europa + LATAM + Asia · Split deporte en 3 · Arte Visual + Música + Social Media · 52 perfiles reales/LLM → 21 arquetipos · Wikidata (área/población) · Precios Expatistan · 136 features · 205k filas</div>
       </div>
     </div>
     <div class="tl-item">
-      <div class="tl-dot"></div>
-      <div class="tl-card">
-        <div class="tl-date">Marzo–Abril 2026 — Semana 3</div>
-        <div class="tl-title">Arquitectura 5 capas + Clustering</div>
-        <div class="tl-desc">Cosine Similarity · PCA+UMAP+HDBSCAN · 22 user clusters · afinidad_uc_cc · NDCG@1 = 0.9995 · 32 árboles</div>
-      </div>
-    </div>
-    <div class="tl-item right">
-      <div class="tl-dot"></div>
-      <div class="tl-card">
-        <div class="tl-date">Abril 2026 — Semana 1</div>
-        <div class="tl-title">Salto a 36 ciudades · 26 dimensiones</div>
-        <div class="tl-desc">Europa + LATAM + Asia · Split deporte en 3 · Arte Visual separada · Música + Social Media · 136 features · 205k filas</div>
-      </div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot"></div>
-      <div class="tl-card">
-        <div class="tl-date">Abril 2026 — Semana 2</div>
-        <div class="tl-title">Rediseño arquetipos + 53 ciudades</div>
-        <div class="tl-desc">52 perfiles reales/LLM → 21 arquetipos · Wikidata (área/población) · Precios manuales Expatistan · fetch_cities v11</div>
-      </div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-dot"></div>
-      <div class="tl-card">
-        <div class="tl-date">Abril 2026 — Semana 2</div>
-        <div class="tl-title">Rediseño arquitectura + fix circular labels</div>
-        <div class="tl-desc">Notebook 02 separado (solo perfiles) · Notebook 03 hace cross-join + labels por producto escalar · Capa 3 retirada del MVP · EDA completo (4 fases)</div>
-      </div>
-    </div>
-    <div class="tl-item right">
       <div class="tl-dot big" style="background:#27ae60;"></div>
       <div class="tl-card" style="border-color:#27ae60; background:#f0fdf4;">
-        <div class="tl-date" style="color:#1a7a42;">10 Abril 2026 — Estado actual ✅</div>
-        <div class="tl-title" style="color:#065f46;">Modelo v3 entrenado · Streamlit conectado</div>
-        <div class="tl-desc">43 árboles · 175 features · NDCG@1=1.0 · NDCG@5=0.9631 · 270k filas · LambdaMART reentrenado pero sesgo ciudad grande persiste → demo usa Cosine Similarity · Normalización GP por densidad pendiente</div>
+        <div class="tl-date" style="color:#1a7a42;">Semana 3 — Estado actual ✅</div>
+        <div class="tl-title" style="color:#065f46;">Fix arquitectura · Modelo v3 · Streamlit en producción</div>
+        <div class="tl-desc">Fix labels circulares · Nb02 solo perfiles · Nb03 cross-join + producto escalar · Capa 3 retirada · EDA 4 fases completo · 43 árboles · 175 features · NDCG@1=1.0 · NDCG@5=0.9631 · 270k filas · sesgo ciudad grande identificado — pendiente de corregir</div>
       </div>
     </div>
   </div>
@@ -1208,9 +1226,6 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
     <span class="sec-num" style="color:#5da8d8; padding-left:0;">11</span>
     <h2 class="sec-title" style="border-left-color:#2ecc71; color:#2ecc71; padding-left:18px;">Demo en vivo</h2>
     <p style="color:#a8c0d8; font-size:1.05em; margin-bottom:16px;">Dos perfiles muy distintos — veamos qué ciudades recomienda el sistema</p>
-    <div style="background:rgba(231,76,60,0.15); border:1px solid rgba(231,76,60,0.5); border-radius:10px; padding:12px 20px; display:inline-block; margin-bottom:28px; font-size:0.9em; color:#fca5a5;">
-      ⚠️ <strong>Nota técnica:</strong> LambdaMART v3 sigue priorizando ciudades grandes (sesgo sin corregir). La demo usa <strong>Cosine Similarity</strong> como ranking — sistema de la Capa 1, sin ML, pero sin sesgo de tamaño.
-    </div>
 
     <div class="demo-profiles">
       <div class="demo-profile">
@@ -1250,31 +1265,31 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 <div class="section" id="roadmap">
   <span class="sec-num">12</span>
   <h2 class="sec-title">Próximos pasos</h2>
-  <p class="sec-sub">Del MVP al producto comercial — lo que falta y hacia dónde va</p>
+  <p class="sec-sub">El MVP está funcionando — ahora toca mejorar la calidad del ranking</p>
 
   <div class="grid-2">
     <div>
-      <h3 style="font-size:1.1em; color:#1e3a5f; margin-bottom:14px;">Corto plazo — cerrar el MVP</h3>
+      <h3 style="font-size:1.1em; color:#1e3a5f; margin-bottom:14px;">Corto plazo — mejorar LambdaMART</h3>
       <ul class="roadmap-list">
         <li>
-          <div class="rl-icon done">✅</div>
-          <div class="rl-text"><strong>Notebook 02-v3 ejecutado</strong><span>5.000 perfiles × 26 dimensiones · user_profiles.csv generado</span></div>
-        </li>
-        <li>
-          <div class="rl-icon done">✅</div>
-          <div class="rl-text"><strong>Modelo v3 entrenado — 53 ciudades</strong><span>175 features · 43 árboles · NDCG@1=1.0 · NDCG@5=0.9631</span></div>
-        </li>
-        <li>
-          <div class="rl-icon done">✅</div>
-          <div class="rl-text"><strong>Streamlit v3 conectado a LightGBM</strong><span>App funcional · fallback a cosine_sim · 10 categorías con subcategorías</span></div>
+          <div class="rl-icon soon">⏳</div>
+          <div class="rl-text"><strong>Normalizar features GP por densidad geográfica</strong><span>Dividir conteos por <code>sqrt(área_km²)</code> — medir concentración de amenidades, no volumen. Elimina el sesgo hacia ciudades grandes.</span></div>
         </li>
         <li>
           <div class="rl-icon soon">⏳</div>
-          <div class="rl-text"><strong>Normalización GP por densidad</strong><span>city_childcare domina el modelo — dividir conteos por sqrt(área_km²) para eliminar sesgo de ciudad grande</span></div>
+          <div class="rl-text"><strong>Ampliar dimensiones del perfil de usuario</strong><span>Añadir dimensiones más granulares (seguridad, calidad del aire, LGBTQ+, accesibilidad) para capturar mejor la diversidad de perfiles reales.</span></div>
         </li>
         <li>
           <div class="rl-icon soon">⏳</div>
-          <div class="rl-text"><strong>FastAPI /recommend endpoint</strong><span>POST con perfil JSON → devuelve ranking + scores + explicaciones SHAP</span></div>
+          <div class="rl-text"><strong>Re-entrenar LambdaMART con features normalizadas</strong><span>Reemplazar el modelo v3 sesgado. Objetivo: que Tarifa aparezca top para kite_surf y Chamonix para ski — no Madrid ni Londres.</span></div>
+        </li>
+        <li>
+          <div class="rl-icon soon">⏳</div>
+          <div class="rl-text"><strong>Clima histórico real — Open-Meteo</strong><span>Reemplazar temperatura hardcodeada por datos históricos de 30 años por coordenadas (API gratuita).</span></div>
+        </li>
+        <li>
+          <div class="rl-icon soon">⏳</div>
+          <div class="rl-text"><strong>Re-fetch Numbeo — 30 ciudades sin QoL</strong><span>Recuperar el Quality of Life Index de las 30 ciudades bloqueadas por rate limit en mayo 2026.</span></div>
         </li>
       </ul>
     </div>
@@ -1283,19 +1298,19 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
       <ul class="roadmap-list">
         <li>
           <div class="rl-icon future">🔮</div>
-          <div class="rl-text"><strong>Open-Meteo — clima histórico real</strong><span>Reemplazar valores hardcodeados por datos de 30 años por coordenadas (API gratuita)</span></div>
+          <div class="rl-text"><strong>200+ ciudades</strong><span>City clustering automático HDBSCAN viable · señal de afinidad ciudad-ciudad más robusta.</span></div>
         </li>
         <li>
           <div class="rl-icon future">🔮</div>
-          <div class="rl-text"><strong>Feedback loop de usuarios reales</strong><span>Clicks, wishlist, reservas → reentrenar con preferencias reales — no reglas heurísticas</span></div>
+          <div class="rl-text"><strong>Feedback loop de usuarios reales</strong><span>Clicks, wishlist, reservas → reentrenar con preferencias reales — no reglas heurísticas.</span></div>
         </li>
         <li>
           <div class="rl-icon future">🔮</div>
-          <div class="rl-text"><strong>200+ ciudades</strong><span>City clustering automático HDBSCAN viable · señal de afinidad ciudad-ciudad real</span></div>
+          <div class="rl-text"><strong>Nuevas fuentes de datos</strong><span>OpenAQ (calidad del aire) · Equaldex (LGBTQ+) · OSM sport=* (surf, padel, ski) · Numbeo Crime Index.</span></div>
         </li>
         <li>
           <div class="rl-icon future">🔮</div>
-          <div class="rl-text"><strong>Travel Optimizer (Fase 2)</strong><span>Knapsack para actividades · TSP con OR-Tools para rutas · Itinerario personalizado</span></div>
+          <div class="rl-text"><strong>Travel Optimizer (Fase 2)</strong><span>Knapsack para actividades · TSP con OR-Tools para rutas · Itinerario personalizado.</span></div>
         </li>
       </ul>
     </div>
@@ -1361,6 +1376,40 @@ new Chart(document.getElementById('cheapChart'),{
 });
 
 // archetypeChart removed — replaced by nb02_distribucion_arquetipos.png
+
+// ── MUESTRA PERFILES SINTÉTICOS ──────────────────────────────────────────────
+const profileSample = [
+  {archetype:'jubilado_activo',  vals:[0.884,0.136,0.038,0.157,0.210,0.222,0.050,0.043,0.972,0.038,0.019,0.088,0.446,0.825,0.248,0.112,0.836,0.409,0.082,0.200,0.014,0.800,0.813,0.378,0.159,0.145]},
+  {archetype:'nomada_mujer_activa', vals:[0.317,0.760,0.363,0.150,0.050,0.013,0.150,0.943,0.868,0.028,0.135,0.838,0.096,0.173,0.093,0.014,0.411,0.010,0.010,0.830,0.021,0.018,0.429,0.073,0.035,0.021]},
+  {archetype:'antitur',          vals:[0.893,0.106,0.288,0.013,0.907,0.010,0.072,0.101,0.090,0.108,0.011,0.059,0.057,0.411,0.112,0.010,0.017,0.060,0.010,0.470,0.017,0.084,0.434,0.177,0.015,0.776]},
+  {archetype:'deportista_outdoor',vals:[0.265,0.182,0.065,0.035,0.906,0.256,0.617,0.926,0.476,0.163,0.040,0.093,0.177,0.405,0.075,0.010,0.234,0.043,0.029,0.013,0.042,0.753,0.087,0.145,0.060,0.343]},
+  {archetype:'mixto',            vals:[0.052,0.550,0.240,0.550,0.550,0.093,0.388,0.086,0.245,0.550,0.410,0.550,0.550,0.550,0.327,0.550,0.550,0.010,0.550,0.010,0.550,0.550,0.010,0.550,0.173,0.088]},
+];
+const profileTbody = document.getElementById('profileSampleTbody');
+profileSample.forEach(p => {
+  const cells = p.vals.map(v => {
+    const bg = v>=0.7?'#1a7a42':v>=0.4?'#a9dfbf':'#f5f5f5';
+    const col = v>=0.7?'#fff':v>=0.4?'#1a5c30':'#bbb';
+    return `<td style="background:${bg};color:${col};text-align:center;font-size:0.72em;padding:5px 3px;border:1px solid #e8e5de;">${v}</td>`;
+  }).join('');
+  profileTbody.innerHTML += `<tr><td style="font-weight:600;font-size:0.78em;color:#1e3a5f;padding:6px 10px;white-space:nowrap;background:#f8f7f3;border:1px solid #e8e5de;position:sticky;left:0;">${p.archetype}</td>${cells}</tr>`;
+});
+
+// ── DISTRIBUCIÓN REAL DE ARQUETIPOS ─────────────────────────────────────────
+new Chart(document.getElementById('archetypeRealChart'),{
+  type:'bar',
+  data:{
+    labels:['mixto','nomada_barato','cultura_arte','jubilado_activo','familia_ninos','kite_surf','nomada_premium','deportista_outdoor','gastronomia_vino','mochilero_barato','antitur','nomada_mujer_activa','bienestar_retiro','cosmopolita_urbano','fiesta_social','influencer','gamer_nomada_tech','familia_bebe','musico_festivales','ski_nieve','mascotas_naturaleza','senior_accesibilidad'],
+    datasets:[{label:'Nº perfiles',
+      data:[704,324,284,243,243,243,243,243,203,203,203,203,203,203,203,162,162,162,162,162,121,121],
+      backgroundColor:['#bdc3c7','#27ae60','#9b59b6','#1abc9c','#e67e22','#3498db','#27ae60','#3498db','#e74c3c','#f39c12','#e74c3c','#27ae60','#1abc9c','#9b59b6','#e74c3c','#e91e63','#8e44ad','#e67e22','#9b59b6','#3498db','#27ae60','#95a5a6'],
+      borderRadius:4}]},
+  options:{responsive:true,plugins:{legend:{display:false}},
+    scales:{
+      x:{ticks:{font:{size:10},maxRotation:45}},
+      y:{beginAtZero:true,title:{display:true,text:'Nº perfiles'}}
+    }}
+});
 
 // HEATMAP ARQUETIPOS
 const archetypes=[
