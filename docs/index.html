@@ -108,7 +108,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 /* INSIGHT BOXES debajo de cada imagen */
 .insight-box { margin-top: 16px; border-top: 1px solid #e8e5de; padding-top: 14px; display: flex; flex-direction: column; gap: 8px; }
 .insight-row { display: flex; gap: 10px; font-size: 0.85em; align-items: flex-start; }
-.insight-label { font-weight: 700; min-width: 130px; flex-shrink: 0; padding: 2px 8px; border-radius: 4px; font-size: 0.82em; text-transform: uppercase; letter-spacing: 0.5px; }
+.insight-label { font-weight: 700; min-width: 160px; flex-shrink: 0; padding: 2px 8px; border-radius: 4px; font-size: 0.82em; text-transform: uppercase; letter-spacing: 0.5px; }
 .insight-label.what  { background: #e8f0fb; color: #1a5f9e; }
 .insight-label.dedux { background: #fef3c7; color: #92400e; }
 .insight-label.deci  { background: #d1fae5; color: #065f46; }
@@ -117,7 +117,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 
 /* CHART */
 .chart-wrap { background: #fff; border-radius: 12px; padding: 24px; border: 1px solid #e8e5de; }
-.chart-title { font-size: 1em; font-weight: 600; color: #1e3a5f; margin-bottom: 16px; }
+.chart-title { font-size: 1em; font-weight: 700; color: #1e3a5f; font-family: 'Segoe UI', Arial, sans-serif; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #e8e5de; }
 .chart-note { font-size: 0.78em; color: #6b7280; margin-top: 12px; font-style: italic; }
 .scatter-insight { display: flex; gap: 12px; align-items: flex-start; padding: 14px 18px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; margin-top: 14px; font-size: 0.85em; color: #166534; }
 
@@ -305,6 +305,17 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
   .tc-item { width: 100%; text-align: center; }
   .thanks-contact { flex-direction: column; align-items: stretch; }
 }
+
+/* TÍTULOS DE GRÁFICOS */
+.img-title { font-size: 1em; font-weight: 700; color: #1e3a5f; font-family: 'Segoe UI', Arial, sans-serif; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #e8e5de; }
+
+/* LIGHTBOX */
+.lb-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; cursor:zoom-out; }
+.lb-overlay.active { display:flex; }
+.lb-overlay img { max-width:92vw; max-height:92vh; object-fit:contain; border-radius:8px; box-shadow:0 8px 40px rgba(0,0,0,0.6); cursor:default; }
+.lb-close { position:fixed; top:16px; right:22px; color:#fff; font-size:2em; cursor:pointer; line-height:1; z-index:10000; }
+.eda-img-wrap img, .eda-img-1 img { cursor:zoom-in; transition:opacity 0.15s; }
+.eda-img-wrap img:hover, .eda-img-1 img:hover { opacity:0.88; }
 </style>
 </head>
 <body>
@@ -724,7 +735,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 
   <div class="eda-img-grid" style="margin-bottom:24px;">
     <div class="eda-img-wrap">
-      <img src="eda_fase1_features_por_fuente.png" alt="Features por fuente">
+      <img src="eda_fase1_features_por_fuente.png" alt="Features por fuente de datos — Cobertura por fuente (55 ciudades)">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Cuántas features aporta cada una de las 6 fuentes al dataset final.</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Google Places domina con 94 features. OSM y Numbeo aportan menos pero son más precisas. Speedtest casi irrelevante — dato por país, no por ciudad.</span></div>
@@ -732,7 +743,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
       </div>
     </div>
     <div class="eda-img-wrap">
-      <img src="eda_fase1_cobertura_heatmap.png" alt="Cobertura por fuente y ciudad">
+      <img src="eda_fase1_cobertura_heatmap.png" alt="Cobertura de datos por ciudad y fuente — ciudades ordenadas de menor a mayor cobertura total">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Heatmap de cobertura: para cada ciudad y fuente, ¿tenemos dato real o cero/nulo?</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">30 ciudades tienen QoL de Numbeo = 0 por el rate limit HTTP 429. 8 features GP = 0 en todas las ciudades (GP no devuelve resultados para esos tipos). Da Nang: casi todas las features GP = 0 — GP no cubre bien Vietnam.</span></div>
@@ -744,7 +755,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 
   <div class="eda-img-grid" style="margin-bottom:24px;">
     <div class="eda-img-wrap">
-      <img src="eda_fase1_alquiler_por_ciudad.png" alt="Alquiler por ciudad">
+      <img src="eda_fase1_alquiler_por_ciudad.png" alt="Alquiler mensual por ciudad — azul: dato Numbeo directo, rojo: dato manual (fallback)">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Precio de alquiler mensual de un apartamento de 1 dormitorio por ciudad, en euros.</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Rango brutal: €143 (Lima) a €3.189 (Londres). Budapest aparecía con 343.000€ — era el precio en forintos húngaros (HUF) sin convertir. Buenos Aires tenía coste = 0 por la crisis cambiaria argentina.</span></div>
@@ -752,7 +763,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
       </div>
     </div>
     <div class="eda-img-wrap">
-      <img src="eda_fase1_gp_seleccion.png" alt="Selección GP types">
+      <img src="eda_fase1_gp_seleccion.png" alt="Google Places: 219 tipos disponibles — 102 seleccionados para viajes" style="max-width:65%; display:block; margin:0 auto;">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">De los 169 tipos de Google Places consultados, cuáles se retuvieron y cuáles se descartaron.</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">75 tipos descartados: o bien devuelven 0 en todas las ciudades (GP no los indexa bien), o tienen varianza casi nula (todas las ciudades salen iguales, aportarían ruido al modelo).</span></div>
@@ -768,16 +779,16 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 
   <div class="eda-img-grid" style="margin-bottom:24px;">
     <div class="eda-img-wrap">
-      <img src="eda_fase2_correlaciones.png" alt="Matriz de correlaciones">
+      <img src="eda_fase2_correlaciones.png" alt="Correlaciones Pearson entre features clave — Azul = positiva, Rojo = negativa, Blanco = sin correlación">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Matriz de correlación de Pearson entre todas las features numéricas. Cuadrados rojos oscuros = features que se mueven juntas (correlación alta). Cuadrados azules = correlación inversa.</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text"><strong>gp_hiking</strong> correlaciona con casi todas las demás features GP — domina el espacio de datos. Los grupos de features de restaurantes, cafés y comida están muy correlacionados entre sí (&gt;0.85): aportan información redundante. Las features de Numbeo (coste, QoL) son independientes de las GP — buena separación de señales.</span></div>
-        <div class="insight-row"><span class="insight-label warn">Problema detectado</span><span class="insight-text">gp_hiking es tan dominante que en el modelo v4 acaba siendo la feature más importante con 89 pts — probablemente porque captura "masa urbana" en general, no calidad de senderismo específicamente.</span></div>
+        <div class="insight-row"><span class="insight-label warn">Problema</span><span class="insight-text">gp_hiking es tan dominante que en el modelo v4 acaba siendo la feature más importante con 89 pts — probablemente porque captura "masa urbana" en general, no calidad de senderismo específicamente.</span></div>
         <div class="insight-row"><span class="insight-label deci">Decisión</span><span class="insight-text">Mantener las features redundantes de comida por ahora — LightGBM gestiona bien la multicolinealidad. Investigar gp_hiking en post-MVP con OSM route=hiking.</span></div>
       </div>
     </div>
     <div class="eda-img-wrap">
-      <img src="eda_fase2_pca.png" alt="PCA ciudades">
+      <img src="eda_fase2_pca.png" alt="PCA — ciudades en espacio reducido (coloreado por región geográfica)">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">PCA (Análisis de Componentes Principales): proyecta las 136 features en 2 dimensiones para ver cómo se separan las ciudades. Cada punto es una ciudad.</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text"><strong>PC1 (~35% varianza):</strong> eje del coste de vida — Londres, Ámsterdam y Múnich en un extremo; Lima, Tbilisi y Bucarest en el otro. <strong>PC2 (~18% varianza):</strong> eje de actividad outdoor — Tarifa y Dakhla muy separadas del resto (kitesurf único). Tarifa y Dakhla son outliers claros: perfil de amenidades completamente distinto a cualquier ciudad europea.</span></div>
@@ -788,7 +799,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 
   <div class="eda-img-grid" style="margin-bottom:24px;">
     <div class="eda-img-wrap">
-      <img src="eda_fase2_umap.png" alt="UMAP ciudades">
+      <img src="eda_fase2_umap.png" alt="UMAP — similitud entre ciudades según sus 130+ features (ciudades cercanas = perfil similar)">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">UMAP: reducción de dimensionalidad no lineal. Mejor que PCA para detectar grupos (clusters) con forma no elíptica. Cada punto = una ciudad, coloreada por región.</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Se forman 3 grupos naturales: <strong>Grupo 1</strong> (Asia + Europa del Este): coste bajo, features GP limitadas. <strong>Grupo 2</strong> (Europa Occidental media): coste y amenidades medias. <strong>Grupo 3</strong> (Grandes capitales caras): Londres, Ámsterdam, Múnich — alta densidad de todo. Tarifa y Dakhla aparecen aisladas — confirma su perfil único de kite/windsurf.</span></div>
@@ -796,11 +807,11 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
       </div>
     </div>
     <div class="eda-img-wrap">
-      <img src="eda_fase2_radar_charts.png" alt="Radar charts ciudades">
+      <img src="eda_fase2_radar_charts.png" alt="Radar charts — perfil de 8 ciudades representativas (cada eje = dimensión normalizada 0-1)">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Radar chart: perfil multidimensional de varias ciudades a la vez. Cada eje es una categoría (gastronomía, outdoor, coworking...). El área interior = "huella" de esa ciudad.</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Tarifa destaca claramente en kitesurf y playa. Berlín y Málaga son "ciudades completas" con perfil equilibrado. <strong>Problema detectado: QoL = 0 en Tarifa, Chiang Mai, Bali y otras 27 ciudades</strong> — el eje de calidad de vida queda plano, haciendo que parezcan peores de lo que son.</span></div>
-        <div class="insight-row"><span class="insight-label warn">Causa del problema</span><span class="insight-text">Numbeo bloqueó el acceso con HTTP 429 (rate limit mensual agotado). Esas ciudades no tienen índice de calidad de vida real en el dataset.</span></div>
+        <div class="insight-row"><span class="insight-label warn">Problema</span><span class="insight-text">Numbeo bloqueó el acceso con HTTP 429 (rate limit mensual agotado). Esas ciudades no tienen índice de calidad de vida real en el dataset.</span></div>
         <div class="insight-row"><span class="insight-label deci">Decisión</span><span class="insight-text">NUMBEO_FALLBACK con precios manuales de Expatistan. El índice QoL queda a 0 hasta el re-fetch en mayo 2026. El modelo lo compensa usando las otras features (GP, clima, OSM).</span></div>
       </div>
     </div>
@@ -885,7 +896,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 
   <div class="eda-img-grid" style="margin-top:24px;">
     <div class="eda-img-wrap">
-      <img src="eda_fase3_heatmap_arquetipos.png" alt="Heatmap arquetipos × dimensiones">
+      <img src="eda_fase3_heatmap_arquetipos.png" alt="Heatmap — 21 Arquetipos x 26 Dimensiones">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Heatmap completo: 21 arquetipos (filas) × 26 dimensiones (columnas). Oscuro = nivel ALTO, gris medio = MEDIO, blanco = BAJO.</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Cada arquetipo tiene un patrón visual único. Kite_surf domina deporte_agua + clima; familia_ninos domina familia + educacion + salud; nomada_barato se concentra en coste + nomada. No hay dos arquetipos con el mismo patrón — diferenciación validada.</span></div>
@@ -893,7 +904,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
       </div>
     </div>
     <div class="eda-img-wrap">
-      <img src="eda_fase3_similitud_arquetipos.png" alt="Matriz similitud entre arquetipos">
+      <img src="eda_fase3_similitud_arquetipos.png" alt="Similitud Cosine entre Arquetipos — mayor valor = más parecidos">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Cosine similarity entre los 21 vectores de arquetipos. Diagonal = 1.0 (cada arquetipo igual a sí mismo). Cuadros más oscuros = arquetipos parecidos.</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Los arquetipos de nómada (barato, premium, mujer) tienen similitud media entre sí (~0.5) — comparten nomada + calidad_vida pero difieren en coste y bienestar. familia_bebe y familia_ninos son muy similares (~0.8) — decisión correcta tenerlos separados por el peso de educacion.</span></div>
@@ -904,7 +915,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 
   <div class="eda-img-grid" style="margin-top:24px;">
     <div class="eda-img-wrap">
-      <img src="eda_fase3_radar_arquetipos.png" alt="Radar charts arquetipos">
+      <img src="eda_fase3_radar_arquetipos.png" alt="Radar Charts — Perfil de los 21 Arquetipos (12 dimensiones con mayor varianza)">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Radar charts para grupos de arquetipos similares. Cada eje = una dimensión. El área cubierta = el "perfil de vida" del arquetipo.</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Los arquetipos deportivos (kite, outdoor, ski) se solapan en naturaleza pero divergen fuertemente en deporte_agua vs deporte_montana. Los urbanos (cosmopolita, cultura, músico) comparten cultura pero difieren en vida_nocturna y gastronomia.</span></div>
@@ -912,7 +923,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
       </div>
     </div>
     <div class="eda-img-wrap">
-      <img src="eda_fase3_pca_arquetipos.png" alt="PCA arquetipos">
+      <img src="eda_fase3_pca_arquetipos.png" alt="PCA — Posición de los 21 Arquetipos en 2D">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">PCA de los 21 vectores de arquetipos en 2D. Cada punto = un arquetipo. Distancia = diferencia de perfil.</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Los arquetipos se distribuyen en el espacio sin superposiciones. El PC1 separa los perfiles orientados a coste/nómada de los orientados a familia/calidad_vida. El PC2 separa los deportivos de los culturales/gastronómicos.</span></div>
@@ -971,7 +982,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 
   <div class="eda-img-grid" style="margin-bottom:24px;">
     <div class="eda-img-wrap">
-      <img src="nb02_distribucion_arquetipos.png" alt="Distribución de arquetipos en los perfiles sintéticos">
+      <img src="nb02_distribucion_arquetipos.png" alt="5.000 perfiles sintéticos — distribución por arquetipo">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Distribución real de los 5.000 perfiles sintéticos generados por arquetipo. Barras = número de perfiles asignados a cada arquetipo.</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">La distribución sigue los porcentajes definidos en los arquetipos. nómada_barato y familia_ninos tienen más peso que arquetipos de nicho como senior_accesibilidad o mascotas_naturaleza — refleja la distribución real estimada de viajeros.</span></div>
@@ -979,7 +990,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
       </div>
     </div>
     <div class="eda-img-wrap">
-      <img src="eda_fase4_histogramas_dimensiones.png" alt="Histogramas de dimensiones de usuario">
+      <img src="eda_fase4_histogramas_dimensiones.png" alt="Distribución de cada dimensión en los 5.000 perfiles sintéticos">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Histogramas de las 26 dimensiones de usuario en los 5.000 perfiles. Cada subplot = una dimensión. La forma de la curva indica si la distribución Beta funciona correctamente.</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Dimensiones ALTO (gastronomia en perfiles de cultura) se concentran cerca de 0.9. Dimensiones BAJO se concentran cerca de 0.1. Dimensiones MEDIO forman campanas simétricas. No hay acumulaciones en 0 o 1 extremos — la generación es estadísticamente sana.</span></div>
@@ -990,7 +1001,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 
   <div class="eda-img-grid" style="margin-bottom:24px;">
     <div class="eda-img-wrap">
-      <img src="eda_fase4_pca_perfiles.png" alt="PCA de los perfiles sintéticos">
+      <img src="eda_fase4_pca_perfiles.png" alt="PCA 2D — 500 perfiles sintéticos coloreados por arquetipo">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">PCA de los 5.000 perfiles en 2D, coloreados por arquetipo. Cada punto = un perfil de usuario. Grupos = arquetipos similares.</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Los arquetipos forman nubes distintas con solapamiento moderado — exactamente lo que esperamos. Solapamiento total indicaría que los arquetipos son idénticos; separación perfecta indicaría perfiles artificialmente rígidos. Los perfiles mixtos (gris) se distribuyen entre los grupos — correcto.</span></div>
@@ -998,7 +1009,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
       </div>
     </div>
     <div class="eda-img-wrap">
-      <img src="eda_fase4_heatmap_medias.png" alt="Heatmap medias por arquetipo">
+      <img src="eda_fase4_heatmap_medias.png" alt="Media de cada dimensión por arquetipo (5.000 perfiles sintéticos)">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Media de cada dimensión para los perfiles de cada arquetipo. Validación: ¿los perfiles generados reproducen los pesos definidos en los arquetipos originales?</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Las medias son consistentes con los niveles H/M/L definidos: kite_surf tiene deporte_agua media ~0.88 (diseñado: ALTO), bienestar_retiro tiene bienestar media ~0.85, nomada_barato tiene coste media ~0.88. Spot-check superado en todos los arquetipos.</span></div>
@@ -1122,7 +1133,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 
   <div class="eda-img-grid" style="margin-bottom:24px;">
     <div class="eda-img-wrap">
-      <img src="nb03_curvas_aprendizaje.png" alt="Curvas de aprendizaje del modelo">
+      <img src="nb03_curvas_aprendizaje.png" alt="Curvas de aprendizaje — LightGBM LambdaRank">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Evolución del NDCG@k en train y validación según aumenta el número de árboles del modelo. Permite detectar overfitting.</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">Train y validación convergen cerca. El modelo alcanza su mejor NDCG en la iteración 43 — early stopping activo. No hay overfitting notable: la curva de validación no cae cuando la de train sigue subiendo.</span></div>
@@ -1130,11 +1141,11 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
       </div>
     </div>
     <div class="eda-img-wrap">
-      <img src="nb03_feature_importance.png" alt="Feature importance del modelo v3">
+      <img src="nb03_feature_importance.png" alt="Feature Importance — LightGBM LambdaRank">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">Las 15 features más importantes del modelo por ganancia (gain). Cuanto mayor el gain, más información aporta esa feature a cada split del árbol.</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text"><strong>city_childcare domina con 63.1%</strong> del gain total. Esto indica sesgo hacia ciudades grandes: las ciudades con más guarderías son las grandes capitales (Madrid, Londres, Berlín) — el modelo las recomienda sistemáticamente. city_gp_synagogue (6.6%) y city_gp_snorkeling (5.2%) son menos interpretables pero estadísticamente útiles.</span></div>
-        <div class="insight-row"><span class="insight-label warn">Problema identificado</span><span class="insight-text">city_childcare como feature #1 confirma el sesgo de ciudad grande. Solución diseñada: normalizar conteos GP por sqrt(área_km²) para medir concentración, no volumen absoluto.</span></div>
+        <div class="insight-row"><span class="insight-label warn">Problema</span><span class="insight-text">city_childcare como feature #1 confirma el sesgo de ciudad grande. Solución diseñada: normalizar conteos GP por sqrt(área_km²) para medir concentración, no volumen absoluto.</span></div>
         <div class="insight-row"><span class="insight-label deci">Decisión</span><span class="insight-text">Normalización GP pendiente post-presentación. Los datos de área ya están disponibles (Wikidata, 53 ciudades).</span></div>
       </div>
     </div>
@@ -1142,7 +1153,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 
   <div class="eda-img-grid" style="margin-bottom:24px;">
     <div class="eda-img-wrap">
-      <img src="nb03_shap_summary.png" alt="SHAP summary plot">
+      <img src="nb03_shap_summary.png" alt="SHAP Summary — impacto de cada feature en el ranking" style="max-width:65%; display:block; margin:0 auto;">
       <div class="insight-box">
         <div class="insight-row"><span class="insight-label what">Qué muestra</span><span class="insight-text">SHAP summary plot: para cada feature, cómo impacta en el score de cada ciudad-usuario. Puntos rojos = valor alto de la feature. Puntos azules = valor bajo. Posición horizontal = efecto en el score.</span></div>
         <div class="insight-row"><span class="insight-label dedux">Qué dedujimos</span><span class="insight-text">city_childcare alto (rojo) siempre empuja el score hacia arriba — confirma el sesgo. user_imp_coste alto (el usuario quiere ciudad barata) baja el score de ciudades caras — correcto. Las features de clima tienen efecto bidireccional limpio.</span></div>
@@ -1541,6 +1552,50 @@ archetypes.forEach(row=>{
     row.slice(2).map(v=>`<td class="${cClass(v)}">${cText(v)}</td>`).join('');
   tbody.appendChild(tr);
 });
+</script>
+
+<!-- LIGHTBOX -->
+<div class="lb-overlay" id="lb-overlay">
+  <span class="lb-close" id="lb-close">✕</span>
+  <img id="lb-img" src="" alt="">
+</div>
+<script>
+(function(){
+  const overlay = document.getElementById('lb-overlay');
+  const lbImg   = document.getElementById('lb-img');
+  const lbClose = document.getElementById('lb-close');
+
+  // Añadir click a todas las imágenes de gráficos
+  document.querySelectorAll('.eda-img-wrap img, .eda-img-1 img').forEach(img => {
+    img.addEventListener('click', function(){
+      lbImg.src = this.src;
+      lbImg.alt = this.alt;
+      overlay.classList.add('active');
+    });
+  });
+
+  // Cerrar al hacer click en overlay o en la X
+  overlay.addEventListener('click', function(e){
+    if(e.target !== lbImg) overlay.classList.remove('active');
+  });
+  lbClose.addEventListener('click', () => overlay.classList.remove('active'));
+
+  // Cerrar con Escape
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') overlay.classList.remove('active');
+  });
+
+  // Auto-títulos: insertar <p class="img-title"> desde el atributo alt de cada imagen
+  document.querySelectorAll('.eda-img-wrap, .eda-img-1').forEach(wrap => {
+    const img = wrap.querySelector('img');
+    if(img && img.alt) {
+      const title = document.createElement('p');
+      title.className = 'img-title';
+      title.textContent = img.alt;
+      wrap.insertBefore(title, img);
+    }
+  });
+})();
 </script>
 </body>
 </html>
