@@ -79,9 +79,11 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
   .layers { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
   .layer-box { min-width: 110px; max-width: none; flex-shrink: 0; }
 
-  /* Pipeline fases → scroll horizontal */
-  #pipeline-io .card { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .pipeline-phase { min-width: 540px; max-width: none; }
+  /* Pipeline fases → vertical (entrada → proceso → salida apilados) */
+  #pipeline-io .card { overflow-x: unset; }
+  .pipeline-phase { display: flex; flex-direction: column; gap: 8px; min-width: unset; }
+  .pp-arrow { display: none; }
+  .pp-box { width: 100%; }
 
   /* Timeline central → lista izquierda */
   .timeline::before { left: 12px; transform: none; }
