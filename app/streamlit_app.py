@@ -449,73 +449,114 @@ def apply_language_boost(
 st.markdown("""
 <style>
 #MainMenu, footer, header {visibility: hidden;}
-.main > div { padding-top: 1rem; }
+
+/* ── viewport meta para móvil ────────────────────────────── */
+@viewport { width: device-width; }
+
+/* ── Layout base ─────────────────────────────────────────── */
+.main > div { padding-top: 0.5rem; }
+.block-container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    max-width: 860px !important;
+}
 
 /* ── Header ──────────────────────────────────────────────── */
-.nomad-header { text-align:center; padding:1rem 0 0.3rem 0; }
+.nomad-header { text-align:center; padding:0.8rem 0 0.3rem 0; }
 .nomad-header h1 {
-    font-size:2.6rem; font-weight:900;
+    font-size:2.2rem; font-weight:900;
     background:linear-gradient(135deg,#667eea,#764ba2);
     -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-    margin:0;
+    margin:0; line-height:1.2;
 }
-.nomad-header p { font-size:1rem; color:#888; margin:0; }
+.nomad-header p { font-size:0.95rem; color:#888; margin:0.3rem 0 0 0; }
 
-/* ── Category cards ──────────────────────────────────────── */
+/* ── Category buttons ────────────────────────────────────── */
 div[data-testid="stButton"] button {
     width:100%; text-align:left; border-radius:12px;
     border:1px solid #e0e0e0; background:white;
-    padding:0.6rem 0.8rem; font-size:0.88rem; font-weight:600;
+    padding:0.55rem 0.7rem; font-size:0.85rem; font-weight:600;
     transition:all 0.15s; cursor:pointer; color:#2c3e50;
+    white-space:normal; word-break:break-word;
 }
 div[data-testid="stButton"] button:hover {
     border-color:#667eea; background:#f5f7ff; color:#667eea;
 }
 
 /* ── Result cards ────────────────────────────────────────── */
-.city-card {
-    background:white; border-radius:16px; padding:1.2rem 1.4rem;
-    margin-bottom:1.2rem; box-shadow:0 4px 20px rgba(0,0,0,0.07);
-    border:1px solid #eee;
-}
-.city-card.rank1 { border:2px solid #667eea; box-shadow:0 8px 30px rgba(102,126,234,0.15); }
 .rank-badge {
     display:inline-flex; align-items:center; justify-content:center;
-    width:2.2rem; height:2.2rem; border-radius:50%;
-    font-weight:900; font-size:0.95rem; margin-right:0.6rem; flex-shrink:0;
+    width:2rem; height:2rem; border-radius:50%;
+    font-weight:900; font-size:0.9rem; margin-right:0.5rem; flex-shrink:0;
 }
 .gold   { background:linear-gradient(135deg,#f7971e,#ffd200); color:#5a3900; }
 .silver { background:linear-gradient(135deg,#bdc3c7,#95a5a6); color:white; }
 .bronze { background:linear-gradient(135deg,#cd7f32,#a0522d); color:white; }
 .other  { background:#eee; color:#555; }
-.city-name { font-size:1.5rem; font-weight:800; color:#1a1a2e; }
-.city-quote { font-style:italic; color:#555; font-size:0.92rem; margin:0.5rem 0; border-left:3px solid #667eea; padding-left:0.7rem; }
-.city-desc  { color:#666; font-size:0.87rem; line-height:1.5; }
+.city-name {
+    font-size:1.3rem; font-weight:800; color:#1a1a2e;
+    word-break:break-word; flex:1;
+}
+.city-quote {
+    font-style:italic; color:#555; font-size:0.9rem;
+    margin:0.5rem 0; border-left:3px solid #667eea; padding-left:0.7rem;
+}
+.city-desc { color:#666; font-size:0.85rem; line-height:1.5; margin:0.4rem 0; }
 .stat-pill {
     display:inline-block; background:#f5f7ff; border:1px solid #dce3ff;
-    border-radius:20px; padding:0.2rem 0.6rem; font-size:0.8rem;
-    font-weight:600; color:#4a5568; margin:0.2rem 0.15rem 0 0;
+    border-radius:20px; padding:0.2rem 0.55rem; font-size:0.78rem;
+    font-weight:600; color:#4a5568; margin:0.2rem 0.12rem 0 0;
 }
 .dim-tag {
-    display:inline-block; background:rgba(102,126,234,0.1); border:1px solid rgba(102,126,234,0.25);
-    border-radius:12px; padding:0.1rem 0.5rem; font-size:0.77rem;
-    font-weight:600; color:#5a47a8; margin:0.15rem 0.1rem 0 0;
+    display:inline-block; background:rgba(102,126,234,0.1);
+    border:1px solid rgba(102,126,234,0.25);
+    border-radius:12px; padding:0.1rem 0.45rem; font-size:0.75rem;
+    font-weight:600; color:#5a47a8; margin:0.15rem 0.08rem 0 0;
 }
-.match-bar-bg { background:#eee; border-radius:6px; height:5px; margin:0.3rem 0; overflow:hidden; }
-.match-bar-fill { height:5px; border-radius:6px; background:linear-gradient(90deg,#667eea,#764ba2); }
-.dummy-badge {
-    display:inline-block; background:#fff3e0; border:1px solid #ffb74d;
-    border-radius:8px; padding:0.15rem 0.5rem; font-size:0.72rem;
-    color:#e65100; font-weight:700; margin-left:0.4rem;
+.match-bar-bg {
+    background:#eee; border-radius:6px; height:5px;
+    margin:0.3rem 0; overflow:hidden;
+}
+.match-bar-fill {
+    height:5px; border-radius:6px;
+    background:linear-gradient(90deg,#667eea,#764ba2);
 }
 .model-note {
     background:#f0f4ff; border-left:4px solid #667eea; border-radius:6px;
-    padding:0.6rem 1rem; font-size:0.8rem; color:#3a3a6a; margin-top:1.5rem;
+    padding:0.5rem 0.8rem; font-size:0.78rem; color:#3a3a6a; margin-top:1.2rem;
 }
 .section-hdr {
-    font-size:1.05rem; font-weight:700; color:#2c3e50;
-    margin:1.5rem 0 0.4rem 0; padding-bottom:0.3rem;
+    font-size:1rem; font-weight:700; color:#2c3e50;
+    margin:1.2rem 0 0.4rem 0; padding-bottom:0.3rem;
     border-bottom:2px solid #667eea; display:inline-block;
+}
+
+/* ── Responsive: móvil (≤ 640px) ────────────────────────── */
+@media (max-width: 640px) {
+    .block-container {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+    .nomad-header h1 { font-size: 1.6rem; }
+    .nomad-header p  { font-size: 0.82rem; }
+    .city-name       { font-size: 1.1rem; }
+    .rank-badge      { width:1.7rem; height:1.7rem; font-size:0.8rem; }
+    .stat-pill       { font-size: 0.72rem; padding: 0.15rem 0.45rem; }
+    .dim-tag         { font-size: 0.7rem; }
+    .city-quote      { font-size: 0.82rem; }
+    .city-desc       { font-size: 0.8rem; }
+    /* Columnas de Streamlit — apilar en móvil */
+    [data-testid="column"] {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        min-width: 100% !important;
+    }
+    /* Botones de categoría más compactos */
+    div[data-testid="stButton"] button {
+        font-size: 0.8rem;
+        padding: 0.45rem 0.55rem;
+    }
+    /* Sidebar en móvil: collapsar por defecto — ya lo hace Streamlit */
 }
 </style>
 """, unsafe_allow_html=True)
@@ -641,6 +682,7 @@ def main():
     col_hdr, col_lang = st.columns([4, 1])
     with col_hdr:
         st.markdown("""
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <div class="nomad-header">
             <h1>🌍 NomadOptima</h1>
             <p>Encuentra tu ciudad ideal</p>
@@ -703,7 +745,7 @@ def main():
 
     with tab_cats:
         # Grid de categorías (4 por fila)
-        N_COLS = 4
+        N_COLS = 3
         cat_rows = [CATEGORIES[i:i+N_COLS] for i in range(0, len(CATEGORIES), N_COLS)]
 
         for row in cat_rows:
