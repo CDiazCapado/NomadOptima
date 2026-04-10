@@ -41,6 +41,59 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
 @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
 
+/* ===== RESPONSIVE MÓVIL ===== */
+@media (max-width: 640px) {
+  /* Hero */
+  .hero { padding: 48px 20px 40px; }
+  .hero h1 { font-size: 2.2em; letter-spacing: 1px; }
+  .hero .tagline { font-size: 1.05em; }
+  .hero-stat .val { font-size: 2em; }
+
+  /* Sections */
+  .section { padding: 40px 16px; }
+  .sec-title { font-size: 1.5em; }
+  .sec-sub { font-size: 0.95em; }
+
+  /* Nav */
+  .nav { padding: 8px 10px; gap: 3px; }
+  .nav a { font-size: 0.68em; padding: 3px 6px; }
+
+  /* Cards */
+  .card { padding: 16px 14px; }
+
+  /* Pipeline 5 capas horizontal → vertical */
+  .layers { flex-direction: column; }
+  .layer-box { border-right: none; border-bottom: 3px solid #f8f7f3; border-radius: 0 !important; min-width: unset; }
+  .layer-box:last-child { border-bottom: none; border-radius: 0 0 12px 12px !important; }
+  .layer-box:first-child { border-radius: 12px 12px 0 0 !important; }
+
+  /* Pipeline fases (grid 5 columnas → columna única) */
+  .pipeline-phase { grid-template-columns: 1fr; }
+  .pp-arrow { display: none; }
+  .pp-box { margin-bottom: 8px; }
+
+  /* Timeline central → lista simple */
+  .timeline::before { left: 16px; }
+  .tl-item { justify-content: flex-start; padding-right: 0; padding-left: 44px; }
+  .tl-item.right { justify-content: flex-start; padding-left: 44px; }
+  .tl-dot { left: 16px; }
+  .tl-card { max-width: 100%; }
+
+  /* Tablas → scroll horizontal */
+  .model-table, table { font-size: 0.78em; }
+  .heatmap-wrap, .model-table-wrap { overflow-x: auto; }
+  table { min-width: 480px; }
+
+  /* Source cards (flex → columna) */
+  .source-card { flex-direction: column; }
+
+  /* Insight rows */
+  .insight-row { flex-direction: column; gap: 4px; }
+
+  /* Demo profile */
+  .demo-profile { padding: 16px; }
+}
+
 /* HIGHLIGHT */
 .hl { background: #e8f5ee; border: 1px solid #27ae60; border-radius: 10px; padding: 20px 24px; }
 .hl strong { color: #1a7a42; }
@@ -981,7 +1034,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 
   <div class="card" style="margin-bottom:28px;">
     <h3>Comparativa de enfoques</h3>
-    <table class="model-table" style="margin-top:14px;">
+    <div class="heatmap-wrap"><table class="model-table" style="margin-top:14px;">
       <thead>
         <tr><th>Algoritmo</th><th>Tipo</th><th>Sin usuarios reales</th><th>Optimiza ranking</th><th>Velocidad</th><th>Explicabilidad</th></tr>
       </thead>
@@ -992,7 +1045,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
         <tr><td>Random Forest Ranker</td><td>Ensemble</td><td><span class="check">✓ Sí</span></td><td class="neutral">~ Parcial</td><td class="neutral">Media</td><td><span class="check">✓ Alta</span></td></tr>
         <tr class="winner"><td><strong>⭐ LightGBM LambdaMART</strong></td><td><strong>Learning to Rank</strong></td><td><span class="check">✓ Sí</span></td><td><span class="check">✓ Nativamente</span></td><td><span class="check">✓ Muy alta</span></td><td><span class="check">✓ SHAP nativo</span></td></tr>
       </tbody>
-    </table>
+    </table></div>
   </div>
 
   <div class="grid-2" style="margin-bottom:28px;">
@@ -1203,7 +1256,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 
   <div class="card" style="margin-top:32px;">
     <h3>Evolución del modelo</h3>
-    <table class="model-table" style="margin-top:14px; font-size:0.85em;">
+    <div class="heatmap-wrap"><table class="model-table" style="margin-top:14px; font-size:0.85em;">
       <thead>
         <tr><th>Versión</th><th>Ciudades</th><th>Features</th><th>Árboles</th><th>NDCG@1</th><th>Top feature</th></tr>
       </thead>
@@ -1214,7 +1267,7 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
         <tr><td>v4 — clustering</td><td>5</td><td>90</td><td>32</td><td>0.9995</td><td>gp_hiking + afinidad_uc_cc</td></tr>
         <tr class="winner"><td><strong>⭐ v3 — 53 ciudades</strong></td><td><strong>53</strong></td><td><strong>175</strong></td><td><strong>43</strong></td><td><strong>1.0000 / 0.9631@5</strong></td><td>city_childcare (63.1%)</td></tr>
       </tbody>
-    </table>
+    </table></div>
   </div>
 </div>
 
