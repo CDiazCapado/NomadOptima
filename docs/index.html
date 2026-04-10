@@ -139,7 +139,10 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 /* MODEL TABLE */
 .model-table { width: 100%; border-collapse: collapse; }
 .model-table th { background: #1e3a5f; color: #fff; padding: 12px 16px; text-align: left; font-size: 0.9em; }
+.model-table th:first-child { position: sticky; left: 0; z-index: 2; background: #1e3a5f; }
 .model-table td { padding: 11px 16px; border-bottom: 1px solid #e8e5de; font-size: 0.9em; }
+.model-table td:first-child { position: sticky; left: 0; z-index: 1; background: #fff; border-right: 2px solid #e8e5de; }
+.model-table tr.winner td:first-child { background: #e8f8f0; }
 .model-table tr.winner td { background: #e8f8f0; font-weight: 600; }
 .model-table tr.winner td:first-child { border-left: 4px solid #27ae60; }
 .check { color: #27ae60; font-weight: 700; }
@@ -209,6 +212,12 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 .ps-text strong { color: #1e3a5f; font-size: 0.95em; }
 .ps-text span { font-size: 0.83em; color: #5d6778; display: block; margin-top: 3px; }
 
+/* TOP FEATURES BAR CHART */
+.feat-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.feat-name { font-size: 0.82em; color: #1e3a5f; font-weight: 600; min-width: 220px; flex-shrink: 0; }
+.feat-bar-wrap { flex: 1; height: 8px; background: #e8e5de; border-radius: 4px; min-width: 40px; }
+.feat-pct { font-size: 0.78em; color: #6b7280; min-width: 44px; text-align: right; flex-shrink: 0; }
+
 /* ===== RESPONSIVE TABLET ===== */
 @media (max-width: 900px) {
   .grid-2, .grid-3, .source-grid, .prob-grid { grid-template-columns: 1fr; }
@@ -270,6 +279,12 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
 
   /* Charts */
   .chart-wrap { padding: 14px; }
+
+  /* Top features → nombre encima, barra + % debajo */
+  .feat-row { flex-wrap: wrap; gap: 6px; }
+  .feat-name { min-width: unset; width: 100%; }
+  .feat-bar-wrap { flex: 1; min-width: 60px; }
+  .feat-pct { min-width: unset; }
 
   /* Source cards */
   .source-card { flex-direction: column; gap: 8px; }
@@ -1139,11 +1154,11 @@ hr.divider { border: none; border-top: 2px solid #e0ddd6; margin: 0; }
   <div class="card">
     <h3>Top 5 features más importantes — modelo v3 (53 ciudades)</h3>
     <div style="margin-top:14px;">
-      <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;"><span style="font-size:0.82em; min-width:240px; color:#1e3a5f; font-weight:600;">1. city_childcare</span><div style="flex:1; height:8px; background:#e8e5de; border-radius:4px;"><div style="width:100%; height:100%; background:#e74c3c; border-radius:4px;"></div></div><span style="font-size:0.78em; color:#6b7280; min-width:80px; text-align:right;">63.1% gain</span></div>
-      <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;"><span style="font-size:0.82em; min-width:240px; color:#1e3a5f; font-weight:600;">2. city_gp_synagogue</span><div style="flex:1; height:8px; background:#e8e5de; border-radius:4px;"><div style="width:10.4%; height:100%; background:#27ae60; border-radius:4px;"></div></div><span style="font-size:0.78em; color:#6b7280; min-width:80px; text-align:right;">6.6% gain</span></div>
-      <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;"><span style="font-size:0.82em; min-width:240px; color:#1e3a5f; font-weight:600;">3. city_gp_snorkeling</span><div style="flex:1; height:8px; background:#e8e5de; border-radius:4px;"><div style="width:8.2%; height:100%; background:#3498db; border-radius:4px;"></div></div><span style="font-size:0.78em; color:#6b7280; min-width:80px; text-align:right;">5.2% gain</span></div>
-      <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;"><span style="font-size:0.82em; min-width:240px; color:#1e3a5f; font-weight:600;">4. city_population</span><div style="flex:1; height:8px; background:#e8e5de; border-radius:4px;"><div style="width:4.7%; height:100%; background:#e67e22; border-radius:4px;"></div></div><span style="font-size:0.78em; color:#6b7280; min-width:80px; text-align:right;">3.0% gain</span></div>
-      <div style="display:flex; align-items:center; gap:12px;"><span style="font-size:0.82em; min-width:240px; color:#1e3a5f; font-weight:600;">5. city_coste_vida_estimado</span><div style="flex:1; height:8px; background:#e8e5de; border-radius:4px;"><div style="width:3.6%; height:100%; background:#9b59b6; border-radius:4px;"></div></div><span style="font-size:0.78em; color:#6b7280; min-width:80px; text-align:right;">2.3% gain</span></div>
+      <div class="feat-row"><span class="feat-name">1. city_childcare</span><div class="feat-bar-wrap"><div style="width:100%; height:100%; background:#e74c3c; border-radius:4px;"></div></div><span class="feat-pct">63.1%</span></div>
+      <div class="feat-row"><span class="feat-name">2. city_gp_synagogue</span><div class="feat-bar-wrap"><div style="width:10.4%; height:100%; background:#27ae60; border-radius:4px;"></div></div><span class="feat-pct">6.6%</span></div>
+      <div class="feat-row"><span class="feat-name">3. city_gp_snorkeling</span><div class="feat-bar-wrap"><div style="width:8.2%; height:100%; background:#3498db; border-radius:4px;"></div></div><span class="feat-pct">5.2%</span></div>
+      <div class="feat-row"><span class="feat-name">4. city_population</span><div class="feat-bar-wrap"><div style="width:4.7%; height:100%; background:#e67e22; border-radius:4px;"></div></div><span class="feat-pct">3.0%</span></div>
+      <div class="feat-row" style="margin-bottom:0;"><span class="feat-name">5. city_coste_vida_estimado</span><div class="feat-bar-wrap"><div style="width:3.6%; height:100%; background:#9b59b6; border-radius:4px;"></div></div><span class="feat-pct">2.3%</span></div>
       <div style="background:#fde8e8; border-radius:6px; padding:8px 12px; font-size:0.8em; color:#991b1b; margin-top:12px;">
         ⚠️ Las 2 primeras features (childcare + population) confirman el <strong>sesgo de ciudad grande</strong> — ciudades con más infraestructura simplemente por ser más grandes. Solución pendiente: normalizar por densidad geográfica.
       </div>
