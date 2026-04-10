@@ -76,7 +76,7 @@ DIMENSION_MAP = [
         "city_restaurants", "city_cafes",
         "city_gp_restaurant", "city_gp_cafe",  # GP genérico — fallback cuando OSM falla (islas, pueblos)
         "city_gp_fine_dining", "city_gp_vegan", "city_gp_market",
-        "city_gp_tapas", "city_gp_seafood", "city_gp_coffee_shop",
+        "city_gp_seafood", "city_gp_coffee_shop",
     ]),
     # 2. VIDA NOCTURNA
     ("vida_nocturna", "user_imp_vida_nocturna",  [
@@ -97,21 +97,21 @@ DIMENSION_MAP = [
     # 5. NATURALEZA & OUTDOOR
     ("naturaleza",    "user_imp_naturaleza",       [
         "city_parks", "city_beaches", "city_gp_park",
-        "city_gp_national_park", "city_gp_nature_reserve",
+        "city_gp_national_park",
         "city_gp_hiking_area",
     ]),
     # 6a. DEPORTE AGUA — kite, surf, windsurf, snorkel, vela, kayak
     # Ciudades ganadoras: Tarifa, Fuerteventura, Dakhla, Essaouira, Bali, Da Nang
     ("deporte_agua",   "user_imp_deporte_agua",    [
         "city_gp_surf_school", "city_gp_kitesurfing", "city_gp_windsurfing",
-        "city_gp_wingfoil", "city_gp_snorkeling", "city_gp_kayak",
+        "city_gp_wingfoil", "city_gp_snorkeling",
         "city_gp_marina", "city_beaches", "city_gp_beach",
     ]),
     # 6b. DEPORTE MONTAÑA — ski, snowboard, escalada, senderismo, aventura
     # Ciudades ganadoras: Chamonix, Innsbruck, Andorra, Granada
     ("deporte_montana", "user_imp_deporte_montana", [
         "city_gp_ski_resort", "city_gp_snowpark", "city_gp_ski_touring",
-        "city_gp_climbing_gym", "city_gp_hiking_area", "city_gp_adventure_sports",
+        "city_gp_hiking_area", "city_gp_adventure_sports",
     ]),
     # 6c. DEPORTE URBANO — gym, fitness, tenis, piscina, ciclismo
     # Ciudades ganadoras: grandes metrópolis con buena infraestructura deportiva
@@ -139,7 +139,7 @@ DIMENSION_MAP = [
     # 10. NÓMADA DIGITAL
     ("nomada",        "user_imp_nomada",           [
         "city_coworking_osm", "city_gp_coworking", "city_gp_coliving",
-        "city_gp_tech_hub", "city_internet_mbps",
+        "city_gp_tech_hub",
         "city_gp_internet_cafe", "city_gp_library",
     ]),
     # 11. ALOJAMIENTO
@@ -151,7 +151,7 @@ DIMENSION_MAP = [
     ("movilidad",     "user_imp_movilidad",        [
         "city_public_transport", "city_bicycle_lanes",
         "city_gp_subway", "city_gp_train_station",
-        "city_gp_bus_station", "city_gp_bicycle_rental",
+        "city_gp_bus_station",
     ]),
     # 13. COMPRAS ESENCIALES
     ("compras",       "user_imp_compras",          [
@@ -167,12 +167,10 @@ DIMENSION_MAP = [
     ("salud",         "user_imp_salud",            [
         "city_hospitals", "city_pharmacies",
         "city_gp_dental", "city_gp_physiotherapist",
-        "city_gp_mental_health",
     ]),
     # 16. TURISMO
     ("turismo",       "user_imp_turismo",          [
         "city_gp_tourist_attraction", "city_gp_observation_deck",
-        "city_gp_scenic_point", "city_gp_tour_operator",
     ]),
     # 17. EDUCACIÓN ADULTOS
     ("educacion",     "user_imp_educacion",        [
@@ -328,13 +326,20 @@ def build_city_feature_matrix(cities_raw: dict) -> pd.DataFrame:
     rows = []
 
     for name, data in cities_raw.items():
-        infra   = data.get("osm",           {}).get("infrastructure", {})
-        gp_raw  = data.get("google_places", {}).get("categories",     {})
-        kp      = data.get("numbeo",        {}).get("key_prices",      {})
-        qi      = data.get("numbeo",        {}).get("quality_indices", {})
-        spd     = data.get("speedtest",     {})
-        country = data.get("country",       {})
-        weather = data.get("weather",       {}).get("current",         {})
+        # Da_Nang: GP no devuelve resultados para Vietnam con la config actual
+        # (prácticamente todos los features GP = 0). Detectado en EDA Fase 2.
+        # POST-MVP: re-incluir cuando mejore cobertura GP para Asia del Sur.
+        if name == "Da_Nang":
+            continue
+
+        infra    = data.get("osm",           {}).get("infrastructure", {})
+        gp_raw   = data.get("google_places", {}).get("categories",     {})
+        kp       = data.get("numbeo",        {}).get("key_prices",      {})
+        qi       = data.get("numbeo",        {}).get("quality_indices", {})
+        spd      = data.get("speedtest",     {})
+        country  = data.get("country",       {})
+        weather  = data.get("weather",       {}).get("current",         {})
+        wikidata = data.get("wikidata",      {})
 
         # Tipo de cambio a EUR para esta ciudad
         currencies = country.get("currencies", ["EUR"])
@@ -395,7 +400,6 @@ def build_city_feature_matrix(cities_raw: dict) -> pd.DataFrame:
             "city_gp_hiking_area":       cap(gp("hiking_area"),       30),
             "city_gp_park":              cap(gp("park"),              30),
             "city_gp_national_park":     gp("national_park"),
-            "city_gp_nature_reserve":    gp("nature_reserve"),
             "city_gp_beach":             cap(gp("beach"),             30),
 
             # ── DEPORTE ───────────────────────────────────────────────────────
@@ -409,13 +413,11 @@ def build_city_feature_matrix(cities_raw: dict) -> pd.DataFrame:
             "city_gp_ski_resort":        gp("ski_resort"),
             "city_gp_snowpark":          gp("snowpark"),
             "city_gp_ski_touring":       gp("ski_touring"),
-            "city_gp_climbing_gym":      gp("climbing_gym"),
             "city_gp_tennis_court":      cap(gp("tennis_court"),      20),
             "city_gp_cycling_park":      cap(gp("cycling_park"),      20),
             "city_gp_adventure_sports":  cap(gp("adventure_sports"),  20),
             "city_gp_swimming_pool":     cap(gp("swimming_pool"),     20),
             "city_gp_marina":            cap(gp("marina"),            15),
-            "city_gp_kayak":             cap(gp("kayak_rental"),      15),
             "city_gp_snorkeling":        cap(gp("snorkeling"),        20),
             "city_gp_sports_complex":    cap(gp("sports_complex"),    20),
 
@@ -431,7 +433,6 @@ def build_city_feature_matrix(cities_raw: dict) -> pd.DataFrame:
             "city_gp_vegan":             cap(gp("vegan_restaurant"),      20),
             "city_gp_vegetarian":        cap(gp("vegetarian_restaurant"), 20),
             "city_gp_market":            cap(gp("market"),                20),
-            "city_gp_tapas":             cap(gp("tapas_bar"),             20),
             "city_gp_seafood":           cap(gp("seafood"),               20),
             "city_gp_coffee_shop":       cap(gp("coffee_shop"),           30),
             "city_gp_bakery":            cap(gp("bakery"),                25),
@@ -500,7 +501,9 @@ def build_city_feature_matrix(cities_raw: dict) -> pd.DataFrame:
             "city_gp_coworking":         cap(gp("coworking"),               15),
             "city_gp_coliving":          cap(gp("coliving"),                10),
             "city_gp_tech_hub":          cap(gp("tech_hub"),                10),
-            "city_internet_mbps":        spd.get("fixed_download_mbps") or 0,
+            # city_internet_mbps: eliminada (09/04/2026) — 43/54 ciudades = 0
+            # (dato ausente, no velocidad cero). POST-PRESENTACION: sustituir
+            # por Ookla Global Fixed Broadband dataset cuando mejore cobertura.
             "city_gp_internet_cafe":     cap(gp("internet_cafe"),           10),
             "city_gp_library":           cap(gp("library"),                 15),
 
@@ -515,7 +518,6 @@ def build_city_feature_matrix(cities_raw: dict) -> pd.DataFrame:
             "city_gp_subway":            cap(gp("subway_station"),  20),
             "city_gp_train_station":     cap(gp("train_station"),   15),
             "city_gp_bus_station":       cap(gp("bus_station"),     15),
-            "city_gp_bicycle_rental":    cap(gp("bicycle_rental"),  10),
 
             # ── COMPRAS ───────────────────────────────────────────────────────
             "city_gp_supermarket":       cap(gp("supermarket"),    25),
@@ -533,12 +535,9 @@ def build_city_feature_matrix(cities_raw: dict) -> pd.DataFrame:
             "city_hospitals":            infra.get("hospitals", 0),
             "city_gp_dental":            gp("dental_clinic"),
             "city_gp_physiotherapist":   gp("physiotherapist"),
-            "city_gp_mental_health":     gp("mental_health"),
 
             # ── TURISMO ───────────────────────────────────────────────────────
             "city_gp_tourist_attraction": gp("tourist_attraction"),
-            "city_gp_scenic_point":      gp("scenic_point"),
-            "city_gp_tour_operator":     gp("tour_operator"),
 
             # ── EDUCACIÓN ADULTOS ─────────────────────────────────────────────
             "city_gp_university":        gp("university"),
@@ -550,20 +549,75 @@ def build_city_feature_matrix(cities_raw: dict) -> pd.DataFrame:
             "city_gp_mosque":            gp("mosque"),
             "city_gp_synagogue":         gp("synagogue"),
 
+            # ── TAMAÑO DE CIUDAD (Wikidata) ───────────────────────────────────
+            # population_density = habitantes / km² → proxy del "tamaño percibido"
+            # Tarifa: ~50 hab/km²  |  Barcelona: ~16.000  |  Berlín: ~4.200
+            # Permite al usuario elegir entre pueblo (densidad baja) y metrópoli (alta).
+            "city_population":         wikidata.get("population", 0) or 0,
+            "city_area_km2":           wikidata.get("area_km2",   np.nan),
+            "city_population_density": (
+                wikidata["population"] / wikidata["area_km2"]
+                if wikidata.get("population") and wikidata.get("area_km2")
+                else np.nan
+            ),
+
             # ── PAÍS ──────────────────────────────────────────────────────────
             "city_schengen":         int(country.get("schengen",  False)),
             "city_moneda_eur":       int("EUR" in country.get("currencies", [])),
             # Idioma nativo (texto) — el primer idioma oficial del país
             "city_idioma_nativo":    country.get("languages", ["Desconocido"])[0],
-            # Binarios por idioma — útiles para filtros de comunicación
+
+            # ── IDIOMA — 5 columnas originales (mantenidas sin renombrar) ─────
+            # DECISIÓN ARQUITECTURA (09/04/2026):
+            # Según ARQUETIPOS_158_FEATURES.md estas 5 deberían renombrarse a
+            # city_idioma_hablado_* para alinearse con el esquema de 158 features.
+            # NO se renombran ahora porque streamlit_app.py v1 y ranker.py las
+            # leen con estos nombres exactos (apply_language_boost, filtros).
+            # Pendiente: renombrar al construir streamlit v2 + nuevo ranker.
+            # Si aparecen KeyError con 'city_idioma_*', revisar este punto.
             "city_idioma_espanol":   int("Spanish"    in country.get("languages", [])),
             "city_idioma_ingles":    int("English"    in country.get("languages", [])),
             "city_idioma_frances":   int("French"     in country.get("languages", [])),
             "city_idioma_aleman":    int("German"     in country.get("languages", [])),
             "city_idioma_portugues": int("Portuguese" in country.get("languages", [])),
+
+            # ── IDIOMA NATIVO — 12 columnas nuevas ───────────────────────────
+            # Binario 0/1: el idioma es lengua oficial del país de la ciudad.
+            # Fuente: RestCountries API, campo 'languages'.
+            "city_idioma_nativo_italiano":  int("Italian"   in country.get("languages", [])),
+            "city_idioma_nativo_griego":    int("Greek"     in country.get("languages", [])),
+            "city_idioma_nativo_holandes":  int("Dutch"     in country.get("languages", [])),
+            "city_idioma_nativo_checo":     int("Czech"     in country.get("languages", [])),
+            "city_idioma_nativo_hungaro":   int("Hungarian" in country.get("languages", [])),
+            "city_idioma_nativo_rumano":    int("Romanian"  in country.get("languages", [])),
+            "city_idioma_nativo_georgiano": int("Georgian"  in country.get("languages", [])),
+            "city_idioma_nativo_bulgaro":   int("Bulgarian" in country.get("languages", [])),
+            "city_idioma_nativo_polaco":    int("Polish"    in country.get("languages", [])),
+            "city_idioma_nativo_serbio":    int("Serbian"   in country.get("languages", [])),
+            "city_idioma_nativo_tailandes": int("Thai"      in country.get("languages", [])),
+            "city_idioma_nativo_catalan":   int("Catalan"   in country.get("languages", [])),
+
+            # ── IDIOMA HABLADO CON FACILIDAD — 6 columnas nuevas ─────────────
+            # MVP: mismo valor que nativo (binario RestCountries).
+            # Futuro v2: reemplazar por dato continuo 0-1 (Eurobarómetro u otra
+            # fuente de usabilidad real del idioma en la calle).
+            "city_idioma_hablado_italiano":  int("Italian"   in country.get("languages", [])),
+            "city_idioma_hablado_griego":    int("Greek"     in country.get("languages", [])),
+            "city_idioma_hablado_holandes":  int("Dutch"     in country.get("languages", [])),
+            "city_idioma_hablado_checo":     int("Czech"     in country.get("languages", [])),
+            "city_idioma_hablado_hungaro":   int("Hungarian" in country.get("languages", [])),
+            "city_idioma_hablado_rumano":    int("Romanian"  in country.get("languages", [])),
         })
 
     df = pd.DataFrame(rows).set_index("city")
+
+    # ── Rellenar NaN en features de Wikidata (ciudades sin datos = 0) ─────────
+    # city_area_km2 y city_population_density pueden ser NaN si Wikidata no devolvió área.
+    # Rellenamos con 0 para que el MinMaxScaler pueda procesar sin errores.
+    # En el modelo, densidad=0 significa "dato no disponible", no "ciudad sin habitantes".
+    df["city_population"]         = df["city_population"].fillna(0)
+    df["city_area_km2"]           = df["city_area_km2"].fillna(0)
+    df["city_population_density"] = df["city_population_density"].fillna(0)
 
     # ── Features derivadas (necesitan el df completo para normalizar) ──────────
     coste = df["city_coste_vida_estimado"].copy()
@@ -703,7 +757,7 @@ if __name__ == "__main__":
         "user_imp_clima":     0.60,
     }
     scores = builder.cosine_scores(perfil, city_df)
-    print("Top 10 — Nómada estacional (kite+ski):")
+    print("Top 10 - Nomada estacional (kite+ski):")
     for city, sc in scores.sort_values(ascending=False).head(10).items():
-        bar = "█" * int(sc * 30)
+        bar = "#" * int(sc * 30)
         print(f"  {city:<20}: {sc:.3f}  {bar}")

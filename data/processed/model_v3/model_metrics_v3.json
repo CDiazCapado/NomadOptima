@@ -1,0 +1,10 @@
+{
+  "ndcg_at_1_val": 1.0,
+  "ndcg_at_3_val": 0.9931141075890584,
+  "ndcg_at_5_val": 0.9630936789717601,
+  "best_iteration": 43,
+  "n_features": 175,
+  "n_users_train": 4000,
+  "label_method": "producto_escalar_directo",
+  "fecha": "2026-04-10"
+}

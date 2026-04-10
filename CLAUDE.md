@@ -143,8 +143,8 @@ nomadoptima/                           estado: 06/04/2026
 │   │   ├── cities_raw.json            ← ENTRADA PRINCIPAL del sistema (5 ciudades)
 │   │   └── *_raw.json                 ← un JSON por ciudad
 │   └── processed/
-│       ├── training_dataset.csv       ← 150k filas × 88 cols — notebook 02 (54MB)
-│       ├── training_dataset_enriched.csv ← 150k × 94 cols — notebook 04 (60MB)
+│       ├── user_profiles.csv          ← 5.000 perfiles × 26 dims — output notebook 02
+│       ├── training_dataset.csv       ← 270k filas × 175 features — output notebook 03 (etiquetas por producto escalar)
 │       ├── model_v2/                  ← 6 artefactos del modelo en producción ✅
 │       │   ├── lgbm_ranker.txt        ← LightGBM (32 árboles, 90 features)
 │       │   ├── user_clusterer.joblib  ← PCA+UMAP+HDBSCAN (22 clusters)
@@ -202,19 +202,24 @@ notebooks/mlruns/
 
 ## 5. Roadmap y estado actual
 
-### Fase MVP (2 ciudades: Málaga y París)
+### Fase MVP — estado real a 09/04/2026
 
 | Paso | Descripción | Estado |
 |------|-------------|--------|
-| 1 | fetch_cities.py — ingesta 7 fuentes | ✅ v7 |
-| 2 | EDA — análisis exploratorio | ✅ notebook 01 |
-| 3 | Perfiles sintéticos y pseudo-labeling | ✅ notebook 02 |
-| 4 | LightGBM Ranker | ⏳ pendiente |
+| 1 | fetch_cities.py — ingesta 6 fuentes, 36+ ciudades | ✅ v9 |
+| 2a | EDA datos crudos (Fase 1) — revisar fuentes, features, decisiones | ⏳ pendiente |
+| 2b | EDA ciudades completo (Fase 2) — gráficos estándar con notas educativas | ⏳ pendiente |
+| 2c | EDA arquetipos (Fase 3) — validar diferenciación entre los 21 arquetipos | ⏳ pendiente |
+| 2d | EDA perfiles sintéticos (Fase 4) — validar distribuciones generadas | ⏳ pendiente |
+| 3 | Perfiles sintéticos — notebook 02_v3 (arquetipos actualizados, pendiente ejecutar) | ⏳ pendiente ejecutar |
+| 4 | LightGBM Ranker — notebook 03_train_model | ⏳ pendiente |
 | 5 | SHAP explainability | ⏳ pendiente |
 | 6 | MLflow tracking | ⏳ pendiente |
 | 7 | FastAPI endpoint /recommend | ⏳ pendiente |
 | 8 | Streamlit demo | ⏳ pendiente |
 | 9 | Docker Compose | ⏳ pendiente |
+
+**REGLA CRÍTICA para el EDA:** avanzar UNA FASE a la vez. No pasar a la siguiente sin consultar a Carlos y recibir aprobación explícita.
 
 ### Problemas pendientes de fix
 
@@ -228,15 +233,35 @@ notebooks/mlruns/
 
 ## 6. Arquetipos de usuario (para contexto del modelo)
 
-Los 8 arquetipos definidos en notebook 02:
-- `nomada_digital` — coworking, internet, bajo coste, clima
-- `familia_con_hijos` — colegios, guarderías, parques, seguridad
-- `jubilado_activo` — clima cálido, playa, calidad de vida, bienestar
-- `estudiante` — bajo coste, vida nocturna, universidad, transporte
-- `ejecutivo_cosmopolita` — cultura, gastronomía premium, conectividad
-- `deportista_outdoor` — playa, surf, marina, deporte
-- `backpacker` — muy bajo coste, autenticidad, movilidad
-- `familia_monoparental` — bajo coste, guardería, transporte sin coche
+**VERSIÓN ACTUAL (v2): 21 arquetipos** definidos en `ARQUETIPOS_REVISION.md` y cargados en `notebooks/02_synthetic_profiles_v3.ipynb` celda `57fea91a`.
+Los arquetipos se puntúan en 26 dimensiones `user_imp_*`. Los % suman ~86% (14% mixtos).
+Escalado proporcional aplicado (Opción A): porcentajes originales sumaban 106%, escalados a 86%.
+
+| Nombre | pct | Dimensiones HIGH |
+|--------|-----|-----------------|
+| `kite_surf` | 4.87% | deporte_agua, naturaleza, clima |
+| `deportista_outdoor` | 4.87% | naturaleza, deporte_montana, deporte_urbano, clima |
+| `ski_nieve` | 3.25% | deporte_montana, naturaleza |
+| `nomada_barato` | 6.49% | nomada, coste, calidad_vida |
+| `nomada_premium` | 4.87% | nomada, calidad_vida, gastronomia, deporte_urbano |
+| `nomada_mujer_activa` | 4.06% | nomada, bienestar, deporte_urbano, comunidad |
+| `cultura_arte` | 5.68% | cultura, arte_visual, turismo, gastronomia |
+| `musico_festivales` | 3.25% | musica, cultura, vida_nocturna, comunidad |
+| `gastronomia_vino` | 4.06% | gastronomia, autenticidad, turismo |
+| `antiturístico` | 4.06% | autenticidad, gastronomia, naturaleza |
+| `influencer` | 3.25% | social_media, turismo, vida_nocturna, gastronomia |
+| `familia_bebe` | 3.25% | familia, salud, movilidad, calidad_vida |
+| `familia_ninos` | 4.87% | familia, educacion, salud, movilidad, calidad_vida |
+| `fiesta_social` | 4.06% | vida_nocturna, musica, social_media, gastronomia |
+| `bienestar_retiro` | 4.06% | bienestar, naturaleza, clima, calidad_vida |
+| `jubilado_activo` | 4.87% | clima, calidad_vida, salud, bienestar, gastronomia |
+| `senior_accesibilidad` | 2.43% | salud, calidad_vida, servicios, movilidad, clima |
+| `mochilero_barato` | 4.06% | coste, autenticidad, naturaleza, movilidad |
+| `cosmopolita_urbano` | 4.06% | cultura, gastronomia, movilidad, calidad_vida |
+| `gamer_nomada_tech` | 3.25% | nomada, calidad_vida, comunidad |
+| `mascotas_naturaleza` | 2.43% | mascotas, naturaleza, bienestar, calidad_vida |
+
+Ver detalle completo de dimensiones MEDIUM/LOW en `ARQUETIPOS_REVISION.md`.
 
 ---
 
@@ -380,38 +405,61 @@ Explica siempre: qué hace el código, por qué lo hace así, y qué significa e
 NomadOptima NO es solo LightGBM. Es un Hybrid Recommender System con 5 capas.
 Implementar solo LightGBM sin las otras capas es incompleto.
 
-### Capa 1 — Content-Based Filtering (baseline, funciona desde día 1)
+### REGLA CRÍTICA — separación de responsabilidades entre notebooks
+- **Notebook 02:** genera ÚNICAMENTE los perfiles de usuario sintéticos.
+  Output: `user_profiles.csv` — 5.000 filas × (26 dims user_imp_* + archetype).
+  NO cruza con ciudades. NO genera etiquetas. NO produce training_dataset.
+- **Notebook 03:** es responsable del cruce, las etiquetas y el entrenamiento.
+  Carga user_profiles.csv + city_features.csv, cruza 5.000 × 54 = 270.000 pares,
+  genera etiquetas, construye el feature vector completo y entrena LightGBM.
+
+### REGLA CRÍTICA — origen de las etiquetas (labels)
+Las etiquetas NO se generan con cosine_sim. Esto sería circular porque cosine_sim
+también es una feature del modelo — el modelo solo aprendería a copiarse a sí mismo.
+
+Las etiquetas se generan con **producto escalar directo**:
+```
+score = Σ (user_imp_dim_i × city_feature_dim_i)   para cada dimensión i
+```
+Se rankean las 54 ciudades por score para cada usuario.
+Top 10% → label 3 | Top 30% → label 2 | Top 60% → label 1 | Resto → label 0
+
+Este score inicial es transparente, justificable y no circular.
+
+### Capa 1 — Content-Based Filtering (señal de apoyo para el ranker)
 - Algoritmo: Cosine Similarity
-- Qué hace: cruza el vector de preferencias del usuario con las features de cada ciudad
-- Por qué: funciona sin usuarios reales — resuelve el cold start total
+- Qué hace: calcula similitud normalizada entre el perfil del usuario y cada ciudad
+- Rol en el sistema: es UNA feature más que recibe LambdaRank — no la fuente de verdad
+- Por qué incluirla como feature: da al modelo un "resumen" de encaje global que acelera
+  el aprendizaje. El modelo puede refinarla o ignorarla según lo que aprenda.
+- Por qué NO usarla como fuente de etiquetas: sería circular (labels = cosine_sim, feature = cosine_sim)
 - Librería: scikit-learn (cosine_similarity)
 - Archivo: src/processing/features.py
 
 ### Capa 2 — User Clustering (no supervisado)
-- Algoritmos: PCA → UMAP → HDBSCAN sobre perfiles de usuario
-- Qué hace: agrupa usuarios similares en arquetipos (clusters)
-- Por qué: transfiere conocimiento entre usuarios similares — resuelve cold start de usuario
-- Librerías: scikit-learn, umap-learn, hdbscan
+- Algoritmos: PCA → UMAP → HDBSCAN sobre los 5.000 perfiles sintéticos
+- Qué hace: agrupa perfiles similares en clusters
+- Por qué: con suficientes perfiles (5.000), HDBSCAN es fiable y encuentra clusters naturales
 - Arquetipos esperados: nómada digital, familia con hijos, jubilado activo, deportista outdoor...
 - Archivo: src/models/clustering.py
 
-### Capa 3 — Item Clustering (no supervisado)
-- Algoritmos: PCA → UMAP → HDBSCAN sobre features de ciudades
-- Qué hace: agrupa ciudades similares entre sí
-- Por qué: si un usuario eligió Tarifa, puede interesarle Gruissan (mismo cluster)
-- Clusters esperados: costa kite atlántica, metrópoli cosmopolita, ciudad media cultural...
-- Archivo: src/models/clustering.py (misma clase, distinto objeto)
+### Capa 3 — Item Clustering (no supervisado, limitado)
+- Algoritmos: simplificado — con solo 54 ciudades HDBSCAN no es fiable (pocos puntos)
+- Qué hace: agrupa ciudades similares entre sí con clustering manual o k-means simple
+- Limitación conocida: con 54 ciudades los clusters son orientativos, no estadísticamente robustos
+- Mejora futura: cuando haya 200+ ciudades, migrar a UMAP+HDBSCAN automático
+- Archivo: src/models/clustering.py
 
 ### Capa 4 — LightGBM Ranker (orquestador)
 - Algoritmo: LambdaMART (objective='lambdarank')
-- Qué hace: combina señales de las 3 capas anteriores como features y produce el ranking final
-- Features clave que recibe:
-    cosine_similarity_perfil_ciudad   (Capa 1)
-    user_cluster_id                   (Capa 2)
-    user_cluster_strength             (Capa 2)
-    city_cluster_id                   (Capa 3)
-    city_cluster_strength             (Capa 3)
-    afinidad_usercluster_citycluster  (interacción entre capas — feature más potente)
+- Qué hace: aprende correlaciones no lineales entre pesos de usuario y features de ciudad
+- Por qué añade valor sobre cosine_sim: puede descubrir que user_imp_naturaleza importa
+  más cuando también user_imp_clima es alto, o que ciertos tipos de infraestructura urbana
+  pesan más de lo que el producto escalar simple indicaría
+- Features que recibe (175 en total):
+    user_imp_* × 26        (preferencias del usuario — dims puras)
+    city_features_* × 148  (features brutas de la ciudad)
+    cosine_sim × 1         (señal de apoyo — resumen normalizado del encaje global)
 - Archivo: src/models/ranker.py
 
 ### Capa 5 — Output Layer: SHAP + MMR
@@ -428,21 +476,38 @@ Ciudades que no pasan estos filtros se eliminan antes de entrar al modelo:
 
 ### Flujo completo
 ```
+[Notebook 02] user_profiles.csv — 5.000 perfiles × 26 dims (SIN ciudades)
+                    +
+              city_features.csv — 54 ciudades × 148 features
+                    ↓
+[Notebook 03 — paso 1] Cruce: 5.000 × 54 = 270.000 pares (usuario, ciudad)
+[Notebook 03 — paso 2] Labels: producto escalar directo → rank → label 0-3
+[Notebook 03 — paso 3] Features: [user_imp_*(26) + city_features_*(148) + cosine_sim(1)]
+[Notebook 03 — paso 4] LightGBM LambdaMART — aprende correlaciones no lineales
+                    ↓
+[Producción — inferencia]
 Usuario define perfil
     ↓
 [Restricciones duras] — elimina incompatibles
     ↓
-[Capa 1] Cosine Similarity — baseline
-[Capa 2] UMAP+HDBSCAN — user cluster
-[Capa 3] UMAP+HDBSCAN — city cluster
+[Capa 1] cosine_sim — feature de apoyo
+[Capa 2] user cluster — feature de contexto
+[Capa 3] city cluster — feature de contexto (limitado con 54 ciudades)
     ↓
-[Capa 4] LightGBM LambdaMART — ranking final
+[Capa 4] LightGBM LambdaMART — ranking final con 175 features
     ↓
 [Capa 5a] SHAP — explicación
 [Capa 5b] MMR — diversificación
     ↓
 Top-N ciudades con justificación
 ```
+
+### Nota para la presentación (beta(3,6) en perfiles sintéticos)
+La función generate_archetype_profile() usa beta(3,6) para dimensiones MEDIUM,
+que da media ~0.33 en vez de 0.50. Esto significa que HIGH(0.80) y MEDIUM(0.33)
+están bien separados, pero MEDIUM(0.33) y LOW(0.08) tienen menos margen.
+Mejora futura: cambiar beta(3,6) → beta(4,4) para MEDIUM (media=0.50).
+Decisión tomada: dejarlo así para el MVP — LightGBM es suficientemente robusto.
 
 ### Fase 3 — Travel Optimizer (meses 5-6, post-MVP)
 Cuando el City Matcher esté listo se añaden:
@@ -452,12 +517,148 @@ Cuando el City Matcher esté listo se añaden:
 - Collaborative Filter: Matrix Factorization ALS (cuando haya usuarios reales)
 
 ### Orden de implementación correcto
-1. src/processing/features.py — Cosine Similarity baseline (Capa 1)
-2. src/models/clustering.py — User Clustering + Item Clustering (Capas 2 y 3)
-3. src/models/ranker.py — LightGBM con features de todas las capas (Capa 4)
-4. src/models/explainer.py — SHAP + MMR (Capa 5)
-5. api/main.py — FastAPI /recommend endpoint
-6. app/streamlit_app.py — demo visual
+1. src/processing/features.py — CityFeatureBuilder + cosine_sim como feature (Capa 1)
+2. notebooks/02 — SOLO perfiles sintéticos → user_profiles.csv
+3. src/models/clustering.py — User Clustering (Capa 2) + City Clustering simplificado (Capa 3)
+4. notebooks/03 — cruce + labels (producto escalar) + entrenamiento LightGBM (Capa 4)
+5. src/models/explainer.py — SHAP + MMR (Capa 5)
+6. api/main.py — FastAPI /recommend endpoint
+7. app/streamlit_app.py — demo visual
 
-El notebook 03 implementa SOLO la Capa 4 con pseudo-labels directos.
-Las Capas 1, 2 y 3 están pendientes de implementar en src/models/.
+---
+
+## 13. Historial de conversaciones — cómo recuperar contexto perdido
+
+### Dónde están los archivos de conversación
+Claude Code guarda cada sesión como un archivo `.jsonl` en:
+```
+C:\Users\cri\.claude\projects\D--Proyectos-4geeks-Proyecto-Final-nomadoptima\
+  2f1e93fa-9d77-4d0c-87e5-1dca62a323bc.jsonl  ← sesión principal (29MB, ~5000 líneas)
+  e8bb7023-89b3-480b-a2c2-508da9190763.jsonl
+  e1be5662-aeed-4a24-bc87-78ab18008b75.jsonl
+```
+
+### Cómo exportarlos a formato legible
+```bash
+cd "d:\Proyectos\4geeks\Proyecto Final\nomadoptima"
+.venv\Scripts\activate
+python scripts/export_conversation.py
+```
+
+Genera dos tipos de archivo:
+- **HTML completo** → `data/processed/conversations/conversacion_<id>.html` — para que Carlos relea la conversación entera con Ctrl+F
+- **MD de decisiones** → `memory/decisions_log_<id>.md` — condensado con solo las decisiones importantes, para que Claude lo lea al iniciar una sesión nueva
+
+### Cuándo ejecutar este script
+- Al inicio de una sesión nueva tras una sesión interrumpida
+- Cuando Carlos diga "no recuerdo qué decidimos sobre X"
+- Cuando Claude necesite contexto de decisiones de arquitectura no documentadas en PROJECT_STATUS.md
+
+### Qué hacer al inicio de sesión si hay decisions_log en memory/
+Leer los archivos `memory/decisions_log_*.md` además de PROJECT_STATUS.md y LEARNING.md.
+Estos archivos contienen decisiones de sesiones anteriores que pueden no estar aún en los docs principales.
+
+---
+
+## 14. Plan de EDA — estructura y reglas (CRITICO — leer antes de tocar notebooks)
+
+El EDA de NomadOptima tiene proposito DOBLE: cientifico (validar datos para el modelo)
+y DOCENTE (mostrar el proceso de ML a una audiencia que aprende).
+
+### Regla de avance: UNA FASE A LA VEZ
+No avanzar a la siguiente fase sin consultar a Carlos y recibir aprobacion explicita.
+Cada fase es un bloque autonomo que se aprueba antes de iniciar el siguiente.
+
+---
+
+### Fase 1 — EDA de datos crudos (historico de decisiones)
+> "De donde vienen los datos y que decisiones tomo Carlos sobre las features?"
+
+Notebook: revisar/ampliar `01_eda_36ciudades.ipynb`
+
+Contenido:
+- Tabla de las 6 fuentes de datos y que aporta cada una (gp_, numbeo_, osm_, weather_, speedtest_, country_)
+- Cuantas features entro cada fuente al principio vs. cuantas quedaron
+- Decisiones de Carlos: que se incluyo, que se descarto y por que (documentadas en LEARNING.md)
+- Grafico: bar chart "features por fuente" con nota explicativa
+
+---
+
+### Fase 2 — EDA del dataset completo de ciudades
+> "Que nos dicen los datos reales de las 36+ ciudades?"
+
+Notebook: revisar/ampliar `01_eda_36ciudades.ipynb`
+
+Graficos estandar para datos de comparacion entre entidades (cada uno con NOTA AL PIE):
+
+| Grafico | Para que sirve | Nota al pie incluye |
+|---------|---------------|---------------------|
+| describe() + tabla resumen | Estadisticas basicas (media, std, min/max) | Que es cada estadistico |
+| Missing data heatmap | Detectar features vacias por ciudad | Que significa un cero en este dataset |
+| Histogramas + KDE por feature | Distribucion de cada feature | Que es KDE, que nos dice la forma |
+| Box plots agrupados por categoria | Variabilidad entre ciudades | Que es un boxplot, que es un outlier |
+| Violin plots | Distribucion + densidad simultaneas | Diferencia con boxplot |
+| Heatmap correlaciones (Pearson) | Features redundantes | Que es correlacion, multicolinealidad |
+| Scatter plot coste vs calidad | Relacion precio-valor | Por que este par es importante |
+| Heatmap ciudad x feature (normalizado 0-1) | Separabilidad entre ciudades | Que pasaria si todo fuera igual |
+| Radar charts (5-6 ciudades clave) | Perfil multidimensional comparado | Que es un radar chart |
+| PCA biplot | Que features separan mas las ciudades | Que es PCA, que es un biplot |
+| Parallel coordinates plot | Ver todas las dimensiones a la vez | Cuando usar este grafico |
+
+NOTA EN CADA GRAFICO (formato estandar en el notebook):
+```
+PARA QUE SIRVE ESTE GRAFICO:
+<explicacion del tipo de grafico desde cero>
+
+QUE NOS ESTA MOSTRANDO PARA NUESTROS DATOS:
+<interpretacion especifica de lo que vemos>
+
+DECISION/IMPLICACION PARA EL MODELO:
+<que hacemos con esta informacion>
+```
+
+---
+
+### Fase 3 — EDA de Arquetipos
+> "Los 21 arquetipos estan bien diferenciados entre si?"
+
+Notebook nuevo: `01b_eda_arquetipos.ipynb`
+
+Contenido:
+- Heatmap 21 arquetipos x 26 dimensiones (high=0.85, medium=0.50, low=0.10)
+- Radar charts para cada arquetipo (o grupos de arquetipos similares)
+- Mapa de similitud entre arquetipos (cosine similarity entre perfiles)
+- Pregunta clave: hay arquetipos demasiado parecidos que el modelo confundira?
+
+---
+
+### Fase 4 — EDA de Perfiles Sinteticos
+> "Los 5.000 perfiles generados tienen sentido estadistico?"
+
+Notebook nuevo: `01c_eda_perfiles_sinteticos.ipynb`
+Depende de: notebook 02_v3 ejecutado (genera los 5.000 perfiles)
+
+Contenido:
+- Distribucion de cada dimension en los 5.000 perfiles (histogramas)
+- Visualizacion UMAP/PCA de los perfiles coloreados por arquetipo
+- Validacion spot-check: kite_surf debe tener deporte_agua > 0.75 en la media
+
+---
+
+### Notebooks implicados
+
+| Notebook | Fase | Estado |
+|----------|------|--------|
+| `01_eda_36ciudades.ipynb` | Fases 1 + 2 | Existe parcialmente — revisar y ampliar |
+| `01b_eda_arquetipos.ipynb` | Fase 3 | No existe — crear |
+| `01c_eda_perfiles_sinteticos.ipynb` | Fase 4 | No existe — crear (depende de 02_v3) |
+
+---
+
+### Estado actual del EDA (09/04/2026)
+- Fase 1: PENDIENTE — aprobada por Carlos, no ejecutada
+- Fase 2: PENDIENTE — aprobada por Carlos, no ejecutada
+- Fase 3: PENDIENTE — esperando aprobacion de Carlos tras Fase 2
+- Fase 4: PENDIENTE — esperando aprobacion de Carlos tras Fase 3
+
+**Siguiente accion: esperar instruccion de Carlos para iniciar Fase 1.**

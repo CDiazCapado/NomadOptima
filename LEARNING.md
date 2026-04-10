@@ -788,7 +788,7 @@ sys.path.insert(0, os.path.abspath('..'))   # sube un nivel: notebooks/ → raí
 ---
 ---
 
-# 9. Perfiles sintéticos y pseudo-labeling
+# 9. Perfiles sintéticos y generación de etiquetas
 
 ## El problema del cold start
 
@@ -799,17 +799,18 @@ En nuestro caso, necesita pares del tipo:
 (perfil_usuario, ciudad, relevancia)
 
 Ejemplo:
-  perfil:    {"presupuesto": 1200, "quiere_playa": True, "tiene_perro": True}
+  perfil:    {user_imp_gastronomia: 0.85, user_imp_naturaleza: 0.15, ...}
   ciudad:    Málaga
   relevancia: 3  (muy relevante)
 
-  perfil:    {"presupuesto": 1200, "quiere_playa": True, "tiene_perro": True}
-  ciudad:    París
-  relevancia: 0  (no relevante — muy cara y sin playa)
+  perfil:    {user_imp_gastronomia: 0.85, user_imp_naturaleza: 0.15, ...}
+  ciudad:    Reikiavik
+  relevancia: 0  (no relevante — fría, sin gastronomía mediterránea)
 ```
 
-Sin usuarios reales, no tenemos estas etiquetas.  
-El **pseudo-labeling** las fabrica de forma programática usando lógica de dominio.
+Sin usuarios reales, no tenemos estas etiquetas.
+Las fabricamos de forma programática usando el **producto escalar directo**
+entre las preferencias del usuario y las features de la ciudad.
 
 ## La escala de relevancia
 
@@ -825,142 +826,141 @@ Usamos 4 niveles, que es el estándar en Learning to Rank:
 Este tipo de escala se llama **relevance grade** o **judgment** en terminología  
 de Information Retrieval (la disciplina que estudia sistemas de búsqueda y ranking).
 
-## Cómo funciona el pseudo-labeling
+## Separación de responsabilidades entre notebooks (CRÍTICO)
 
-Para cada par (perfil, ciudad) el sistema evalúa dimensión por dimensión:
+**Notebook 02** genera ÚNICAMENTE los perfiles de usuario:
+- Output: `user_profiles.csv` — 5.000 filas × (26 dims `user_imp_*` + arquetipo)
+- NO cruza con ciudades, NO genera etiquetas, NO produce training_dataset
+
+**Notebook 03** hace todo lo demás:
+- Carga user_profiles.csv + city_features.csv
+- Cruza 5.000 perfiles × 54 ciudades = 270.000 pares
+- Genera etiquetas con producto escalar directo (ver más abajo)
+- Construye el feature vector completo
+- Entrena LightGBM LambdaRank
+
+## Cómo se generan las etiquetas (producto escalar directo)
+
+Para cada par (perfil, ciudad) calculamos un score bruto:
 
 ```python
-# Pseudo-código del sistema de scoring
-def calcular_relevancia(perfil, ciudad_features):
-    puntos = 0
-    puntos_max = 0
+# Para cada par (usuario, ciudad):
+score = sum(
+    perfil[f"user_imp_{dim}"] * ciudad[f"city_dim_{dim}"]
+    for dim in DIMENSIONES  # las 26 dimensiones mapeadas
+)
 
-    # Dimensión económica
-    if perfil['presupuesto_max'] is not None:
-        puntos_max += 1
-        coste = ciudad_features.get('numbeo_rent_1br_center', 1500)
-        if coste <= perfil['presupuesto_max']:
-            puntos += 1
-
-    # Dimensión playa
-    if perfil['quiere_playa']:
-        puntos_max += 1
-        playas = ciudad_features.get('osm_beaches', 0)
-        if playas >= 5:
-            puntos += 1
-
-    # Dimensión familia
-    if perfil['tiene_hijos']:
-        puntos_max += 1
-        family_score = ciudad_features.get('family_friendliness_score', 0)
-        if family_score >= 0.5:
-            puntos += 1
-
-    # Convertir puntos a escala 0-3
-    ratio = puntos / puntos_max if puntos_max > 0 else 0
-    if ratio >= 0.9:   return 3
-    elif ratio >= 0.7: return 2
-    elif ratio >= 0.4: return 1
-    else:              return 0
+# Rankeamos las 54 ciudades por score para este usuario
+# y asignamos etiquetas por percentil:
+# Top 10%  → label 3  (muy relevante)
+# Top 30%  → label 2  (relevante)
+# Top 60%  → label 1  (poco relevante)
+# Resto    → label 0  (irrelevante)
 ```
 
-## Cómo generamos 30.000 perfiles distintos
+**Por qué producto escalar y NO cosine_sim para las etiquetas:**
+cosine_sim también es una feature del modelo. Si usáramos cosine_sim para generar
+los labels, el modelo aprendería a copiar a cosine_sim — aprendizaje circular y trivial.
+El producto escalar directo es la misma operación pero sin normalización, y se usa
+solo para generar los labels en el notebook de entrenamiento — no aparece como feature.
 
-No se crean 30.000 perfiles a mano.  
-Se definen **8 arquetipos base** y se generan variaciones añadiendo  
-**ruido gaussiano** a los valores numéricos:
+## Por qué cosine_sim SÍ entra como feature (pero no como label)
+
+cosine_sim es el producto escalar normalizado. Le da al modelo un "resumen compacto"
+del encaje global entre usuario y ciudad. El modelo puede usar esta señal como punto
+de partida y aprender a refinarla o corregirla con las otras 174 features.
+
+El valor que añade LightGBM sobre cosine_sim es aprender relaciones no lineales:
+- "user_imp_naturaleza importa más cuando user_imp_clima también es alto"
+- "gp_restaurantes vale más para gastronomia_vino que para kite_surf, aunque
+   ambos tengan el mismo valor de user_imp_gastronomia"
 
 ```python
-# Arquetipo base
-ARQUETIPOS = {
-    "nomada_digital": {
-        "presupuesto_max":        1500,   # media
-        "presupuesto_std":         200,   # desviación estándar
-        "quiere_playa":           0.7,    # probabilidad de que quiera playa
-        "necesita_coworking":     0.9,    # prob. de que necesite coworking
-        "tiene_hijos":            0.05,   # prob. muy baja de tener hijos
-        "tiene_mascota":          0.2,
-    },
-    "familia_hijos": {
-        "presupuesto_max":        2500,
-        "presupuesto_std":         400,
-        "quiere_playa":           0.6,
-        "necesita_coworking":     0.3,
-        "tiene_hijos":            1.0,    # siempre tiene hijos
-        "tiene_mascota":          0.4,
-    },
-    ...
-}
+# Features que recibe LightGBM (175 en total):
+features = (
+    user_imp_cols      # 26 dims — preferencias del usuario
+    + city_feature_cols  # 148 dims — features brutas de la ciudad
+    + ["cosine_sim"]    # 1 dim — señal de apoyo, NO fuente de labels
+)
+```
 
-# Generar variaciones con ruido gaussiano
-for arquetipo_nombre, params in ARQUETIPOS.items():
-    n_perfiles = 30000 // len(ARQUETIPOS)   # reparto equitativo
-    for i in range(n_perfiles):
-        perfil = {
-            "arquetipo":      arquetipo_nombre,
-            "presupuesto_max": np.random.normal(
-                params["presupuesto_max"],
-                params["presupuesto_std"]
-            ),
-            "quiere_playa":   np.random.random() < params["quiere_playa"],
-            "tiene_hijos":    np.random.random() < params["tiene_hijos"],
-            ...
-        }
+## Cómo generamos los 5.000 perfiles (notebook 02)
+
+No se crean a mano. Se definen **21 arquetipos** con dimensiones HIGH/MEDIUM
+y se generan variaciones usando **distribuciones beta** para cada dimensión:
+
+```python
+# Por cada arquetipo, para cada perfil generado:
+for dim in USER_IMPORTANCE_KEYS:  # las 26 dims con prefijo user_imp_
+    if dim in archetype["high"]:
+        val = np.random.beta(8, 2)   # concentrado en 0.75-0.99 (media ~0.80)
+    elif dim in archetype["medium"]:
+        val = np.random.beta(3, 6)   # concentrado en 0.20-0.50 (media ~0.33)
+    else:
+        val = np.random.beta(1, 12)  # concentrado en 0.01-0.15 (media ~0.08)
+```
+
+**Nota importante sobre beta(3,6):**
+La distribución MEDIUM da media ~0.33, no 0.50. El gap HIGH-MEDIUM (0.80-0.33=0.47)
+es mayor que MEDIUM-LOW (0.33-0.08=0.25). LightGBM puede distinguirlos, pero una
+mejora futura sería usar beta(4,4) para MEDIUM (media=0.50).
+Decisión MVP: dejarlo así. Documentado para la presentación.
 ```
 
 ## Por qué funciona aunque sea sintético
 
-El modelo no aprende que "Málaga es buena para nómadas digitales" directamente.  
+El modelo no aprende que "Tarifa es buena para kite_surf" directamente.
 Aprende la **relación entre features y relevancia**:
 
 ```
 alta relevancia correlaciona con:
-  coste_vida bajo   cuando presupuesto_max es bajo
-  beaches alto      cuando quiere_playa es True
-  coworking alto    cuando necesita_coworking es True
-  family_score alto cuando tiene_hijos es True
+  osm_beaches alto        cuando user_imp_deporte_agua es alto
+  weather_temp_media alto cuando user_imp_clima es alto
+  numbeo_cost_index bajo  cuando user_imp_coste es alto
+  gp_restaurants alto     cuando user_imp_gastronomia es alto
 ```
 
-Cuando lleguen usuarios reales, el modelo ya sabe qué combinación de features  
-predice relevancia — solo mejora con datos más precisos y reales.
+Cuando lleguen usuarios reales con sus valoraciones explícitas, esos datos
+sustituyen a los sintéticos y el modelo mejora. Es un bootstrap estándar
+en sistemas de recomendación que arrancan sin usuarios.
 
 ## La limitación honesta
 
 ```
-Riesgo:      Si las reglas heurísticas tienen sesgos, el modelo los aprenderá.
-             Ejemplo: si asumimos que todos los jubilados quieren calor,
-             el modelo penalizará ciudades frías para jubilados aunque
-             algunos prefieran climas templados.
+Riesgo:      Los labels sintéticos reflejan el producto escalar de las features
+             que tenemos. Si una ciudad tiene features incorrectas o incompletas,
+             sus labels serán incorrectos y el modelo aprenderá mal para esa ciudad.
 
 Mitigación:
-  1. Validar las reglas manualmente contra conocimiento real del dominio
-  2. Añadir suficiente variación (std alto) para que el modelo no memorice
-  3. Sustituir progresivamente con datos reales conforme lleguen usuarios
-  4. Comparar predicciones del modelo con opiniones de personas reales
+  1. El EDA Fases 1-4 valida que las features y los perfiles tienen sentido
+  2. Las 26 dimensiones cubren aspectos independientes — reduce el riesgo de sesgo
+  3. Sustituir progresivamente con ratings reales cuando haya usuarios
+  4. SHAP (Capa 5) permite detectar si el modelo sobreajusta a features espurias
 ```
 
-## Las 60.000 filas — la matemática
+## Las 270.000 filas — la matemática
 
 ```
-8 arquetipos × 3.750 variaciones cada uno = 30.000 perfiles únicos
-30.000 perfiles × 2 ciudades              = 60.000 filas en el dataset
+21 arquetipos + 1 mixto = 22 tipos de perfil
+5.000 perfiles únicos generados (proporcionales a % de cada arquetipo)
+5.000 perfiles × 54 ciudades = 270.000 filas en el dataset de entrenamiento
 
 Cada fila tiene:
-  - Las features del perfil (presupuesto, preferencias, estilo de vida)
-  - Las features de la ciudad (OSM, clima, Google Places...)
-  - La etiqueta de relevancia (0, 1, 2 o 3)
-  - El query_id (identificador del perfil, para que LightGBM sepa
-    qué filas pertenecen a la misma "búsqueda")
+  - user_imp_* × 26    (preferencias del usuario — de notebook 02)
+  - city_features × 148 (features brutas de la ciudad — de city_features.csv)
+  - cosine_sim × 1     (feature de apoyo — calculada en notebook 03)
+  - label ∈ {0,1,2,3} (generada por producto escalar ranking — en notebook 03)
+  - query_id           (identificador del perfil — agrupa las 54 ciudades)
 ```
 
-El `query_id` es fundamental en Learning to Rank: le dice al modelo  
-que las filas 1 y 2 son el mismo usuario evaluando dos ciudades distintas,  
-y que debe aprender a ordenar esas dos ciudades entre sí, no en abstracto.
+El `query_id` es fundamental en Learning to Rank: le dice al modelo
+que las 54 filas de un mismo usuario son una "búsqueda" y que debe
+aprender a ordenar esas 54 ciudades entre sí, no en abstracto.
 
 ---
 ---
 
-*Última actualización: 23/03/2026*  
+*Última actualización: 10/04/2026*
 *Próxima sección: LightGBM LambdaMART — cómo funciona el algoritmo de ranking*
 
 ---
@@ -1151,15 +1151,15 @@ y la tarea es ordenar las ciudades de más a menos relevante para ese perfil.
 
 ## Cómo lo usamos en NomadOptima
 
-- **Query:** cada perfil de usuario (30.000 perfiles únicos)
-- **Documentos:** Málaga y París (2 ciudades, expandible a N en el futuro)
-- **Label:** relevance ∈ {0, 1, 2, 3} — calculado con pseudo-labeling en notebook 02
-- **Grupos:** array `[2, 2, 2, ...]` que le dice a LightGBM que cada query tiene 2 docs
+- **Query:** cada perfil de usuario (5.000 perfiles sintéticos × 54 ciudades = 270.000 filas)
+- **Documentos:** las 54 ciudades del dataset — el modelo ordena cuál es más relevante para cada perfil
+- **Label:** relevance ∈ {0, 1, 2, 3} — calculado con pseudo-labeling basado en cosine similarity + arquetipos
+- **Grupos:** array `[54, 54, 54, ...]` que le dice a LightGBM que cada query tiene 54 docs
 
 ```python
 train_set = lgb.Dataset(
     X_train, label=y_train,
-    group=groups_train,        # [2, 2, 2, ...] — docs por query
+    group=groups_train,        # [54, 54, 54, ...] — docs por query
     feature_name=FEATURE_COLS
 )
 model = lgb.train(
@@ -1208,13 +1208,13 @@ coloca el documento equivocado en primera posición.
 
 ## Cómo lo usamos en NomadOptima
 
-Con solo 2 ciudades, NDCG@1 y NDCG@2 son las métricas relevantes:
-- **NDCG@1:** ¿acertamos qué ciudad poner primera?
-- **NDCG@2:** calidad del ordenamiento completo (con 2 docs = NDCG@3 = NDCG@5)
+Con 54 ciudades, las métricas más relevantes son NDCG@1 y NDCG@5:
+- **NDCG@1:** ¿acertamos qué ciudad poner en primera posición?
+- **NDCG@5:** calidad del top-5 — lo que el usuario realmente ve en pantalla
 
 ```python
 from sklearn.metrics import ndcg_score
-ndcg = ndcg_score(true_rel.reshape(1,-1), pred_score.reshape(1,-1), k=2)
+ndcg = ndcg_score(true_rel.reshape(1,-1), pred_score.reshape(1,-1), k=5)
 ```
 
 ## Por qué NDCG y no accuracy o RMSE
@@ -1632,26 +1632,33 @@ Los arquetipos resuelven esto creando perfiles donde la especialización es real
 
 ## Cómo lo usamos en NomadOptima
 
-En `notebooks/02_synthetic_profiles_v3.ipynb` definimos 14 arquetipos:
+En `notebooks/02_synthetic_profiles_v3.ipynb` definimos **21 arquetipos** (revisión 09/04/2026):
 
-| Arquetipo | Dimensiones HIGH | Proporción |
+| Arquetipo | Dimensiones HIGH | Proporción (escalada) |
 |-----------|-----------------|------------|
-| kite_surf | deporte_agua, clima, naturaleza | 7% |
-| nomada_barato | coste_vida, nomada_digital, movilidad | 8% |
-| nomada_premium | nomada_digital, calidad_vida, gastronomia | 6% |
-| ski | deporte_montana, clima, naturaleza | 5% |
-| cultura_arte | cultura, arte_visual, turismo | 9% |
-| ejecutivo_cosmopolita | calidad_vida, gastronomia, cultura | 7% |
-| familia_hijos | familia, salud, movilidad | 8% |
-| jubilado_activo | clima, bienestar, naturaleza | 7% |
-| estudiante | coste_vida, vida_nocturna, movilidad | 8% |
-| deportista_outdoor | naturaleza, deporte_agua, deporte_montana | 6% |
-| backpacker | coste_vida, movilidad, autenticidad | 7% |
-| bienestar_yoga | bienestar, naturaleza, clima | 6% |
-| lgbtq_friendly | vida_nocturna, comunidad, cultura | 5% |
-| fotografia_viaje | impacto_visual, turismo, cultura | 6% |
+| kite_surf | deporte_agua, naturaleza, clima | 4.87% |
+| deportista_outdoor | naturaleza, deporte_montana, deporte_urbano, clima | 4.87% |
+| ski_nieve | deporte_montana, naturaleza | 3.25% |
+| nomada_barato | nomada, coste, calidad_vida | 6.49% |
+| nomada_premium | nomada, calidad_vida, gastronomia, deporte_urbano | 4.87% |
+| nomada_mujer_activa | nomada, bienestar, deporte_urbano, comunidad | 4.06% |
+| cultura_arte | cultura, arte_visual, turismo, gastronomia | 5.68% |
+| musico_festivales | musica, cultura, vida_nocturna, comunidad | 3.25% |
+| gastronomia_vino | gastronomia, autenticidad, turismo | 4.06% |
+| antiturístico | autenticidad, gastronomia, naturaleza | 4.06% |
+| influencer | social_media, turismo, vida_nocturna, gastronomia | 3.25% |
+| familia_bebe | familia, salud, movilidad, calidad_vida | 3.25% |
+| familia_ninos | familia, educacion, salud, movilidad, calidad_vida | 4.87% |
+| fiesta_social | vida_nocturna, musica, social_media, gastronomia | 4.06% |
+| bienestar_retiro | bienestar, naturaleza, clima, calidad_vida | 4.06% |
+| jubilado_activo | clima, calidad_vida, salud, bienestar, gastronomia | 4.87% |
+| senior_accesibilidad | salud, calidad_vida, servicios, movilidad, clima | 2.43% |
+| mochilero_barato | coste, autenticidad, naturaleza, movilidad | 4.06% |
+| cosmopolita_urbano | cultura, gastronomia, movilidad, calidad_vida | 4.06% |
+| gamer_nomada_tech | nomada, calidad_vida, comunidad | 3.25% |
+| mascotas_naturaleza | mascotas, naturaleza, bienestar, calidad_vida | 2.43% |
 
-El 70% de los usuarios generados se asignan aleatoriamente a uno de estos arquetipos. El 30% restante son **perfiles mixtos** generados con distribución uniforme pero con techo en 0.65 para evitar perfiles extremadamente densos.
+El 86% de los usuarios generados se asignan a uno de estos arquetipos (porcentajes escalados proporcionalmente desde los originales que sumaban 106%). El 14% restante son **perfiles mixtos** generados con distribución beta más suave para simular usuarios sin arquetipo claro.
 
 ## Código de ejemplo
 
@@ -1796,4 +1803,532 @@ Usar `git restore --staged .` como primer paso es más seguro que `git reset HEA
 
 ---
 
-*Última actualización: 08/04/2026 — sección 18 git método commit limpio*
+---
+
+# 19. Diseño de la feature gp_score — cómo comparar ciudades de tamaños muy distintos
+
+## Concepto
+
+Cuando comparas el número de restaurantes de Londres con el de Tarifa, Londres siempre gana. Pero eso no significa que Londres sea mejor para vivir — simplemente es más grande. Este problema se llama **sesgo de escala**: usar valores absolutos en lugar de densidades para comparar elementos de tamaños muy distintos.
+
+## Cómo lo usamos en NomadOptima
+
+La feature `gp_score` para cada tipo de lugar (restaurante, coworking, playa...) tiene **dos modos** según la preferencia del usuario:
+
+**Modo densidad** (por defecto — la mayoría de usuarios):
+```
+gp_score = (count / area_km²) × (avg_rating / 5.0)
+```
+Equipara ciudades por concentración de oferta. Tarifa con 15 chiringuitos en 121 km² puede superar a Barcelona. Este modo es el justo para usuarios que no piden expresamente una gran ciudad.
+
+**Modo volumen** (usuario selecciona "metrópoli"):
+```
+gp_score = count × (avg_rating / 5.0)
+```
+Favorece el volumen absoluto. Para usuarios que quieren una ciudad grande con muchas opciones.
+
+La interpolación entre modos la controla la dimensión `user_city_size_pref` (0.0 = ciudad pequeña, 1.0 = metrópoli).
+
+## Por qué esta decisión y no otra
+
+**¿Por qué área y no población?** Dividir por población penaliza ciudades densas con mucha infraestructura (Hong Kong). El área refleja mejor el espacio que el usuario puede recorrer a pie.
+
+**¿Por qué mantener dos features separadas en lugar de una?** Porque `population_density` (habitantes/km²) mide algo distinto: cuánta gente hay, no cuántas cosas hay. Un usuario puede querer poca gente pero mucha oferta (Tarifa en temporada baja). Mezclarlas en una sola feature destruye esa señal.
+
+**¿Por qué el modelo necesita Wikidata?** El área urbana de cada ciudad (area_km²) no está en ninguna de las fuentes que ya usamos. Wikidata la proporciona gratis como dato estructurado — una sola query por ciudad, sin coste.
+
+## Estado de las features relacionadas
+
+| Feature | Fuente | Estado |
+|---------|--------|--------|
+| `area_km²` por ciudad | Wikidata SPARQL | ✅ Integrado — 53/53 ciudades (7 áreas incorrectas pendientes corrección manual) |
+| `population` por ciudad | Wikidata SPARQL | ✅ Integrado — 53/53 ciudades |
+| `gp_score` modo densidad/volumen | - | ⏳ POST-MVP — fórmula definida, implementar cuando tengamos más ciudades |
+| `user_city_size_pref` (dimensión usuario) | - | ✅ Disponible NOW via `population_density` — ver sección 20 |
+| `numbeo_crime_index` | Numbeo | ⏳ Bloqueado hasta mayo 2026 |
+| `numbeo_quality_of_life_index` | Numbeo | ⚠️ Parcial (24/53 ciudades) |
+| `walkability_proxy` | OSM Overpass | ⏳ Pendiente añadir a fetch_cities.py |
+
+*Última actualización: 08/04/2026 — Wikidata integrado 53/53 ciudades + gp_score marcado POST-MVP*
+
+---
+
+# 20. population_density — Cómo usar ya el dato de tamaño de ciudad
+
+## Concepto
+
+El usuario que busca una metrópoli con muchas opciones tiene necesidades muy distintas al que busca un pueblo tranquilo. Pero para el modelo, esta preferencia tiene que ser una **feature numérica** que pueda procesar.
+
+La solución más directa: **densidad de población** = población / área km².
+
+```
+population_density = wikidata.population / wikidata.area_km2
+```
+
+Esto funciona como proxy del "tamaño percibido" de una ciudad:
+- Tokio: ~6.000 hab/km² → ciudad enorme y densa
+- Tarifa: ~50 hab/km² → pueblo pequeño y tranquilo
+- Berlín: ~4.000 hab/km² → ciudad grande pero más espaciosa que Londres
+
+## Cómo lo usamos en NomadOptima (AHORA, sin esperar a gp_score)
+
+Los datos de `wikidata.population` y `wikidata.area_km2` ya están en los 53 JSONs de ciudad tras ejecutar `scripts/fetch_wikidata.py`.
+
+En `src/processing/features.py`, añadimos estas dos features derivadas:
+
+```python
+# En CityFeatureBuilder.build_features()
+wikidata = data.get("wikidata", {})
+population = wikidata.get("population", 0)
+area_km2   = wikidata.get("area_km2", 1)  # evitar división por cero
+
+features["city_population"]         = population
+features["city_area_km2"]           = area_km2 if area_km2 else np.nan
+features["city_population_density"] = population / area_km2 if area_km2 else np.nan
+```
+
+En el formulario de usuario, añadimos una dimensión nueva:
+```python
+user_city_size_pref: float  # 0.0 = ciudad pequeña, 1.0 = metrópoli
+```
+
+En el scoring del modelo, la compatibilidad se calcula así:
+```python
+# Usuario prefiere metrópoli (1.0) → penaliza ciudades con baja densidad
+# Usuario prefiere pueblo (0.0) → penaliza ciudades con alta densidad
+city_density_norm = min(city_population_density / 10000, 1.0)  # normalizado 0-1
+city_size_score   = 1 - abs(user_city_size_pref - city_density_norm)
+```
+
+## Por qué population_density y no solo population
+
+| Métrica | Problema |
+|---------|---------|
+| Solo `population` | Buenos Aires (3M) < Chiang Mai provincia (1.7M) si usamos área administrativa |
+| Solo `area_km2` | Andorra (468 km²) parece más grande que Bali ciudad |
+| **`population_density`** | Captura el "cuánta vida hay por metro cuadrado" — lo que el usuario percibe al caminar |
+
+## Diferencia respecto a gp_score (POST-MVP)
+
+`population_density` y `gp_score` responden preguntas distintas:
+- `population_density`: ¿cuánta gente vive aquí? (carácter de la ciudad)
+- `gp_score` modo densidad: ¿cuántos restaurantes/coworkings hay por km²? (oferta disponible)
+
+Un pueblo puede tener baja densidad de población pero alta densidad de surf schools (Tarifa).
+Por eso son dos features separadas en el modelo.
+
+## Por qué esta decisión y no otra
+
+Podríamos esperar a tener el gp_score rediseñado para añadir la preferencia de tamaño de ciudad. Pero `population_density` se puede implementar **hoy mismo** con datos ya disponibles, sin nuevas llamadas a APIs, sin coste adicional.
+
+En el contexto del proyecto (1 día para presentar), implementar lo que funciona ahora es mejor que esperar la solución perfecta.
+
+## Para recordar en una entrevista
+
+> "population_density es una feature de ciudad derivada de Wikidata que actúa como proxy del tamaño percibido de una ciudad. A diferencia de la población absoluta, la densidad compara ciudades justas independientemente de si son distritos administrativos pequeños o regiones grandes. Para el modelo de recomendación, se combina con la preferencia del usuario (0=pueblo, 1=metrópoli) como una distancia normalizada."
+
+*Sección añadida: 08/04/2026 — Wikidata integrado, population_density disponible NOW*
+
+---
+
+# 21. City Clustering — Por qué no lo usamos en el MVP
+
+## Concepto
+
+El clustering de ciudades existe en la arquitectura para resolver este problema: si un usuario le gustó Tarifa, el modelo debería recomendar también Dakhla y Fuerteventura, porque atraen al mismo perfil. Para eso necesitas saber que esas tres ciudades "son del mismo tipo".
+
+La idea inicial era usar Fuzzy C-Means, un algoritmo de clustering difuso donde cada ciudad pertenece a MÚLTIPLES clusters con distintos grados de pertenencia. Tarifa podría ser: Deportes=0.82, Mediterráneo=0.61, Naturaleza=0.54. Esto resuelve el problema de que una ciudad pertenece a varios perfiles a la vez.
+
+## El problema matemático que encontramos
+
+Fuzzy C-Means (y cualquier algoritmo de clustering) necesita aproximadamente **10 veces más datos que clusters** para encontrar estructura real. Con 55 ciudades:
+
+| Clusters pedidos | FPC (calidad) | Valoración |
+|-----------------|---------------|------------|
+| 3 | 0.333 | Aceptable |
+| 5 | 0.200 | Débil |
+| 10 | 0.100 | Débil |
+| 30 | 0.033 | Sin estructura |
+
+**FPC (Fuzzy Partition Coefficient):** métrica de calidad del clustering difuso. 1.0 = clusters perfectamente separados. 0.0 = el algoritmo no encuentra ninguna estructura y reparte la pertenencia uniformemente entre todos los clusters (cada ciudad tiene score = 1/n_clusters en todos los grupos).
+
+Con 30 clusters y 55 ciudades el FPC fue 0.033 — exactamente 1/30. El algoritmo dio a todas las ciudades el mismo score en todos los clusters. Es matemáticamente inútil.
+
+## Por qué no es un fallo del algoritmo
+
+El límite no es del algoritmo — es de los datos. Con K-Means, clustering jerárquico, HDBSCAN o Fuzzy C-Means el resultado es el mismo: 55 ciudades no tienen suficiente variación para soportar 30 grupos distintos. Para 30 clusters con calidad aceptable necesitarías ~300 ciudades.
+
+## Decisión: eliminar city clustering del MVP
+
+La Capa 1 (Cosine Similarity) ya hace lo que el city clustering intentaba hacer, pero mejor:
+
+- City clustering: agrupa ciudades en cajas (incluso con fuzzy, solo tienes 30 scores por ciudad)
+- Cosine similarity: compara el usuario contra **TODAS las 140 features de cada ciudad simultáneamente**
+
+El cosine similarity ya sabe que Tarifa y Dakhla son similares porque comparte features reales (kite, windsurf, playa, calor, pueblo pequeño). No necesita un cluster para inferirlo.
+
+## Cómo quedó la arquitectura sin city clustering
+
+```
+[Capa 1] Cosine Similarity             ← ACTIVO — baseline ciudad-usuario
+[Capa 2] User Clustering (HDBSCAN)     ← ACTIVO — 16 clusters de usuario
+[Capa 3] City Clustering               ← ELIMINADO del MVP (datos insuficientes)
+[Capa 4] LightGBM LambdaMART          ← ACTIVO — sin city_cluster_id como feature
+[Capa 5] SHAP + MMR                    ← Pendiente
+```
+
+## Cuándo añadir city clustering
+
+Con 200+ ciudades el Fuzzy C-Means con 15-20 clusters funcionaría bien. En esa fase el pipeline recupera la Capa 3 completa.
+
+## Para recordar en una entrevista
+
+> "Intentamos Fuzzy C-Means para el clustering de ciudades porque queríamos que cada ciudad perteneciera a múltiples perfiles simultáneamente — Tarifa es tanto deportes como mediterráneo como naturaleza. El problema fue matemático: con 55 ciudades no hay suficiente variación para 30 clusters, el FPC cayó a 0.03. Decidimos eliminar la Capa 3 del MVP y dejar que la Cosine Similarity manejara la similitud ciudad-usuario directamente sobre los 140 features reales, que es en realidad más potente."
+
+*Sección añadida: 09/04/2026 — Fuzzy C-Means probado, limitación matemática documentada, city clustering eliminado del MVP*
+
+---
+
+# 22. Diseño de features de idioma — dos dimensiones y escala continua
+
+## Concepto
+
+El idioma es una variable con gradiente, no binaria. Hay dos realidades distintas para cada ciudad:
+- **Idioma nativo**: lo que hablan los locales en casa (holandés en Amsterdam, georgiano en Tbilisi)
+- **Idioma hablado con facilidad**: con qué idioma te puedes defender allí (inglés en Amsterdam aunque sea holandés)
+
+Modelarlo como binario (hablan español: sí/no) pierde información crítica: Porto tiene inglés oficial = 0 pero es uno de los países más anglófonos de Europa del Sur.
+
+## Cómo lo usamos en NomadOptima
+
+**Lado ciudad — dos columnas por idioma:**
+- `idioma_nativo_X`: la ciudad tiene ese idioma como lengua materna (0 o 1)
+- `idioma_hablado_X`: facilidad real de defenderse en ese idioma allí (0.0–1.0 continuo)
+
+**Lado usuario — preferencia en escala 0.0–1.0:**
+- `0.0` = exclusión activa (no quiero ese idioma, lo evito)
+- `0.5` = neutro (no me importa)
+- `1.0` = requisito (lo necesito)
+
+**Idiomas cubiertos (18 nuevas features):**
+Nativos: italiano, griego, holandés, checo, húngaro, rumano, georgiano, búlgaro, polaco, serbio, tailandés, catalán
+Hablados (ampliación de los 5 existentes): italiano, griego, holandés, checo, húngaro, rumano
+
+## Por qué esta decisión y no otra
+
+Alternativa descartada: escala -1 a +1 (negativo = no quiero, positivo = quiero). Se descartó porque todo el sistema usa 0-1 y mezclar escalas añade complejidad sin beneficio. El 0.5 como punto neutro cumple la misma función que el 0 en una escala centrada.
+
+Alternativa descartada: one-hot por idioma oficial del país. Ignora idiomas no oficiales y la gradación real de uso. París tiene francés oficial = 1 pero resistencia cultural al inglés = 0.3. Madrid tiene español = 1 y el inglés funciona bien en zonas turísticas = 0.7.
+
+## Para recordar en una entrevista
+
+> "El idioma en un sistema de recomendación de ciudades tiene dos dimensiones ortogonales: el idioma nativo (identidad cultural de la ciudad) y el idioma funcional (con qué idioma sobrevives allí). Modelarlo como un flag binario por idioma oficial pierde la gradación real. La solución fue separar en dos columnas continuas por idioma y definir la preferencia del usuario en escala 0-1 donde 0.5 es neutro, por debajo es aversión y por encima es preferencia — consistente con el resto del sistema."
+
+*Sección añadida: 09/04/2026*
+
+---
+
+# 23. Arquetipos de usuario — diseño v2 con 21 perfiles y 158 features
+
+## Concepto
+
+Un arquetipo de usuario es un perfil prototípico que representa un conjunto coherente de preferencias. En NomadOptima se usan para generar perfiles sintéticos de entrenamiento que sean semánticamente coherentes — un kite surfer real tiene alta preferencia por viento y playa simultáneamente, no de forma independiente.
+
+## Dos niveles de representación
+
+| Nivel | Qué es | Dónde vive |
+|-------|--------|-----------|
+| **26 dimensiones** (`user_imp_*`) | Lo que el usuario expresa en el formulario | Notebook v3, modelo actual |
+| **158 features** (city features) | Puntuación directa sobre lo que la ciudad ofrece | `ARQUETIPOS_158_FEATURES.md` — para v2 |
+
+## Evolución del diseño
+
+- **v1** (8 arquetipos fijos): demasiado rígidos, no cubrían perfiles reales como kite+ski o músico de festivales
+- **v2** (21 arquetipos, 26 dims): arquetipos basados en personas reales + ChatGPT + Gemini. Sin ciudades hardcodeadas. Los arquetipos definen preferencias, no destinos.
+- **v3** (21 arquetipos, 158 features): cada arquetipo puntúa directamente las 158 features de ciudad. Guardado en `ARQUETIPOS_158_FEATURES.md` para uso futuro.
+
+## Regla crítica — qué NO hacen los arquetipos
+
+Los arquetipos **no asignan ciudades**. El modelo decide qué ciudades son compatibles con un arquetipo comparando los scores de features del arquetipo con los valores reales de cada ciudad. Hardcodear "kite_surf → Tarifa" introduce sesgo de diseño: el modelo aprendería nuestras reglas en vez de encontrar patrones en los datos.
+
+## Escala de los arquetipos (v2 y v3)
+
+- `0.0` → exclusión activa — solo casos indiscutibles (familia con bebé + discotecas)
+- `0.3–0.4` → no le interesa pero no penaliza
+- `0.5` → neutro
+- `0.6–0.7` → lo valora
+- `0.8–0.9` → muy importante
+- `1.0` → esencial
+
+**Dónde vive la exclusión real:** en la matriz de perfiles sintéticos, no en el archivo de arquetipos. El arquetipo es un prototipo, no una persona real.
+
+## Para recordar en una entrevista
+
+> "El diseño de arquetipos en datos sintéticos es tan crítico como el algoritmo de ML. En NomadOptima pasamos de 8 arquetipos fijos a 21 arquetipos basados en personas reales y validados con IAs externas. El cambio más importante fue eliminar las ciudades de la definición del arquetipo: un arquetipo define preferencias, no destinos. Los destinos los decide el modelo comparando las preferencias del arquetipo con las features reales de cada ciudad."
+
+*Sección añadida: 09/04/2026*
+
+
+---
+
+# 24. Escalado proporcional de pesos de arquetipos (Opcion A)
+
+## Concepto
+
+Cuando defines un conjunto de porcentajes que deben sumar un valor fijo (por ejemplo, 86%), pero
+los porcentajes originales no suman ese valor, tienes que tomar una decision: como los ajustas?
+
+La **Opcion A - escalado proporcional** mantiene las proporciones relativas entre arquetipos
+tal cual, y los divide por la suma total para que encajen en el target.
+
+**Formula:**
+```
+pct_escalado = pct_original * target / suma_original
+```
+
+## Por que ocurrio el problema
+
+Al disenar los 21 arquetipos en ARQUETIPOS_REVISION.md, los porcentajes individuales fueron
+asignados de forma intuitiva (6%, 8%, etc.) sin verificar que sumaran exactamente 86%
+(el 14% restante son perfiles mixtos). Resultado: la suma era 106% en lugar de 86%.
+
+## Como lo resolvemos en NomadOptima
+
+```python
+# Porcentajes originales del diseno (sumaban 106%)
+orig = [6, 6, 4, 8, 6, 5, 7, 4, 5, 5, 4, 4, 6, 5, 5, 6, 3, 5, 5, 4, 3]
+
+# Target: 86% para arquetipos (14% mixtos)
+target = 0.86
+suma_original = sum(orig)  # 106
+
+# Escalado proporcional (Opcion A)
+pct_escalados = [round(x * target / suma_original, 4) for x in orig]
+# suma = 0.8605 (diferencia de 0.0005 por redondeo - irrelevante)
+```
+
+Esto significa que el arquetipo `nomada_barato` pasa de representar el 8% del dataset al 6.49%,
+pero sigue siendo el arquetipo mas grande en proporcion a los demas.
+
+## Por que esta decision y no otra
+
+Habia tres opciones:
+
+| Opcion | Descripcion | Problema |
+|--------|-------------|---------|
+| A (elegida) | Escalar proporcionalmente | Ninguno - mantiene proporciones |
+| B | Usar % tal cual (suman 106%) | Los perfiles sinteticos superarian N_USERS |
+| C | Recortar arquetipos manualmente | Introduce sesgo: Carlos decide cuales reducir |
+
+La Opcion A es la correcta porque:
+1. Preserva las intenciones originales de diseno
+2. Es matematicamente correcta (los pct suman al target)
+3. No requiere nuevas decisiones arbitrarias
+
+## Para recordar en una entrevista
+
+> "Cuando los pesos de un conjunto no suman al valor esperado, la solucion mas limpia es el
+> escalado proporcional: dividir cada peso por la suma total y multiplicar por el target.
+> Esto preserva las proporciones relativas. Si un arquetipo era el doble de grande que otro,
+> sigue siendolo. Recortar manualmente introduce sesgo de diseno."
+
+*Seccion anadida: 09/04/2026*
+
+---
+
+# 25. EDA Fase 1 — Auditoría de fuentes de datos
+
+## Concepto (desde cero)
+
+El **EDA de fuentes** (también llamado Data Audit o Pipeline Audit) es el primer paso antes de entrenar cualquier modelo. No analiza qué dicen los datos sobre el mundo — analiza de dónde vienen los datos, qué cobertura tienen, y qué correcciones se aplicaron antes de poder usarlos.
+
+En un sistema con múltiples fuentes externas (APIs, scraping, datasets), cada fuente tiene sus propios fallos: rate limits, formatos inesperados, monedas locales, áreas administrativas incorrectas. La Fase 1 documenta todos estos problemas y sus soluciones para que cualquier persona que lea el proyecto entienda por qué los datos tienen la forma que tienen.
+
+## Cómo lo usamos en NomadOptima
+
+Notebook: `notebooks/01_eda_ciudades.ipynb`
+
+### Paso 1 — Las 6 fuentes de datos
+
+| Fuente | Features generadas | Cobertura | Notas |
+|--------|-------------------|-----------|-------|
+| Google Places API (New) | `gp_*_count` (~80 types activos) | 54/54 ciudades | 219 types explorados, 102 seleccionados. 8 types resultaron = 0 en todas las ciudades (eliminados). |
+| Numbeo | `numbeo_rent_1br`, `numbeo_meal_cheap`, etc. | 38/54 ciudades directo | 16 ciudades con rate limit HTTP 429 → NUMBEO_FALLBACK hardcodeado |
+| OpenStreetMap (Overpass) | `osm_*` (parques, hospitales, etc.) | Variable — islas fallan | Fuerteventura, Bali: query Overpass devuelve 0. Fallback: GP genérico |
+| wttr.in | `weather_temp_c`, `weather_humidity` | 54/54 ciudades | Solo dato puntual del día de descarga — no histórico |
+| Speedtest (Ookla) | `speedtest_mbps` | 11/54 ciudades | Granularidad país, no ciudad. Feature eliminada por 43/54 = 0 |
+| RestCountries | `country_languages`, `country_schengen`, etc. | 54/54 ciudades | Base de datos de idiomas + metadatos de país |
+
+### Paso 2 — Correcciones de moneda (EUR_RATES)
+
+Numbeo devuelve precios en moneda local del país. Sin conversión, Budapest (HUF) aparecía como la ciudad más cara del mundo:
+
+```python
+EUR_RATES = {
+    "HUF": 0.0026,   # 343.396 HUF × 0.0026 = 893€ ✓ (antes: 343.396€ ✗)
+    "PLN": 0.234,    # zloty polaco
+    "THB": 0.026,    # baht tailandés
+    # 21 monedas en total
+}
+```
+
+### Paso 3 — Correcciones Wikidata (áreas incorrectas)
+
+Wikidata devolvió el área de la provincia o área metropolitana en 7 ciudades:
+- Lisboa: Wikidata devolvía 2.761 km² (distrito) → corrección manual: 85 km²
+- Dublin: 998 km² (condado) → 117 km²
+- London: 11.072 km² (Gran Londres estadístico) → 1.572 km²
+- Porto: 2.395 km² → 41 km²
+- Chiang_Mai: 40.000 km² (provincia) → 40 km²
+
+Sin estas correcciones, `population_density` era artificialmente baja para estas ciudades.
+
+### Paso 4 — Selección de GP types (219 → 102)
+
+La Google Places API tiene 219 types disponibles. Se exploraron todos con `scripts/fetch_gp_raw.py` y se seleccionaron 102 que:
+- Tienen cobertura en al menos 10/54 ciudades
+- Son semánticamente relevantes para al menos 1 de las 26 dimensiones de usuario
+- No duplican información ya disponible en OSM
+
+## Por qué esta fase es crítica para el modelo
+
+Sin el Data Audit, el modelo aprendería con:
+- Budapest rent = 343.396€ (dato 1.000x inflado) → peso incorrecto en la feature de coste
+- Lisboa `population_density` = 30 hab/km² (ciudad pequeña) → cuando en realidad es 10.000+
+- 16 ciudades sin precios Numbeo → todas al mismo coste por defecto → señal plana de coste
+
+La calidad del modelo es exactamente tan buena como la calidad de los datos. El EDA de fuentes identifica sistemáticamente los problemas antes de que contaminen el entrenamiento.
+
+## Para recordar en una entrevista
+
+> "El EDA de un sistema con múltiples APIs externas tiene un objetivo adicional al EDA clásico: validar que los datos son lo que parecen ser. En NomadOptima, tres correcciones críticas surgieron en esta fase: conversión de moneda (Budapest aparecía como ciudad 300x más cara que Madrid por datos en HUF), corrección de áreas Wikidata (Lisboa aparecía como ciudad pequeña por área del distrito, no de la ciudad), y eliminación de 8 features GP con cobertura cero. Sin estas correcciones, las métricas del modelo parecerían buenas pero las recomendaciones serían incorrectas."
+
+*Sección añadida: 09/04/2026*
+
+---
+
+# 26. EDA Fase 2 — Análisis descriptivo de 54 ciudades
+
+## Concepto (desde cero)
+
+El **EDA descriptivo** responde la pregunta "¿qué nos dicen los datos sobre las ciudades?" Usa estadística y visualización para entender distribuciones, detectar outliers, medir correlaciones entre features, y verificar que las ciudades son diferenciables entre sí.
+
+En un sistema de recomendación, este paso es especialmente importante porque si todas las ciudades fueran iguales en todas las features, el modelo no podría distinguirlas y las recomendaciones serían aleatorias.
+
+## Graficos implementados y qué revelaron
+
+Notebook: `notebooks/01b_eda_fase2_ciudades.ipynb`
+
+### Bloque A — Estadística básica y cobertura
+
+**`describe()` + tabla resumen:** Las features de coste tienen distribuciones asimétricas (media ≠ mediana). Tbilisi tiene coste_total ≈ 474€/mes, Dubái ≈ 3.800€/mes — rango de 8x entre la ciudad más barata y la más cara del dataset.
+
+**Heatmap de ceros por fuente:** OSM falla en islas (Fuerteventura, Bali, Da_Nang). GP tiene cobertura casi universal. Speedtest tiene 43/54 ceros → feature eliminada.
+
+### Bloque B — Distribuciones
+
+**Histogramas + KDE (15 features clave):** La mayoría de features GP siguen distribución exponencial: pocas ciudades con valores muy altos, muchas con valores bajos. El capping convierte estas distribuciones hacia valores más uniformes.
+
+**Boxplots por categoría:** Confirman que las features de deporte de montaña (ski_resort, snowpark) solo tienen valores altos en 3-4 ciudades (Chamonix, Innsbruck, Andorra, Granada). Las features de playa tienen más variación.
+
+### Bloque C — Correlaciones
+
+**Heatmap de correlación Pearson (22 features):** Correlaciones altas detectadas:
+- `city_gp_museum` ↔ `city_gp_historical_landmark` (r=0.84) — ciudades históricas tienen ambas
+- `city_alquiler_1br` ↔ `city_meal_cheap` (r=0.77) — el coste de vida es coherente
+- `city_population_density` ↔ `city_gp_museum` (r=0.62) — ciudades más densas tienen más oferta cultural
+
+**Scatter coste vs calidad de vida:** No hay correlación perfecta. Tbilisi tiene calidad de vida aceptable con coste muy bajo. Dubái tiene coste alto pero calidad media (clima extremo, restricciones). Esta dispersión es buena para el modelo: confirma que coste y calidad son señales independientes.
+
+### Bloque D — Perfiles de ciudad
+
+**Heatmap ciudad × feature (54×28, normalizado 0-1):** Visualmente confirma que las ciudades forman grupos naturales: costeras (playa alta, ski bajo), montaña (ski alto, playa bajo), metrópolis (cultura alta, naturaleza baja).
+
+**Radar charts (8 ciudades representativas):**
+- Tarifa: máximos en deporte_agua, playa, naturaleza. Mínimo en cultura.
+- Chamonix: máximos en ski_resort, montaña. Mínimo en restaurantes.
+- Barcelona: perfil equilibrado — nada extremo, todo aceptable. Ciudad generalista.
+- Tbilisi: máximos en coste_invertido (muy barata), natural. Mínimo en servicios.
+
+Los radar charts son el primer sanity check visual: ¿tienen sentido las ciudades que conocemos?
+
+### Bloque E — Separabilidad y clustering
+
+**PCA biplot (varianza explicada):** PC1 captura ~28% de varianza (eje coste-calidad), PC2 ~14% (eje montaña-playa). Dos componentes explican el 42% de la varianza total — razonable para 149 features heterogéneas.
+
+**UMAP (n_neighbors=8):** Muestra agrupaciones naturales sin etiquetas: ciudades costeras mediterráneas, ciudades de montaña alpina, metrópolis del norte de Europa, ciudades baratas del este.
+
+**Dendrograma Ward:** Confirma las mismas agrupaciones que UMAP pero de forma jerárquica. Corte a altura ~3 genera 5-6 grupos interpretables.
+
+**K-Means + HDBSCAN:** K-Means con K=4 da el mejor Silhouette Score (0.18). HDBSCAN asigna la mayoría de ciudades como ruido. Silhouette Score bajo confirma lo que se encontró en la exploración de clustering: **54 ciudades no son suficientes para clustering de calidad** (ver sección 21). La Capa 3 del sistema (city clustering) fue eliminada del MVP por este motivo.
+
+## La conclusión doble de cada gráfico
+
+Cada gráfico del notebook tiene un bloque de anotaciones con dos conclusiones:
+1. **Científica**: qué implica para el modelo (¿hay multicolinealidad? ¿hay features informativas?)
+2. **Pedagógica**: qué concepto técnico ilustra para el portfolio y las entrevistas
+
+## Para recordar en una entrevista
+
+> "El EDA descriptivo en un sistema de recomendación tiene un objetivo específico: verificar que los ítems (ciudades en este caso) son suficientemente diferenciables para que el modelo pueda aprender. En NomadOptima, el PCA biplot mostró que el 42% de la varianza se explica con 2 componentes (eje coste-calidad y eje montaña-playa), lo que confirma estructura en los datos. Los radar charts de ciudades conocidas actuaron como sanity check: Tarifa apareció con máximos en deporte acuático y Chamonix con máximos en ski — exactamente lo esperado. El análisis de clustering reveló el límite matemático: con 54 ciudades, el Silhouette Score máximo con K-Means fue 0.18, insuficiente para usar city clusters como feature del modelo."
+
+*Sección añadida: 09/04/2026*
+
+---
+
+# 27. Entrenamiento LightGBM LambdaMART — notebook 03_train_model (10/04/2026)
+
+## Concepto
+
+**LambdaMART** es el algoritmo de Learning to Rank más usado en la industria (Bing, Yahoo, muchos sistemas de recomendación). Combina:
+- **MART** (Multiple Additive Regression Trees): gradient boosting con árboles de decisión
+- **LambdaGradients**: gradientes especiales que optimizan directamente métricas de ranking (NDCG) en lugar de errores de regresión/clasificación
+
+La diferencia con regresión: LambdaMART no predice un valor absoluto — predice el **orden relativo** dentro de un query (un usuario). El objetivo no es que el score de Berlín sea 2.3 — es que Berlín aparezca antes que Varsovia para ese perfil.
+
+## Cómo lo usamos en NomadOptima
+
+**Configuración:**
+```python
+params = {
+    "objective":        "lambdarank",
+    "metric":           "ndcg",
+    "ndcg_eval_at":     [1, 3, 5],      # mide ranking en top-1, top-3, top-5
+    "num_leaves":       63,             # 2^6-1 — moderadamente complejo
+    "learning_rate":    0.05,           # paso conservador para generalizar
+    "feature_fraction": 0.8,           # 80% features por árbol — reduce overfitting
+    "n_estimators":     500,           # máximo — early stopping lo reduce
+}
+```
+
+**Split correcto para Learning to Rank (GroupShuffleSplit):**
+```python
+# CRÍTICO: todos los pares usuario-ciudad del mismo query DEBEN ir al mismo split
+gss = GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
+train_idx, val_idx = next(gss.split(X, y, groups=query_ids))
+```
+
+**Estructura del dataset:** 270.000 filas (5.000 usuarios × 54 ciudades), 175 features, labels 0-3 por producto escalar directo.
+
+## Resultados del entrenamiento
+
+| Métrica | Valor |
+|---------|-------|
+| NDCG@1 | **1.0000** |
+| NDCG@3 | **0.9931** |
+| NDCG@5 | **0.9631** |
+| Mejor iteración | **43** (de 500 posibles) |
+
+El modelo converge en 43 árboles porque los pseudo-labels son matemáticamente limpios. Con feedback real de usuarios, necesitaría más árboles.
+
+## Limitación conocida — validación cualitativa (Error #35)
+
+kite_surf recomienda Buenos Aires/Berlín en lugar de Tarifa/Fuerteventura. Las features GP de ciudades especializadas pequeñas están incompletas. NDCG excelente ≠ alineación con la realidad. Fix: mejorar datos GP post-presentación.
+
+## Para recordar en una entrevista
+
+> "En Learning to Rank, el split del dataset es diferente al de clasificación. Los pares del mismo query deben ir todos al mismo split — si no, el NDCG se infla artificialmente. Usamos GroupShuffleSplit con query_id como grupo, garantizando que los 54 pares de cada usuario van siempre al mismo fold."
+
+> "LambdaMART no minimiza error de predicción — optimiza NDCG directamente ajustando gradientes en función de cómo cambiaría el ranking si intercambiamos la posición de dos documentos. Por eso LTR es diferente de regresión o clasificación."
+
+*Sección añadida: 10/04/2026*

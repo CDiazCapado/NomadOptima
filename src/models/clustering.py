@@ -95,55 +95,55 @@ USER_CLUSTER_FEATURES = [
 # Elegimos las mas discriminativas entre ciudades.
 CITY_CLUSTER_FEATURES = [
     # Coste de vida
-    "feat_city_alquiler_1br_centro",
-    "feat_city_coste_vida_estimado",
-    "feat_city_coste_invertido",
+    "feat_city_city_alquiler_1br_centro",
+    "feat_city_city_coste_vida_estimado",
+    "feat_city_city_coste_invertido",
     # Clima
-    "feat_city_temp_media_anual",
-    "feat_city_dias_sol_anual",
-    "feat_city_temp_media_norm",
-    "feat_city_dias_sol_norm",
+    "feat_city_city_temp_media_anual",
+    "feat_city_city_dias_sol_anual",
+    "feat_city_city_temp_media_norm",
+    "feat_city_city_dias_sol_norm",
     # Naturaleza y playa
-    "feat_city_beaches",
-    "feat_city_gp_beach",
-    "feat_city_gp_hiking_area",
-    "feat_city_gp_national_park",
+    "feat_city_city_beaches",
+    "feat_city_city_gp_beach",
+    "feat_city_city_gp_hiking_area",
+    "feat_city_city_gp_national_park",
     # Deportes de agua
-    "feat_city_gp_surf_school",
-    "feat_city_gp_kitesurfing",
-    "feat_city_gp_windsurfing",
-    "feat_city_gp_marina",
+    "feat_city_city_gp_surf_school",
+    "feat_city_city_gp_kitesurfing",
+    "feat_city_city_gp_windsurfing",
+    "feat_city_city_gp_marina",
     # Deportes de montana
-    "feat_city_gp_ski_resort",
-    "feat_city_gp_climbing_gym",
+    "feat_city_city_gp_ski_resort",
+    "feat_city_city_gp_climbing_gym",
     # Gastronomia y ocio
-    "feat_city_restaurants",
-    "feat_city_gp_fine_dining",
-    "feat_city_gp_night_club",
-    "feat_city_gp_bar",
+    "feat_city_city_restaurants",
+    "feat_city_city_gp_fine_dining",
+    "feat_city_city_gp_night_club",
+    "feat_city_city_gp_bar",
     # Cultura
-    "feat_city_gp_museum",
-    "feat_city_gp_art_gallery",
-    "feat_city_gp_performing_arts",
+    "feat_city_city_gp_museum",
+    "feat_city_city_gp_art_gallery",
+    "feat_city_city_gp_performing_arts",
     # Nomada digital
-    "feat_city_gp_coworking",
-    "feat_city_internet_mbps",
-    "feat_city_gp_coliving",
+    "feat_city_city_gp_coworking",
+    "feat_city_city_internet_mbps",
+    "feat_city_city_gp_coliving",
     # Bienestar
-    "feat_city_gp_spa",
-    "feat_city_gp_yoga_studio",
-    "feat_city_gp_thermal_bath",
+    "feat_city_city_gp_spa",
+    "feat_city_city_gp_yoga_studio",
+    "feat_city_city_gp_thermal_bath",
     # Familia
-    "feat_city_schools",
-    "feat_city_playgrounds",
-    "feat_city_gp_international_school",
+    "feat_city_city_schools",
+    "feat_city_city_playgrounds",
+    "feat_city_city_gp_international_school",
     # Calidad de vida
-    "feat_city_quality_of_life",
-    "feat_city_hospitals",
-    "feat_city_public_transport",
+    "feat_city_city_quality_of_life",
+    "feat_city_city_hospitals",
+    "feat_city_city_public_transport",
     # Pais
-    "feat_city_schengen",
-    "feat_city_moneda_eur",
+    "feat_city_city_schengen",
+    "feat_city_city_moneda_eur",
 ]
 
 
@@ -479,6 +479,42 @@ class CityClusterer:
         print(f"  [OK] CityClusterer entrenado ({self.n_clusters} clusters)")
         return self
 
+    def fit_manual(self, manual_clusters: dict) -> "CityClusterer":
+        """
+        Asigna clusters de ciudad de forma manual en lugar de usar HDBSCAN.
+
+        Usar cuando el clustering automático produce pocos grupos o grupos
+        que no tienen sentido temático. El clustering manual es más explicable
+        en una presentación: "Agrupamos las ciudades por perfil de usuario".
+
+        Args:
+            manual_clusters: dict {city_name: cluster_id (int)}
+                Ejemplo: {"Malaga": 0, "Paris": 1, "Bali": 3, ...}
+
+        Returns:
+            self (encadenable)
+        """
+        self._city_labels    = {city: int(cid) for city, cid in manual_clusters.items()}
+        self._city_strengths = {city: 1.0 for city in manual_clusters}
+        self._city_names     = list(manual_clusters.keys())
+        self.n_clusters      = len(set(manual_clusters.values()))
+
+        # Centroides ficticios para compatibilidad (no se usan en predict manual)
+        self.centroids_2d = {cid: np.array([float(cid), 0.0])
+                             for cid in set(manual_clusters.values())}
+
+        self.fitted = True
+
+        cluster_contents = {}
+        for city, cid in self._city_labels.items():
+            cluster_contents.setdefault(cid, []).append(city)
+
+        print(f"[CityClusterer] Modo manual: {self.n_clusters} clusters")
+        for cid in sorted(cluster_contents):
+            print(f"  Cluster {cid}: {sorted(cluster_contents[cid])}")
+
+        return self
+
     def predict(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Asigna city_cluster_id y city_cluster_strength al dataset.
@@ -587,44 +623,57 @@ def compute_cluster_affinity(df: pd.DataFrame,
 
 def enrich_dataset(df: pd.DataFrame,
                    user_clusterer: UserClusterer,
-                   city_clusterer: CityClusterer) -> tuple:
+                   city_clusterer: CityClusterer = None) -> tuple:
     """
-    Enriquece el training_dataset con todas las features de clustering.
+    Enriquece el training_dataset con features de clustering.
 
     Flujo:
-        1. Anade user_cluster_id + user_cluster_strength  (Capa 2)
-        2. Anade city_cluster_id + city_cluster_strength  (Capa 3)
-        3. Calcula afinidad_uc_cc entre ambos clusters    (feature de interaccion)
+        1. Anade user_cluster_id + user_cluster_strength  (Capa 2 — siempre)
+        2. Anade city_cluster_id + city_cluster_strength  (Capa 3 — opcional)
+        3. Calcula afinidad_uc_cc entre ambos clusters    (solo si Capa 3 activa)
+
+    DECISION MVP (09/04/2026):
+        city_clusterer=None por defecto. Con 55 ciudades el Fuzzy C-Means
+        no encuentra estructura util (FPC=0.03 con 30 clusters). La Cosine
+        Similarity ya cubre la similitud ciudad-usuario con los 140 features
+        reales. City clustering se recupera cuando haya 200+ ciudades.
 
     Args:
         df: training_dataset.csv
         user_clusterer: UserClusterer ya entrenado (.fit() ejecutado)
-        city_clusterer: CityClusterer ya entrenado (.fit() ejecutado)
+        city_clusterer: CityClusterer ya entrenado (opcional — None = sin Capa 3)
 
     Returns:
-        (df_enriched, affinity_table) — dataset enriquecido y tabla de afinidad
+        (df_enriched, affinity_table) — affinity_table es None si no hay city clustering
     """
     print("=" * 55)
     print("ENRIQUECIENDO DATASET CON FEATURES DE CLUSTERING")
     print("=" * 55)
 
-    # Capa 2: user clusters
+    # Capa 2: user clusters (siempre activa)
     df = user_clusterer.predict(df)
     print()
 
-    # Capa 3: city clusters
-    df = city_clusterer.predict(df)
-    print()
+    affinity_table = None
 
-    # Interaccion: afinidad entre ambos clusters
-    df, affinity_table = compute_cluster_affinity(
-        df,
-        n_user_clusters=user_clusterer.n_clusters,
-        n_city_clusters=city_clusterer.n_clusters
-    )
+    if city_clusterer is not None:
+        # Capa 3: city clusters (opcional)
+        df = city_clusterer.predict(df)
+        print()
+
+        # Interaccion: afinidad entre ambos clusters
+        df, affinity_table = compute_cluster_affinity(
+            df,
+            n_user_clusters=user_clusterer.n_clusters,
+            n_city_clusters=city_clusterer.n_clusters
+        )
+        print("Nuevas columnas: user_cluster_id, user_cluster_strength, "
+              "city_cluster_id, city_cluster_strength, afinidad_uc_cc")
+    else:
+        print("[INFO] City clustering desactivado (MVP con 55 ciudades).")
+        print("       La Cosine Similarity cubre la similitud ciudad-usuario.")
+        print("Nuevas columnas: user_cluster_id, user_cluster_strength")
 
     print(f"\nDataset enriquecido: {df.shape[0]:,} filas x {df.shape[1]} columnas")
-    print("Nuevas columnas: user_cluster_id, user_cluster_strength, "
-          "city_cluster_id, city_cluster_strength, afinidad_uc_cc")
 
     return df, affinity_table

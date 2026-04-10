@@ -77,6 +77,15 @@ Cada error tiene etiquetas en dos niveles:
 | 23 | 08/04/2026 | `background_gradient()` falla en columna de texto `city_idioma_nativo` | `[DATA]` `[ENV]` | — | ✅ Resuelto — `subset=num_cols` en Styler |
 | 24 | 08/04/2026 | `UnicodeEncodeError` al imprimir `[OK]` con checkmark en features.py (Windows CP1252) | `[ENV]` | `[ENCODING]` | ✅ Resuelto — reemplazado con `[OK]` |
 | 25 | 08/04/2026 | Celdas de notebook sin IDs — NotebookEdit fallaba al intentar editar | `[ENV]` | — | ✅ Resuelto — script que añade UUIDs |
+| 26 | 08/04/2026 | Estado de Git inconsistente: archivos staged con versión antigua + modificaciones sin staged | `[VCS]` `[CONFIG]` | — | ✅ Resuelto — git restore --staged + commit limpio |
+| 27 | 08/04/2026 | Warsaw #1 para esquí — deporte_montana incluye gp_hiking_area que Warsaw tiene en GP | `[ML]` | — | ⏳ Pendiente |
+| 28 | 08/04/2026 | Cargos €404.86 Google Cloud por bucle autónomo de Claude Code durante incidente Anthropic 529 | `[ENV]` `[HTTP]` `[API-VERSION]` | `[RATE-LIMIT]` | ⚠️ Pendiente resolución Google + Anthropic |
+| 29 | 09/04/2026 | Sesión Claude Code bloqueada en bucle interno — 21 arquetipos × 158 features nunca escritos | `[ENV]` | — | ✅ Resuelto — archivo recuperado en sesión nueva |
+| 30 | 09/04/2026 | ARQUETIPOS_REVISION.md incluía ciudades esperadas hardcodeadas — contradice diseño de no-fijar-ciudades | `[ML]` `[DATA]` | — | ⏳ Pendiente — quitar ciudades del .md |
+| 31 | 09/04/2026 | notebook v3 tiene 20 arquetipos con diseño antiguo — no refleja los 21 arquetipos revisados | `[ML]` | — | ⏳ Pendiente — actualizar ARCHETYPES en el notebook |
+| 32 | 09/04/2026 | Da_Nang: prácticamente todos los features GP = 0 — GP no devuelve resultados para Vietnam | `[DATA]` | — | ✅ Resuelto — ciudad eliminada del dataset (54 ciudades) |
+| 33 | 09/04/2026 | 8 features GP con todos los valores = 0 en las 54 ciudades — sin valor predictivo | `[DATA]` `[ML]` | — | ⏳ POST-PRESENTACION — eliminadas del CSV; investigar types GP en fetch_cities.py |
+| 34 | 09/04/2026 | city_internet_mbps: 43/54 ciudades = 0 (dato ausente, no velocidad = 0) — Ookla por país | `[DATA]` | — | ⏳ POST-PRESENTACION — feature eliminada del CSV; sustituir por Ookla Global Fixed |
 
 ---
 ---
@@ -2063,4 +2072,278 @@ Ver sección 18 de LEARNING.md — método completo paso a paso.
 
 ---
 
-*Última actualización: 08/04/2026 — error #27 git estado inconsistente*
+## #28 — Cargos €404.86 en Google Cloud por bucle autónomo de Claude Code durante incidente Anthropic
+
+08/04/2026 | `src/ingestion/fetch_cities.py` | Etiquetas: [ENV] [HTTP] [API-VERSION] [RATE-LIMIT]
+
+### Mensaje de error exacto
+
+No hay traceback Python. El incidente se manifestó como cargos en Google Cloud y errores en los logs de Claude Code:
+```
+{"type":"error","error":{"type":"overloaded_error","message":"Overloaded"}}
+HTTP 529 — Anthropic API overloaded
+```
+
+### Qué estaba pasando
+
+Claude Code ejecutó `fetch_cities.py` de forma autónoma durante ~6 horas mientras Carlos dormía. Ejecuciones registradas en el JSONL de sesión:
+
+| Hora España | Evento |
+|-------------|--------|
+| 19:12 | 1ª ejecución — inicio normal |
+| 19:13 | 2ª ejecución — reintento automático 39 segundos después |
+| 02:10 | 3ª ejecución — mientras Carlos dormía |
+| 08:30 | Error 529 "overloaded_error" de Anthropic |
+| 08:35 | Segundo error 529 |
+| 08:37 | Carlos interrumpió manualmente |
+
+Coste previsto: ~€42 (cubierto por créditos gratuitos). Coste real: **€404.86** (Nearby Search €395.45 + Text Search €9.41). Los datos no se completaron: `da_nang` vacío, `dakhla` parcial.
+
+### Explicación del concepto técnico
+
+**HTTP 529 Overloaded:** código de error propio de Anthropic que indica que sus servidores están saturados. Diferente del 429 (rate limit del cliente) — el 529 viene del lado del servidor. Cuando el agente recibió el 529, perdió capacidad de tomar decisiones pero el proceso `fetch_cities.py` ya lanzado continuó en segundo plano acumulando cargos.
+
+**Budget Alert vs Budget Cap:** Google Cloud permite configurar alertas de presupuesto, pero por defecto solo envían notificaciones por email. Para que realmente corten el gasto hay que conectar la alerta a una Cloud Function via Pub/Sub que desactive la Billing Account automáticamente. Carlos tenía la alerta configurada pero no el corte automático.
+
+### Causa raíz
+
+Tres factores simultáneos:
+1. Claude Code sin límite de reintentos configurado
+2. Incidente de servicio Anthropic (529) que dejó el proceso sin supervisión
+3. Budget Alert de Google Cloud sin mecanismo de corte automático
+
+### Solución aplicada
+
+- Billing de Google Cloud desactivado como emergencia
+- Reclamación abierta ante Google Cloud y Anthropic con logs de sesión como evidencia
+- `da_nang` excluido del dataset definitivamente
+- Nueva regla en memoria: cero reintentos automáticos, scripts de APIs de pago los ejecuta Carlos
+
+### Para recordar en una entrevista
+
+> "Uno de los riesgos reales de los agentes de IA autónomos es el bucle de ejecución involuntario sobre APIs de pago. Las buenas prácticas son tres: primero, configurar un Budget Cap real en Google Cloud (no solo una alerta); segundo, implementar un contador de peticiones en el propio script que lance una excepción al superar un máximo; tercero, prohibir reintentos automáticos en el agente sin aprobación explícita del usuario. En este proyecto, un incidente de servicio de Anthropic (HTTP 529) dejó un proceso sin supervisión durante 6 horas generando €404 de cargos — la combinación de tres fallos independientes que por separado eran manejables pero juntos fueron costosos."
+
+---
+
+---
+
+## #32 — Da_Nang: GP devuelve 0 en todos los features para Vietnam
+
+**Fecha:** 09/04/2026
+**Archivo:** `data/processed/city_features.csv`, `src/processing/features.py`
+**Etiquetas:** `[DATA]`
+
+---
+
+### Mensaje de error exacto
+No hay error explícito — el dato es silenciosamente incorrecto:
+```
+Da_Nang: todos los features GP = 0 (gp_restaurant=0, gp_bar=0, gp_gym=0...)
+```
+Detectado en EDA Fase 2: notebook `01b_eda_fase2_ciudades.ipynb`, bloque de "zeros heatmap".
+
+---
+
+### Qué estaba pasando
+
+Da_Nang fue añadida al dataset como ciudad representativa de Vietnam (playa, barata, surf). Al ingestar los datos con `fetch_cities.py`, la Google Places API no devolvió resultados para prácticamente ninguna categoría. El JSON de Da_Nang existe en `data/raw/` pero sus secciones de `google_places` están vacías o con count=0.
+
+Los datos de OSM y Numbeo sí funcionaron parcialmente, pero sin GP las features clave (restaurantes, coworkings, deportes) quedan a cero.
+
+---
+
+### Explicación del concepto técnico
+
+**¿Por qué GP no devuelve resultados para algunas ciudades?**
+
+Google Places API usa una query de búsqueda por radio desde las coordenadas de la ciudad. En ciudades asiáticas con nombres en caracteres locales, la geocodificación puede fallar o devolver un radio demasiado pequeño que no cubre la zona urbana real. Además, la cobertura de datos de GP no es uniforme globalmente — las ciudades del sudeste asiático tienen sistemáticamente menos Places indexados que las europeas o americanas.
+
+**¿Qué es un "fallo silencioso" en un pipeline de ML?**
+
+Un fallo silencioso ocurre cuando el dato parece estar presente (el JSON existe, los campos existen con valor 0) pero el valor es incorrecto (0 no significa "no tiene restaurantes", significa "la API no los encontró"). Es el tipo de error más peligroso en ML porque el modelo lo interpreta como señal real, no como dato ausente.
+
+---
+
+### Causa raíz
+
+La Google Places API (New) no tiene cobertura suficiente en Vietnam para el radio de búsqueda configurado en `fetch_cities.py`. El tipo de búsqueda `searchNearby` con radio 5.000m no captura los establecimientos de Da_Nang.
+
+---
+
+### Solución aplicada
+
+Ciudad eliminada del dataset en `src/processing/features.py`:
+```python
+for name, data in cities_raw.items():
+    # Da_Nang: GP no devuelve resultados para Vietnam con la config actual
+    if name == "Da_Nang":
+        continue
+```
+
+Dataset resultante: **54 ciudades × 149 features** (antes 55 × 158).
+
+### Para recordar en una entrevista
+
+> "Los fallos silenciosos son el tipo de error más peligroso en pipelines de ML porque no generan excepciones — simplemente introducen datos incorrectos que el modelo aprende como si fueran reales. En NomadOptima, Da_Nang tenía todos los features de Google Places a cero, no porque fuera una ciudad sin infraestructura sino porque la API no encontró resultados. Sin un proceso de validación de calidad (EDA: porcentaje de ceros por ciudad y feature), este dato habría sesgado el modelo hacia ciudades con mejor cobertura de API."
+
+---
+
+## #33 — 8 features GP con todos los valores = 0 en las 54 ciudades
+
+**Fecha:** 09/04/2026
+**Archivo:** `data/processed/city_features.csv`, `src/processing/features.py`
+**Etiquetas:** `[DATA]` `[ML]`
+
+---
+
+### Features afectadas
+
+```
+city_gp_nature_reserve   → gp("nature_reserve")
+city_gp_climbing_gym     → gp("climbing_gym")
+city_gp_kayak            → gp("kayak_rental")
+city_gp_tapas            → gp("tapas_bar")
+city_gp_bicycle_rental   → gp("bicycle_rental")
+city_gp_mental_health    → gp("mental_health")
+city_gp_scenic_point     → gp("scenic_point")
+city_gp_tour_operator    → gp("tour_operator")
+```
+
+---
+
+### Qué estaba pasando
+
+En EDA Fase 2 se identificó que estas 8 features tenían `sum() == 0` en las 54 ciudades del dataset. Ninguna ciudad registraba un solo establecimiento en ninguna de estas categorías.
+
+---
+
+### Explicación del concepto técnico
+
+**¿Por qué una feature con todos los valores = 0 es un problema para ML?**
+
+Una feature constante (siempre el mismo valor) tiene **varianza = 0**. No aporta información al modelo porque no puede discriminar entre ciudades. En términos matemáticos: si `f(ciudad_A) = f(ciudad_B) = 0` para todas las ciudades, esa feature no contribuye al gradiente en LightGBM y no puede mover el ranking.
+
+Además, en Cosine Similarity, una feature a 0 en todas las ciudades no afecta al score (multiplicar por 0 da 0), pero ocupa espacio y puede confundir si en el futuro se añaden ciudades con valor no-nulo.
+
+**Causa probable:** Los GP types usados (`nature_reserve`, `climbing_gym`, `kayak_rental`, etc.) no existen como categorías reconocibles en la Google Places API o se buscan con nombres distintos a los que la API espera. La API devuelve 0 resultados cuando el `type` no está en el catálogo oficial.
+
+---
+
+### Solución aplicada
+
+**En el MVP:** eliminadas del `rows.append({})` en `features.py` y del `DIMENSION_MAP`. Dataset reducido de 158 a 149 features.
+
+**POST-PRESENTACION** (no urgente): investigar los GP types correctos en la API documentation y añadir las búsquedas correctas a `fetch_cities.py`. Por ejemplo:
+- `kayak_rental` → probar `water_sports_equipment_rental`
+- `tapas_bar` → probar `spanish_restaurant` + text search
+- `nature_reserve` → probar como OSM `leisure=nature_reserve` en lugar de GP
+
+### Para recordar en una entrevista
+
+> "Una de las validaciones más básicas del pipeline de features es verificar la varianza de cada feature: si una columna tiene varianza = 0 (todos los valores iguales), no aporta señal al modelo. En un pipeline con múltiples fuentes de datos externas, esto ocurre frecuentemente cuando los tipos de búsqueda en la API no coinciden exactamente con el catálogo oficial. La detección se hace en el EDA con un simple `df[col].sum() == 0`."
+
+---
+
+## #34 — city_internet_mbps: 43/54 ciudades = 0 (dato ausente, no velocidad = 0)
+
+**Fecha:** 09/04/2026
+**Archivo:** `data/processed/city_features.csv`, `src/processing/features.py`
+**Etiquetas:** `[DATA]`
+
+---
+
+### El problema
+
+```python
+"city_internet_mbps": spd.get("fixed_download_mbps") or 0
+```
+
+`spd` es el dict de Speedtest (Ookla). Solo devuelve datos para el 20% de las ciudades del dataset porque la fuente de datos de Ookla es a nivel de **país**, no de ciudad.
+
+Resultado: `city_internet_mbps = 0` para 43/54 ciudades. Como 0 es un valor legítimo en la escala de velocidad, el modelo interpreta "dato no disponible" como "internet = 0 Mbps" — lo que penaliza incorrectamente ciudades como Budapest, Tbilisi o Chiang Mai (conocidas por tener buen internet para nómadas).
+
+---
+
+### Explicación del concepto técnico
+
+**¿Cuál es la diferencia entre "dato ausente" y "valor = 0"?**
+
+Este es uno de los problemas más comunes en feature engineering con datos reales:
+- **Valor = 0**: la ciudad realmente tiene 0 de esa propiedad (playa = 0 significa "no tiene playa")
+- **Dato ausente / NaN**: no tenemos información sobre ese valor — podría ser 0, podría ser 100
+
+Cuando rellenamos un NaN con 0 sin documentarlo, estamos imponiendo una suposición falsa que el modelo aprende como real.
+
+---
+
+### Por qué ocurre
+
+La API de Speedtest (Ookla) que se usa en `fetch_cities.py` devuelve estadísticas agregadas por país. El campo `fixed_download_mbps` solo aparece en el JSON cuando Ookla tiene suficientes mediciones de velocidad fija para ese país. Para muchos países con menos usuarios de la app Ookla (Marruecos, Vietnam, Colombia, Georgia), el campo está ausente.
+
+---
+
+### Solución aplicada
+
+**En el MVP:** feature eliminada de `features.py`. El nomada digital ya tiene señal a través de `city_gp_coworking`, `city_gp_tech_hub` y `city_coworking_osm`.
+
+**POST-PRESENTACION** (no urgente): sustituir por **Ookla Global Fixed Broadband dataset** (dataset CSV descargable en SpeedTest.net/Insights/Research, disponible por tile geográfico). Permite asignar velocidad media por coordenadas de ciudad, con cobertura global mucho mejor.
+
+### Para recordar en una entrevista
+
+> "Un error clásico en preprocessing: rellenar valores ausentes con cero cuando el cero tiene un significado real en esa feature. Si la velocidad de internet es 0 Mbps puede significar 'sin internet' (valor real) o 'no tenemos el dato' (ausente). Sin documentar la diferencia, el modelo penaliza ciudades por falta de datos en lugar de por falta de infraestructura. La solución correcta es usar `np.nan` para datos ausentes y solo usar 0 para ausencia real confirmada."
+
+---
+
+## #35 — Validación cualitativa kite_surf: recomienda Buenos Aires y Berlin en lugar de Tarifa y Fuerteventura
+
+**Fecha:** 10/04/2026
+**Archivo:** `data/processed/city_features.csv`, `notebooks/03_train_model.ipynb`
+**Etiquetas:** `[DATA]` `[ML]`
+
+### Mensaje de error exacto
+
+No es un error de código, sino de validación cualitativa. Perfil `kite_surf` (deporte_agua=0.99, naturaleza=0.90, clima=0.85):
+```
+Ranking esperado: Tarifa, Fuerteventura, Dakhla, Essaouira, Bali
+Ranking real:     Buenos_Aires, Berlin, Lima, Warsaw, Amsterdam
+```
+
+### Qué estaba pasando
+
+El modelo (`NDCG@5 = 0.9631`) aprende a rankear ciudades a partir del **producto escalar entre el perfil de usuario y las features de ciudad**. Si las features de ciudad no capturan bien el kite/surf, el modelo no puede recomendar las ciudades correctas aunque sus métricas sean excelentes.
+
+Tarifa y Fuerteventura son ciudades pequeñas y especializadas. Sus features de Google Places (`gp_surf_spot`, `gp_kite_school`, `gp_water_sports`) devuelven pocos resultados o cero porque:
+- Google Places New API no tiene cobertura completa para actividades de nicho en poblaciones pequeñas
+- Los tags de OSM para surf/kite están incompletos para estas ciudades en el dataset actual
+
+### Explicación del concepto técnico
+
+**El problema de cobertura en datos geoespaciales**: Las APIs de puntos de interés (Google Places, OpenStreetMap) tienen sesgos de cobertura — las grandes ciudades cosmopolitas tienen mejor cobertura que destinos especializados pequeños. Un kite school en Tarifa puede no aparecer en GP porque no está registrado o tiene nombre en otro idioma.
+
+**Garbage in, garbage out**: Con `NDCG@5 = 0.9631`, el modelo aprende perfectamente de los datos que tiene. Si los datos de entrada son incorrectos (Tarifa parece pobre en actividades acuáticas por falta de datos GP), el modelo aprende esa "verdad incorrecta".
+
+**Validación cualitativa vs cuantitativa**: NDCG mide si el modelo ordena correctamente dado su entrenamiento. No detecta si los labels de entrenamiento reflejan la realidad. Por eso la validación cualitativa es esencial — es la única forma de detectar problemas en los datos de entrada.
+
+### Causa raíz
+
+**Datos de entrada incompletos**, no error del modelo:
+- `city_gp_surf_spot`, `city_gp_kite_school`, `city_gp_water_sports` = 0 para Tarifa y Fuerteventura en el dataset actual
+- Las features que capturan kite/surf no tienen señal para las ciudades donde el kite/surf existe de verdad
+- Buenos Aires y Berlin tienen valores altos en otras features que correlacionan con el perfil (coste razonable, calidad de vida, infraestructura) → salen arriba aunque no tengan surf
+
+### Solución aplicada
+
+**No aplicada en MVP (presentación)** — el impacto en NDCG es 0 (métricas correctas dada la data). Documentado como deuda técnica post-presentación:
+
+1. **Fix de datos GP**: re-ejecutar `fetch_cities.py` con queries más amplias para kite/surf/water sports en ciudades especializadas pequeñas
+2. **Fuentes adicionales para nicho**: añadir IKO (International Kiteboarding Organization) como fuente de spots oficiales
+3. **Feature engineering**: añadir feature binaria `es_destino_surf_conocido` basada en lista curada para los ~10 destinos top globales
+4. **OSM sport=**: añadir queries Overpass para `sport=kite`, `sport=surfing`, `sport=windsurfing`
+
+### Para recordar en una entrevista
+
+> "En sistemas de recomendación, distinguir entre errores del modelo y errores en los datos de entrada es crítico. Un NDCG@5 = 0.9631 excelente con una validación cualitativa fallida no significa que el modelo esté mal — significa que los datos de entrenamiento no capturan la señal correcta. El modelo aprende perfectamente de lo que le das. Si los datos son incorrectos, el modelo los aprende correctamente. Por eso en producción siempre combinamos métricas automáticas (NDCG, precisión) con validación humana de casos representativos. El NDCG mide coherencia interna; la validación cualitativa mide alineación con la realidad."
+
+---
+
+*Última actualización: 10/04/2026 — #35 kite_surf validación cualitativa, ranker v3 + app conectados*

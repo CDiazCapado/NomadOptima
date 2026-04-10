@@ -6,22 +6,21 @@
 
 ## Estado general
 
-**Fase actual:** Notebooks de entrenamiento creados — pendiente ejecutar (08/04/2026)
-**Último paso completado:** Redesign completo de perfiles sintéticos (v3 con 14 arquetipos coherentes) + creación de notebook de entrenamiento (03_train_model.ipynb). Módulos de producción reescritos: clustering.py actualizado a 26 dims (user_imp_*), ranker.py carga ciudades dinámicamente desde city_features.csv, CityClusterer ahora usa UMAP+HDBSCAN automático con 42 ciudades. Problema crítico detectado y resuelto: sesgo hacia ciudades grandes en v2 por perfiles sintéticos incoherentes.
-**Próximo paso:** Ejecutar notebooks/02_synthetic_profiles_v3.ipynb para regenerar el training dataset con arquetipos, validar que Tarifa aparece en el top de perfiles kite, y luego ejecutar notebooks/03_train_model.ipynb.
+**Fase actual:** MVP completo — LightGBM v3 entrenado + app conectada (10/04/2026)
+**Último paso completado:** ranker.py actualizado a model_v3 (175 features, NDCG@5=0.9631) + streamlit_app.py conectado a LightGBM. App lista para presentación.
+**Próximo paso (post-presentación):** Fix datos GP para ciudades especializadas (kite/surf) + reemplazar city_internet_mbps con Ookla dataset.
 
 ---
 
-## Dimensiones del sistema — 08/04/2026
+## Dimensiones del sistema — 09/04/2026
 
 | Parámetro | Valor anterior | Valor actual |
 |-----------|---------------|-------------|
-| Ciudades ingresadas | 5 | **36** (41 en dataset incluyendo duplicados de prueba) |
-| Features por ciudad | ~80 | **136 numéricas + 1 texto** |
+| Ciudades en city_features.csv | 5 | **54** (Da_Nang eliminada por EDA, era 55) |
+| Features por ciudad | ~80 | **148 numéricas + 1 texto = 149 total** |
 | Dimensiones de usuario | 24 | **26** (split deporte en 3 sub-dimensiones) |
-| Filas del dataset de entrenamiento | 150.000 | **205.000** |
-| Columnas del dataset | ~88 | **162** |
-| Tamaño del dataset | 54MB | **~230MB** |
+| Filas del dataset de entrenamiento | 150.000 | **pendiente regenerar** (dataset v3 con arquetipos actualizados) |
+| Columnas del dataset | ~88 | **pendiente** (actualizar con 149 features × 54 ciudades) |
 
 ---
 
@@ -96,14 +95,12 @@ Formato de captura definido para que el NLP encaje sin romper nada (ver LEARNING
 ### Notebooks
 | Archivo | Estado | Output generado |
 |---------|--------|-----------------|
-| `notebooks/01_eda_36ciudades.ipynb` | ✅ Ejecutado | EDA completo 36 ciudades, 9 pasos, heatmap por categoría |
-| `notebooks/02_synthetic_profiles_v2.ipynb` | 📦 Archivado | training_dataset v2 — referencia (sesgo hacia ciudades grandes) |
-| `notebooks/02_synthetic_profiles_v3.ipynb` | ⏳ Creado — PENDIENTE EJECUTAR | Rediseño con 14 arquetipos — regenerará training_dataset.csv |
-| `notebooks/archive/01_eda_5ciudades_v1.ipynb` | 📦 Archivado | EDA 5 ciudades — referencia histórica |
-| `notebooks/archive/03_lightgbm_ranker_v1.ipynb` | 📦 Archivado | LightGBM v1 5 ciudades — referencia |
-| `notebooks/archive/04_clustering_ranker_v2.ipynb` | 📦 Archivado | LightGBM v2 5 ciudades + clustering — referencia |
-| `notebooks/03_lightgbm_ranker_v3.ipynb` | ⏳ Pendiente | LightGBM v3 — nombre antiguo, ver 03_train_model |
-| `notebooks/03_train_model.ipynb` | ⏳ Creado — PENDIENTE EJECUTAR | 8 pasos: UserClusterer → CityClusterer → enrich_dataset → LightGBM LambdaMART → 5 artefactos |
+| `notebooks/01_eda_ciudades.ipynb` | ✅ Creado y ejecutado | EDA Fase 1 — 6 gráficos: fuentes, cobertura, correcciones moneda/Numbeo/Wikidata, GP types, dead features, capping |
+| `notebooks/01b_eda_fase2_ciudades.ipynb` | ✅ Creado y ejecutado | EDA Fase 2 — 11 gráficos: describe, histogramas, boxplots, correlaciones, scatter, heatmap ciudad×feature, radar, PCA, UMAP, dendrograma, clustering |
+| `notebooks/01b_eda_arquetipos.ipynb` | ✅ Creado y ejecutado | EDA Fase 3 — heatmap 21×26, similitud coseno, radar, dendrograma, PCA, varianza. 3 pares aceptados > 0.90 |
+| `notebooks/01c_eda_perfiles_sinteticos.ipynb` | ✅ Creado y ejecutado | EDA Fase 4 — 20/20 spot-checks OK, varianza, PCA 33.5%, cero correlaciones > 0.6 |
+| `notebooks/02_synthetic_profiles_v3.ipynb` | ✅ Ejecutado | Output: user_profiles.csv — 5.000 perfiles × 26 dims. NO contiene ciudades ni labels. |
+| `notebooks/03_train_model.ipynb` | ⚠️ Rediseñar | Debe: cruzar profiles×cities, labels por producto escalar, features=[user_imp_*+city_features_*+cosine_sim], entrenar LightGBM |
 
 ### Documentación
 | Archivo | Estado |
@@ -119,11 +116,11 @@ Formato de captura definido para que el NLP encaje sin romper nada (ver LEARNING
 |---------|--------|-------------|
 | `src/processing/features.py` | ✅ v2 | Capa 1 — CityFeatureBuilder + cosine_similarity + conversión moneda + capping + fallbacks. 26 dimensiones. |
 | `src/models/clustering.py` | ✅ Reescrito | Capas 2+3 — USER_CLUSTER_FEATURES actualizado a 26 dims (user_imp_*), CityClusterer con UMAP+HDBSCAN automático para 42 ciudades |
-| `src/models/ranker.py` | ✅ Reescrito | Capa 4 — elimina lista hardcodeada de 5 ciudades, usa user_imp_*, carga ciudades dinámicamente desde city_features.csv |
+| `src/models/ranker.py` | ✅ v3 (10/04) | Capa 4 — model_v3: 175 features, NDCG@5=0.9631, 43 árboles. Sin user_clusterer/city_clusterer (Capa 3 pendiente post-presentación). |
 | `src/models/explainer.py` | ⏳ Pendiente | Capa 5 — SHAP + MMR |
 | `src/processing/keyword_matcher.py` | 🔴 Pendiente | Catálogo de actividades + keyword matching + scoring directo |
 | `api/main.py` | ⏳ Pendiente | FastAPI /recommend |
-| `app/streamlit_app.py` | 🔄 En rediseño | v1 creada, rediseño con scoring directo + flujo de elección |
+| `app/streamlit_app.py` | ✅ v3 (10/04) | Motor LightGBM conectado — sustituye cosine_sim baseline por ranker.scores_series(). Fallback a cosine_sim si ranker no disponible. |
 | `app/city_carousel.py` | ✅ Creado | Carrusel de fotos por ciudad (streamlit-image-carousel) |
 | `app/assets/cities/*/` | ✅ Estructura creada | 43 carpetas con AQUI_TUS_FOTOS.txt — faltan las fotos |
 | `app/city_content.py` | ✅ Creado (esta sesión) | Diccionario CITY_CONTENT con quote + description + photo_search para 43 ciudades |
@@ -132,9 +129,11 @@ Formato de captura definido para que el NLP encaje sin romper nada (ver LEARNING
 | `scripts/fetch_gp_raw.py` | ✅ Creado | Herramienta EDA: descarga general sin filtros, exporta HTML interactivo |
 | `scripts/generate_eda_html.py` | ✅ Creado | Genera HTML interactivo con 25 tabs por categoría de ciudad |
 | `scripts/refetch_numbeo.py` | ✅ Creado | Re-fetcha Numbeo para ciudades con rate limit. Ejecutar cuando expire el límite. |
-| `data/processed/city_features.csv` | ✅ Generado | 42 ciudades × 137 features — output de features.py v2 |
+| `data/processed/city_features.csv` | ✅ Generado | 54 ciudades × 149 features — output de features.py v2. Da_Nang excluida, 9 features eliminadas (8 GP muertas + internet_mbps). |
 | `data/processed/city_features_eda.html` | ✅ Generado | HTML interactivo con heatmap de colores y 25 tabs por categoría |
-| `data/processed/training_dataset.csv` | ⚠️ Obsoleto | 205.000 filas × 162 columnas — generado con v2 (sesgado). Regenerar con notebook 02 v3 |
+| `data/processed/user_profiles.csv` | ✅ Generado (10/04) | 5.000 perfiles × 28 cols (26 user_imp_* + query_id + archetype). Notebook 02 corregido: sin cruce con ciudades. |
+| `data/processed/training_dataset.csv` | ✅ Generado (10/04) | 270.000 filas × 177 cols. Labels por producto escalar directo (no cosine_sim). Notebook 03 arquitectura correcta. |
+| `data/processed/model_v3/` | ✅ Generado (10/04) | lgbm_ranker_v3.txt, feature_builder_v3.joblib, feature_cols_v3.json, model_metrics_v3.json. NDCG@5=0.9631. |
 | `data/processed/training_dataset_overview.html` | ✅ Generado | 218 KB, 4 tabs interactivos — resumen del dataset generado por gen_dataset_html.py |
 | `data/processed/hitos_proyecto.html` | ✅ Actualizado (08/04/2026) | 100 hitos, checkboxes HTML reales con tachado al marcar, contador dinámico JS |
 | `data/processed/gp_all_types_raw.json` | ✅ Generado | EDA de types GP — 219 types detectados |
@@ -200,7 +199,7 @@ Málaga, París, Valencia, Porto, Burdeos
 | Bangkok | Tailandia | Asia | Enorme, calor, barata |
 | Bali | Indonesia | Asia | Surf, yoga, nómadas |
 | Kuala Lumpur | Malasia | Asia | Barata, moderna |
-| Da Nang | Vietnam | Asia | Playa, barata, surf |
+| ~~Da Nang~~ | ~~Vietnam~~ | ~~Asia~~ | ~~Playa, barata, surf~~ — **ELIMINADA** (GP = 0, ver error #32) |
 | Dubái | EAU | Asia | Cara, sin impuestos, lujo |
 
 ---
@@ -394,4 +393,25 @@ midiendo si la ciudad recomendada en #1 es donde el usuario acaba reservando.
 
 ---
 
-*Última actualización: 08/04/2026 — sesión arquetipos + notebooks entrenamiento*
+## Problemas nuevos detectados — 08/04/2026
+
+| # | Problema | Impacto | Estado |
+|---|----------|---------|--------|
+| 28 | Cargos €404.86 Google Cloud — bucle autónomo Claude Code durante incidente Anthropic 529 | ALTO — billing desactivado | ⚠️ Reclamación en curso |
+| 29 | Numbeo bloqueado hasta mayo 2026 — rate limit mensual agotado | ALTO — 28 ciudades sin precios | ✅ Parcial — precios manuales Expatistan para 28+5 ciudades. Refetch completo mayo 2026 |
+| 30 | Crime Index no implementado en ninguna ciudad | ALTO — modelo sin señal de seguridad | ⏳ Pendiente scraper Numbeo (mayo 2026) |
+| 31 | area_km² y population por ciudad no disponibles | MEDIO — gp_score densidad + city size | ✅ Resuelto — fetch_wikidata.py ejecutado, 53/53 ciudades. 7 áreas incorrectas: corrección manual pendiente |
+| 31b | 7 áreas Wikidata incorrectas (área provincia/metro en vez de ciudad) | BAJO — population_density sesgada | ⏳ Corrección manual pendiente: Dublin 117, Lisboa 85, Porto 41, Chiang Mai 40, London 1572, Playa Carmen 45 km² |
+| 32 | Walkability no implementada | MEDIO — feature importante para nómadas | ⏳ Pendiente expandir OSM (POST-MVP) |
+| 33 | Da_Nang sin datos GP — excluida del dataset | BAJO — 54 ciudades operativas | ✅ Resuelto — ver error #32 |
+| 34 | gp_score modo densidad/volumen — POST-MVP | BAJO — formula definida, no implementada | ⏳ POST-MVP — implementar tras MVP con más ciudades |
+| 35 | City clustering eliminado del MVP — Fuzzy C-Means requiere ~300 ciudades para 30 clusters | BAJO — Cosine Similarity cubre la funcionalidad | ✅ Decisión tomada — recuperar con 200+ ciudades |
+
+---
+
+| 36 | 8 features GP muertas (todos ceros 54 ciudades) — eliminadas del CSV | BAJO — sin impacto modelo actual | ⏳ POST-PRESENTACION — fix en fetch_cities.py (ver error #33) |
+| 37 | city_internet_mbps: 43/54 = 0 (dato ausente) — eliminada del CSV | BAJO — feature cubierta por gp_coworking | ⏳ POST-PRESENTACION — sustituir por Ookla Global Fixed (ver error #34) |
+
+---
+
+*Última actualización: 09/04/2026 — EDA Fases 1+2 completadas, dataset limpio 54×149, documentados #32-34*

@@ -17,6 +17,7 @@ Ejecutar:
     streamlit run app/streamlit_app.py
 """
 
+import html as html_lib
 import sys
 from pathlib import Path
 import numpy as np
@@ -29,6 +30,12 @@ sys.path.insert(0, str(ROOT))
 from src.processing.features import CityFeatureBuilder, DIMENSION_MAP
 from app.city_content import get_city_content, LANG_LABELS, SUPPORTED_LANGS
 from app.city_carousel import render_city_carousel
+
+try:
+    from src.models.ranker import NomadRanker
+    _RANKER_AVAILABLE = True
+except Exception:
+    _RANKER_AVAILABLE = False
 
 # ════════════════════════════════════════════════════════════════════════════
 # CONFIGURACIÓN
@@ -317,11 +324,17 @@ DIM_LABELS: dict[str, str] = {
 # ════════════════════════════════════════════════════════════════════════════
 
 @st.cache_resource(show_spinner="Cargando datos de ciudades...")
-def load_model() -> tuple[CityFeatureBuilder, pd.DataFrame]:
+def load_model() -> tuple[CityFeatureBuilder, pd.DataFrame, object]:
     city_df = pd.read_csv(CITY_FEATURES_CSV, index_col=0)
     builder = CityFeatureBuilder()
     builder.fit(city_df)
-    return builder, city_df
+    ranker = None
+    if _RANKER_AVAILABLE:
+        try:
+            ranker = NomadRanker()
+        except Exception:
+            ranker = None
+    return builder, city_df, ranker
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -540,12 +553,12 @@ def render_city_card(
         for d, _ in top_dims
     )
 
-    # Contenido editorial
-    info = city_content.get(city_key, {})
-    quote = info.get("quote", "")
-    desc  = info.get("description", "")
-    quote_html = f'<p class="city-quote">{quote}</p>' if quote else ""
-    desc_html  = f'<p class="city-desc">{desc}</p>' if desc else ""
+    # Contenido editorial — escapar caracteres especiales antes de insertar en HTML
+    info  = city_content.get(city_key, {})
+    quote = html_lib.escape(info.get("quote", ""))
+    desc  = html_lib.escape(info.get("description", ""))
+    quote_html   = f'<p class="city-quote">{quote}</p>' if quote else ""
+    dims_section = f"<div style='margin-top:0.4rem;'>{dims_html}</div>" if dims_html else ""
 
     # Cabecera del card
     st.markdown(
@@ -562,7 +575,7 @@ def render_city_card(
                 <div class="match-bar-bg"><div class="match-bar-fill" style="width:{pct}%;"></div></div>
             </div>
             <div style="margin:0.5rem 0;">{stats_html}</div>
-            {"<div style='margin-top:0.4rem;'>" + dims_html + "</div>" if dims_html else ""}
+            {dims_section}
         </div>
         """,
         unsafe_allow_html=True,
@@ -572,7 +585,7 @@ def render_city_card(
     with st.expander(f"📷 Fotos & descripción — {display}"):
         render_city_carousel(city_key)
         if desc:
-            st.markdown(f"_{desc}_")
+            st.markdown(html_lib.unescape(desc))
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -581,7 +594,7 @@ def render_city_card(
 
 def main():
     try:
-        builder, city_df = load_model()
+        builder, city_df, ranker = load_model()
     except FileNotFoundError:
         st.error("❌ city_features.csv no encontrado. Ejecuta `src/processing/features.py`.")
         return
@@ -775,9 +788,13 @@ def main():
         city_dentro, city_fuera = filter_by_budget(city_df_base, presupuesto)
 
         with st.spinner("Calculando ranking..."):
-            # El orden lo determinan SOLO las características (cosine sim)
-            # El idioma da un boost ligero dentro del ranking de características
-            scores = builder.cosine_scores(prefs_finales, city_dentro)
+            if ranker is not None:
+                # LightGBM LambdaMART (Capa 4) — 175 features
+                candidate_keys = city_dentro.index.tolist()
+                scores = ranker.scores_series(prefs_finales, candidate_cities=candidate_keys)
+            else:
+                # Fallback: Cosine Similarity (Capa 1)
+                scores = builder.cosine_scores(prefs_finales, city_dentro)
             scores = apply_language_boost(scores, city_dentro, idiomas_sel)
 
         top_n  = min(8, len(scores))
@@ -798,7 +815,11 @@ def main():
         # Mostrar excluidas por presupuesto (informativo, no ranking)
         if n_excluidas > 0 and len(city_fuera) <= 15:
             with st.expander(f"🚫 {n_excluidas} ciudades fuera de tu presupuesto (€{int(presupuesto * 1.30):,}/mes)"):
-                excl_scores = builder.cosine_scores(prefs_finales, city_fuera)
+                if ranker is not None:
+                    excl_keys = city_fuera.index.tolist()
+                    excl_scores = ranker.scores_series(prefs_finales, candidate_cities=excl_keys)
+                else:
+                    excl_scores = builder.cosine_scores(prefs_finales, city_fuera)
                 excl_top = excl_scores.sort_values(ascending=False).head(5)
                 st.caption("Serían buenas opciones de perfil, pero superan tu presupuesto:")
                 for city_key, score in excl_top.items():
@@ -811,13 +832,18 @@ def main():
                         f"*(compatibilidad perfil: {pct_match}%)*"
                     )
 
-        st.markdown("""
-        <div class="model-note">
-            🔬 <strong>Motor:</strong> Cosine Similarity (Capa 1) — el orden lo determinan las características
-            del perfil (Google Places · Numbeo · OpenStreetMap · Clima · Internet · RestCountries).
-            El presupuesto filtra antes de rankear. LightGBM LambdaMART disponible tras entrenamiento.
-        </div>
-        """, unsafe_allow_html=True)
+        motor_txt = (
+            "🔬 <strong>Motor:</strong> LightGBM LambdaMART (Capa 4) — "
+            "175 features · NDCG@5 = 0.9631 · 43 árboles · "
+            "Google Places · Numbeo · OpenStreetMap · Clima · Internet · RestCountries."
+            if ranker is not None else
+            "🔬 <strong>Motor:</strong> Cosine Similarity (Capa 1) — "
+            "el orden lo determinan las características del perfil."
+        )
+        st.markdown(
+            f'<div class="model-note">{motor_txt}</div>',
+            unsafe_allow_html=True,
+        )
 
     else:
         st.info(
